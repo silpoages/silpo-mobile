@@ -1,10 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
+import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Button } from '@/components';
 import { useAppFonts } from '@/hooks/useAppFonts';
 import { colors, fontFamily, fontSize } from '@/theme';
+import { TabBar, TabKey } from './src/components/TabBar';
 
 export default function App() {
+  const [activeTab, setActiveTab] = useState<TabKey>('jornada');
   const { isLoaded, error } = useAppFonts();
 
   if (!isLoaded && !error) {
@@ -33,6 +36,7 @@ export default function App() {
           Agora nao
         </Button>
       </View>
+      <TabBar activeTab={activeTab} onTabPress={setActiveTab} />
       <StatusBar style="dark" />
     </View>
   );
