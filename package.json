@@ -19,6 +19,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@expo/vector-icons": "^15.0.3",
     "expo": "54.0.37",
     "expo-sqlite": "16.0.10",
     "expo-status-bar": "3.0.9",
