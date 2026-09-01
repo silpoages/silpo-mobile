@@ -21,6 +21,16 @@ App mobile do projeto Silpo (AGES — PUCRS).
   - Se usa [nvm](https://github.com/nvm-sh/nvm) ou [nvm-windows](https://github.com/coreybutler/nvm-windows): `nvm use`
 - [Expo Go](https://expo.dev/go) no celular — versão da loja compatível com **SDK 54**
 
+## Instalar o Expo Go no celular
+
+O app roda no **Expo Go**, cliente gratuito da Expo para testar projetos em desenvolvimento.
+
+1. Abra a loja de apps do seu celular:
+   - **Android:** [Google Play — Expo Go](https://play.google.com/store/apps/details?id=host.exp.exponent)
+   - **iPhone:** [App Store — Expo Go](https://apps.apple.com/app/expo-go/id982107779)
+2. Instale o app **Expo Go** (publicado pela Expo).
+3. Garanta que celular e computador estejam na **mesma rede Wi‑Fi** (recomendado para escanear o QR code depois).
+
 ## Como rodar
 
 ```bash
