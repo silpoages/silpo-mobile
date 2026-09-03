@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View, Text } from 'react-native';
 import { EmotionButton } from './emotions';
 
 const feliz = require('../../../assets/Emotion_Icons/Feliz.png');
@@ -10,12 +10,12 @@ const ansioso = require('../../../assets/Emotion_Icons/Ansioso.png');
 const irritado = require('../../../assets/Emotion_Icons/Irritado.png');
 
 const EMOTIONS = [
-    { id: 'happy', emoji: feliz, label: 'Happy' },
-    { id: 'cool', emoji: bem, label: 'Cool' },
-    { id: 'tired', emoji: cansado, label: 'Tired' },
-    { id: 'sad', emoji: triste, label: 'Sad' },
-    { id: 'anxious', emoji: ansioso, label: 'Anxious' },
-    { id: 'angry', emoji: irritado, label: 'Angry' },
+    { id: 'feliz', emoji: feliz, label: 'Feliz' },
+    { id: 'Bem', emoji: bem, label: 'Bem' },
+    { id: 'Cansado', emoji: cansado, label: 'Cansado' },
+    { id: 'triste', emoji: triste, label: 'Triste' },
+    { id: 'ansioso', emoji: ansioso, label: 'Ansioso' },
+    { id: 'irritado', emoji: irritado, label: 'Irritado' },
 ];
 
 interface EmotionsRowProps {
@@ -35,6 +35,7 @@ export function EmotionsRow({ onSelectEmotion }: EmotionsRowProps) {
 
     return (
         <View style={styles.box}>
+            <Text>Como você está se sentindo hoje?</Text>
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -71,7 +72,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 12,
-        paddingVertical: 6,
+        paddingVertical: 8,
         paddingHorizontal: 16,
         paddingBottom: 6,
     },
