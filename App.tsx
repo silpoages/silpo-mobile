@@ -1,11 +1,10 @@
-import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
+import UserProfileScreen from './src/screens/UserProfileScreen';
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>Silpo Mobile</Text>
-      <StatusBar style="auto" />
+      <UserProfileScreen></UserProfileScreen>
     </View>
   );
 }
@@ -13,8 +12,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#F6F8F3',
   },
 });
