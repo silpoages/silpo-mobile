@@ -6,6 +6,8 @@ import { useAppFonts } from '@/hooks/useAppFonts';
 import { colors, fontFamily, fontSize } from '@/theme';
 import { TabBar, TabKey } from './src/components/TabBar';
 
+import { ActionRow } from '../silpo-mobile/src/components/QuickActions/ActionRow';
+
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('jornada');
   const { isLoaded, error } = useAppFonts();
@@ -38,6 +40,7 @@ export default function App() {
       </View>
       <TabBar activeTab={activeTab} onTabPress={setActiveTab} />
       <StatusBar style="dark" />
+      <ActionRow/>
     </View>
   );
 }
