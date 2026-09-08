@@ -3,6 +3,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useAppFonts } from '@/hooks/useAppFonts';
 import { colors, fontFamily, fontSize } from '@/theme';
 
+import { ActionRow } from '../silpo-mobile/src/components/QuickActions/ActionRow';
+
 export default function App() {
   const { isLoaded, error } = useAppFonts();
 
@@ -14,6 +16,7 @@ export default function App() {
     <View style={styles.container}>
       <Text style={styles.title}>Silpo Mobile</Text>
       <StatusBar style="dark" />
+      <ActionRow/>
     </View>
   );
 }
