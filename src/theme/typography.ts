@@ -1,17 +1,13 @@
 import type { TextStyle } from 'react-native';
 
+import { fontFamily, fontSize } from '@/theme/fonts';
+
 /**
- * Tipografia das telas de autenticação.
+ * Presets de texto das telas de autenticação.
  *
- * O arquivo de design usa Nunito em três pesos. Como no React Native o peso vem
- * do arquivo da fonte, e não de `fontWeight`, cada preset aponta para a família
- * carregada em `fonts.ts`.
+ * Cada preset combina uma família de `fontFamily` com um passo de `fontSize`:
+ * no React Native o peso vem do arquivo da fonte, não de `fontWeight`.
  */
-export const fontFamily = {
-  regular: 'Nunito_400Regular',
-  bold: 'Nunito_700Bold',
-  extraBold: 'Nunito_800ExtraBold',
-} as const;
 
 /**
  * Entrelinha "normal" da Nunito.
@@ -21,39 +17,39 @@ export const fontFamily = {
  */
 const NORMAL_LINE_HEIGHT_RATIO = 1.36;
 
-function preset(family: string, fontSize: number): TextStyle {
+function preset(family: string, size: number): TextStyle {
   return {
     fontFamily: family,
-    fontSize,
-    lineHeight: Math.round(fontSize * NORMAL_LINE_HEIGHT_RATIO),
+    fontSize: size,
+    lineHeight: Math.round(size * NORMAL_LINE_HEIGHT_RATIO),
   };
 }
 
 export const typography = {
   /** "Silpo", na tela de boas-vindas. */
-  brand: preset(fontFamily.regular, 38),
+  brand: preset(fontFamily.regular, fontSize.brandmark),
   /** Frase de apoio sob a marca. */
-  tagline: preset(fontFamily.regular, 18),
+  tagline: preset(fontFamily.regular, fontSize.title),
   /** Título das telas de formulário. */
-  title: preset(fontFamily.extraBold, 26),
+  title: preset(fontFamily.extraBold, fontSize.hero),
   /** Texto de apoio sob o título. */
-  subtitle: preset(fontFamily.regular, 15),
+  subtitle: preset(fontFamily.regular, fontSize.lg),
   /** Rótulo dos botões principais. */
-  button: preset(fontFamily.bold, 16),
+  button: preset(fontFamily.bold, fontSize.xl),
   /** Rótulo acima de cada campo. */
-  fieldLabel: preset(fontFamily.bold, 13),
+  fieldLabel: preset(fontFamily.bold, fontSize.md),
   /** Texto digitado e placeholder dos campos. */
-  input: preset(fontFamily.regular, 15),
+  input: preset(fontFamily.regular, fontSize.lg),
   /** Pergunta da linha "Já tem conta?". */
-  linkQuestion: preset(fontFamily.regular, 14),
+  linkQuestion: preset(fontFamily.regular, fontSize.body),
   /** Link que troca de tela. */
-  link: preset(fontFamily.extraBold, 14),
+  link: preset(fontFamily.extraBold, fontSize.body),
   /** Selo "Preciso de apoio agora". */
-  pill: preset(fontFamily.bold, 13),
+  pill: preset(fontFamily.bold, fontSize.md),
   /** Rótulo "ou" do separador. */
-  divider: preset(fontFamily.regular, 13),
+  divider: preset(fontFamily.regular, fontSize.md),
   /** Rótulo do botão de conta Google. */
-  socialButton: preset(fontFamily.bold, 15),
+  socialButton: preset(fontFamily.bold, fontSize.lg),
   /** Aviso de privacidade no rodapé e mensagens de erro. */
-  footnote: preset(fontFamily.regular, 12),
+  footnote: preset(fontFamily.regular, fontSize.sm),
 } as const satisfies Record<string, TextStyle>;

@@ -1,16 +1,16 @@
 import { NavigationContainer } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { AuthNavigator } from './src/navigation';
-import { colors, fontAssets } from './src/theme';
+import { useAppFonts } from '@/hooks/useAppFonts';
+import { AuthNavigator } from '@/navigation';
+import { colors } from '@/theme';
 
 export default function App() {
-  const [areFontsLoaded] = useFonts(fontAssets);
+  const { isLoaded, error } = useAppFonts();
 
-  if (!areFontsLoaded) {
+  if (!isLoaded && !error) {
     return <View style={styles.splash} />;
   }
 
@@ -27,7 +27,7 @@ export default function App() {
 const styles = StyleSheet.create({
   /** Evita o piscar branco entre o splash e a primeira tela. */
   splash: {
-    backgroundColor: colors.background.canvas,
+    backgroundColor: colors.background,
     flex: 1,
   },
 });

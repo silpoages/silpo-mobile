@@ -1,11 +1,11 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { BrandLogo, Button, ScreenContainer } from '../../../components';
-import { DecorativeCircle } from '../../../components/icons';
-import type { AuthStackParamList } from '../../../navigation/types';
-import { colors, layout, spacing, typography } from '../../../theme';
-import { SupportPill } from '../components';
+import { BrandLogo, Button, ScreenContainer } from '@/components';
+import { DecorativeCircle } from '@/components/icons';
+import type { AuthStackParamList } from '@/navigation/types';
+import { colors, layout, spacing, typography } from '@/theme';
+import { SupportPill } from '@/features/auth/components';
 
 type WelcomeScreenProps = NativeStackScreenProps<AuthStackParamList, 'Welcome'>;
 
@@ -77,11 +77,11 @@ const styles = StyleSheet.create({
   },
   brand: {
     ...typography.brand,
-    color: colors.text.primary,
+    color: colors.text,
   },
   tagline: {
     ...typography.tagline,
-    color: colors.text.secondary,
+    color: colors.textSecondary,
     marginTop: layout.heroGap,
     maxWidth: 280,
     textAlign: 'center',

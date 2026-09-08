@@ -1,6 +1,6 @@
 import Svg, { Path } from 'react-native-svg';
 
-import { colors } from '../../theme';
+import { colors } from '@/theme';
 
 type ChevronLeftIconProps = {
   size?: number;
@@ -12,7 +12,7 @@ type ChevronLeftIconProps = {
  *
  * Traçado exportado do nó 4236:955 do Figma.
  */
-export function ChevronLeftIcon({ size = 20, color = colors.text.primary }: ChevronLeftIconProps) {
+export function ChevronLeftIcon({ size = 20, color = colors.text }: ChevronLeftIconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 20 20" fill="none" accessibilityRole="image">
       <Path

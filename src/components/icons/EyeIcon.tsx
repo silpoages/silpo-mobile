@@ -1,6 +1,6 @@
 import Svg, { Circle, Path } from 'react-native-svg';
 
-import { colors } from '../../theme';
+import { colors } from '@/theme';
 
 type EyeIconProps = {
   size?: number;
@@ -14,7 +14,7 @@ type EyeIconProps = {
  * Não existe no Figma: os campos do design são estáticos e não desenham o
  * controle de visibilidade, que é critério de aceite da tarefa.
  */
-export function EyeIcon({ size = 20, color = colors.text.muted, crossed = false }: EyeIconProps) {
+export function EyeIcon({ size = 20, color = colors.textMuted, crossed = false }: EyeIconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" accessibilityRole="image">
       <Path

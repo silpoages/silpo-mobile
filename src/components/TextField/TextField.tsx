@@ -2,8 +2,8 @@ import { useState } from 'react';
 import type { KeyboardTypeOptions, TextInputProps } from 'react-native';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { colors, layout, radii, spacing, typography } from '../../theme';
-import { EyeIcon } from '../icons';
+import { colors, layout, radii, spacing, typography } from '@/theme';
+import { EyeIcon } from '@/components/icons';
 
 type TextFieldProps = {
   label: string;
@@ -78,7 +78,7 @@ export function TextField({
           onFocus={() => setIsFocused(true)}
           onSubmitEditing={onSubmitEditing}
           placeholder={placeholder}
-          placeholderTextColor={colors.text.muted}
+          placeholderTextColor={colors.textMuted}
           returnKeyType={returnKeyType}
           secureTextEntry={isContentHidden}
           style={styles.input}
@@ -117,12 +117,12 @@ const styles = StyleSheet.create({
   },
   label: {
     ...typography.fieldLabel,
-    color: colors.text.primary,
+    color: colors.text,
   },
   inputWrapper: {
     alignItems: 'center',
-    backgroundColor: colors.background.surface,
-    borderColor: colors.border.subtle,
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
     borderRadius: radii.field,
     borderWidth: layout.borderWidth,
     flexDirection: 'row',
@@ -130,14 +130,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: layout.fieldPaddingHorizontal,
   },
   inputWrapperFocused: {
-    borderColor: colors.border.brand,
+    borderColor: colors.primary,
   },
   inputWrapperError: {
-    borderColor: colors.border.danger,
+    borderColor: colors.danger,
   },
   input: {
     ...typography.input,
-    color: colors.text.primary,
+    color: colors.text,
     flex: 1,
     height: '100%',
   },
@@ -146,6 +146,6 @@ const styles = StyleSheet.create({
   },
   error: {
     ...typography.footnote,
-    color: colors.text.danger,
+    color: colors.danger,
   },
 });

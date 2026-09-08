@@ -1,6 +1,6 @@
 import { Image, StyleSheet } from 'react-native';
 
-import { layout } from '../../theme';
+import { layout } from '@/theme';
 
 /** Símbolo do Silpo exportado do nó 4346:11265 do Figma. */
 const logoSource = require('../../../assets/brand/silpo-logo.png');

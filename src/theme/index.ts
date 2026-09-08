@@ -1,6 +1,8 @@
-export { colors } from './colors';
-export { fontAssets } from './fonts';
-export { layout } from './layout';
-export { radii } from './radii';
-export { spacing } from './spacing';
-export { fontFamily, typography } from './typography';
+export { colors } from '@/theme/colors';
+export type { Colors } from '@/theme/colors';
+export { fontFamily, fontSize, nunitoFonts } from '@/theme/fonts';
+export type { FontFamily } from '@/theme/fonts';
+export { layout } from '@/theme/layout';
+export { radii } from '@/theme/radii';
+export { spacing } from '@/theme/spacing';
+export { typography } from '@/theme/typography';

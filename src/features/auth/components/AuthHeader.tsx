@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { ChevronLeftIcon } from '../../../components/icons';
-import { colors, layout, radii, spacing, typography } from '../../../theme';
+import { ChevronLeftIcon } from '@/components/icons';
+import { colors, layout, radii, spacing, typography } from '@/theme';
 
 type AuthHeaderProps = {
   title: string;
@@ -45,15 +45,15 @@ const styles = StyleSheet.create({
     width: layout.backButtonSize,
   },
   backButtonPressed: {
-    backgroundColor: colors.background.surface,
+    backgroundColor: colors.surface,
   },
   title: {
     ...typography.title,
-    color: colors.text.primary,
+    color: colors.text,
   },
   subtitle: {
     ...typography.subtitle,
-    color: colors.text.secondary,
+    color: colors.textSecondary,
     marginTop: layout.titleGap,
   },
 });

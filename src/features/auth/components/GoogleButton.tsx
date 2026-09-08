@@ -1,6 +1,6 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors, fontFamily, layout, radii, spacing, typography } from '../../../theme';
+import { colors, fontFamily, layout, radii, spacing, typography } from '@/theme';
 
 type GoogleButtonProps = {
   onPress: () => void;
@@ -31,7 +31,7 @@ export function GoogleButton({ onPress, disabled = false, loading = false }: Goo
       testID="google-button"
     >
       {loading ? (
-        <ActivityIndicator color={colors.brand.primary} />
+        <ActivityIndicator color={colors.primary} />
       ) : (
         <>
           <View style={styles.badge}>
@@ -47,8 +47,8 @@ export function GoogleButton({ onPress, disabled = false, loading = false }: Goo
 const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
-    backgroundColor: colors.background.surface,
-    borderColor: colors.border.subtle,
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
     borderRadius: radii.field,
     borderWidth: layout.borderWidth,
     flexDirection: 'row',
@@ -58,14 +58,14 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   pressed: {
-    backgroundColor: colors.background.canvas,
+    backgroundColor: colors.background,
   },
   blocked: {
     opacity: 0.6,
   },
   badge: {
     alignItems: 'center',
-    backgroundColor: colors.background.badge,
+    backgroundColor: colors.background,
     borderRadius: radii.pill,
     height: 22,
     justifyContent: 'center',
@@ -73,11 +73,11 @@ const styles = StyleSheet.create({
   },
   badgeLabel: {
     ...typography.pill,
-    color: colors.brand.primary,
+    color: colors.primary,
     fontFamily: fontFamily.extraBold,
   },
   label: {
     ...typography.socialButton,
-    color: colors.text.primary,
+    color: colors.text,
   },
 });

@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 
-import type { Credentials } from '../services/authService';
-import { validateEmail, validatePassword } from '../validation/authValidation';
+import type { Credentials } from '@/features/auth/services/authService';
+import { validateEmail, validatePassword } from '@/features/auth/validation/authValidation';
 
 type AuthFormErrors = {
   email?: string;

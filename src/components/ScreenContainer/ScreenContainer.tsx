@@ -3,7 +3,7 @@ import type { StyleProp, ViewStyle } from 'react-native';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { colors, layout } from '../../theme';
+import { colors, layout } from '@/theme';
 
 /**
  * Largura máxima da moldura: a do frame do Figma (390 = 342 de conteúdo mais as
@@ -24,7 +24,7 @@ type ScreenContainerProps = {
  */
 export function ScreenContainer({
   children,
-  background = colors.background.canvas,
+  background = colors.background,
   contentStyle,
 }: ScreenContainerProps) {
   return (

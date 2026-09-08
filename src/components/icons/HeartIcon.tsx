@@ -1,6 +1,6 @@
 import Svg, { Path } from 'react-native-svg';
 
-import { colors } from '../../theme';
+import { colors } from '@/theme';
 
 type HeartIconProps = {
   size?: number;
@@ -12,7 +12,7 @@ type HeartIconProps = {
  *
  * Traçado exportado do nó 4346:11273 do Figma.
  */
-export function HeartIcon({ size = 15, color = colors.text.support }: HeartIconProps) {
+export function HeartIcon({ size = 15, color = colors.support.dark }: HeartIconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 15 15" fill="none" accessibilityRole="image">
       <Path

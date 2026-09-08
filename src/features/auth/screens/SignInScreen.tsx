@@ -2,13 +2,13 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Button, ScreenContainer, TextField } from '../../../components';
-import type { AuthStackParamList } from '../../../navigation/types';
-import { colors, layout, spacing, typography } from '../../../theme';
-import { AuthDivider, AuthFormFooter, AuthHeader, GoogleButton } from '../components';
-import { useAuthForm } from '../hooks/useAuthForm';
-import { signIn, signInWithGoogle } from '../services/authService';
-import { validateRequiredPassword } from '../validation/authValidation';
+import { Button, ScreenContainer, TextField } from '@/components';
+import type { AuthStackParamList } from '@/navigation/types';
+import { colors, layout, spacing, typography } from '@/theme';
+import { AuthDivider, AuthFormFooter, AuthHeader, GoogleButton } from '@/features/auth/components';
+import { useAuthForm } from '@/features/auth/hooks/useAuthForm';
+import { signIn, signInWithGoogle } from '@/features/auth/services/authService';
+import { validateRequiredPassword } from '@/features/auth/validation/authValidation';
 
 type SignInScreenProps = NativeStackScreenProps<AuthStackParamList, 'SignIn'>;
 
@@ -135,14 +135,14 @@ const styles = StyleSheet.create({
   },
   formError: {
     ...typography.footnote,
-    color: colors.text.danger,
+    color: colors.danger,
   },
   divider: {
     marginVertical: spacing.xxl,
   },
   privacyNote: {
     ...typography.footnote,
-    color: colors.text.muted,
+    color: colors.textMuted,
     marginTop: spacing.xl,
     textAlign: 'center',
   },

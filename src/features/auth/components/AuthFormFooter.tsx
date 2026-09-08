@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors, spacing, typography } from '../../../theme';
+import { colors, spacing, typography } from '@/theme';
 
 type AuthFormFooterProps = {
   question: string;
@@ -33,10 +33,10 @@ const styles = StyleSheet.create({
   },
   question: {
     ...typography.linkQuestion,
-    color: colors.text.secondary,
+    color: colors.textSecondary,
   },
   action: {
     ...typography.link,
-    color: colors.brand.primary,
+    color: colors.primary,
   },
 });

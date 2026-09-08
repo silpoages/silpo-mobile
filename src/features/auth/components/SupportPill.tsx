@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { HeartIcon } from '../../../components/icons';
-import { colors, layout, radii, typography } from '../../../theme';
+import { HeartIcon } from '@/components/icons';
+import { colors, layout, radii, typography } from '@/theme';
 
 /**
  * Selo de apoio imediato no topo da tela de boas-vindas (nó 4346:11272).
@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
   pill: {
     alignItems: 'center',
     alignSelf: 'flex-end',
-    backgroundColor: colors.background.support,
+    backgroundColor: colors.support.surface,
     borderRadius: radii.pill,
     flexDirection: 'row',
     gap: layout.supportPillGap,
@@ -31,6 +31,6 @@ const styles = StyleSheet.create({
   },
   label: {
     ...typography.pill,
-    color: colors.text.support,
+    color: colors.support.dark,
   },
 });

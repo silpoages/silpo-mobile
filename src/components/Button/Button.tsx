@@ -1,6 +1,6 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 
-import { colors, layout, radii, typography } from '../../theme';
+import { colors, layout, radii, typography } from '@/theme';
 
 export type ButtonVariant = 'primary' | 'secondary';
 
@@ -30,7 +30,7 @@ export function Button({
 }: ButtonProps) {
   const isPrimary = variant === 'primary';
   const isBlocked = disabled || loading;
-  const labelColor = isPrimary ? colors.text.inverse : colors.brand.primary;
+  const labelColor = isPrimary ? colors.textInverse : colors.primary;
 
   return (
     <Pressable
@@ -66,18 +66,18 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   primary: {
-    backgroundColor: colors.brand.primary,
+    backgroundColor: colors.primary,
   },
   primaryPressed: {
-    backgroundColor: colors.brand.primaryPressed,
+    backgroundColor: colors.primaryDark,
   },
   secondary: {
-    backgroundColor: colors.background.surface,
-    borderColor: colors.border.brand,
+    backgroundColor: colors.surface,
+    borderColor: colors.primary,
     borderWidth: layout.borderWidth,
   },
   secondaryPressed: {
-    backgroundColor: colors.background.canvas,
+    backgroundColor: colors.background,
   },
   blocked: {
     opacity: 0.6,
