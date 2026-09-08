@@ -92,11 +92,13 @@ export function SignInScreen({ navigation }: SignInScreenProps) {
 
           <Button
             disabled={isGoogleSubmitting}
-            label="Entrar"
             loading={isSubmitting}
             onPress={handleSubmit}
+            size="lg"
             testID="submit-button"
-          />
+          >
+            Entrar
+          </Button>
 
           <AuthFormFooter
             actionLabel="Cadastre-se"

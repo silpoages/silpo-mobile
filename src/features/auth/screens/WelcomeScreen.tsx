@@ -35,17 +35,17 @@ export function WelcomeScreen({ navigation }: WelcomeScreenProps) {
       </View>
 
       <View style={styles.actions}>
+        <Button onPress={() => navigation.navigate('SignUp')} size="lg" testID="start-button">
+          Começar
+        </Button>
         <Button
-          label="Começar"
-          onPress={() => navigation.navigate('SignUp')}
-          testID="start-button"
-        />
-        <Button
-          label="Já tenho uma conta"
           onPress={() => navigation.navigate('SignIn')}
+          size="lg"
           testID="sign-in-button"
           variant="secondary"
-        />
+        >
+          Já tenho uma conta
+        </Button>
       </View>
     </ScreenContainer>
   );

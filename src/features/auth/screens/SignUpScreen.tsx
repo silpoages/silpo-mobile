@@ -87,11 +87,13 @@ export function SignUpScreen({ navigation }: SignUpScreenProps) {
 
           <Button
             disabled={isGoogleSubmitting}
-            label="Criar conta"
             loading={isSubmitting}
             onPress={handleSubmit}
+            size="lg"
             testID="submit-button"
-          />
+          >
+            Criar conta
+          </Button>
 
           <AuthFormFooter
             actionLabel="Entrar"
