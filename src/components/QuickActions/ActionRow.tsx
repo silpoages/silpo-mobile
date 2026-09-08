@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { ScrollView, StyleSheet, View, Text } from 'react-native';
 import { ActionButton } from './actions';
 
 const respire = require('../../../assets/qck_acts/Breathe.png');
@@ -29,28 +29,35 @@ export function ActionRow({ onSelectAction }: ActionRowProps) {
 
     return (
         <View style={styles.box}>
-            <Text style={styles.title}>   Exercícios Rápidos</Text>
-            <View style={styles.scrollContent}>
-                {ACTIONS.map((item) => (
-                    <ActionButton
-                        key={item.id}
-                        emoji={item.emoji}
-                        label={item.label}
-                        time={item.time}
-                        isSelected={selected === item.id}
-                        onPress={() => handlePress(item.id)}
-                    />
-                ))}
-            </View>
+            <Text style={styles.title}>Exercícios Rápidos</Text>
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                persistentScrollbar={false}
+                contentContainerStyle={styles.scrollContent}
+            >
+                <View style={styles.scrollContent}>
+                    {ACTIONS.map((item) => (
+                        <ActionButton
+                            key={item.id}
+                            emoji={item.emoji}
+                            label={item.label}
+                            time={item.time}
+                            isSelected={selected === item.id}
+                            onPress={() => handlePress(item.id)}
+                        />
+                    ))}
+                </View>
+            </ScrollView>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     box: {
-        width: '50%',
+        width: '95%',
         marginVertical: 16,
-        paddingHorizontal: 12,
+        paddingHorizontal: 0,
         paddingVertical: 8,
         borderWidth: 0,
         borderColor: '#d5dcd700',
@@ -63,13 +70,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 12,
         paddingVertical: 8,
-        paddingHorizontal: 16,
+        paddingHorizontal: 2,
         paddingBottom: 6,
     },
     title: {
         fontSize: 16,
         fontWeight: '700',
-        color:  '#55685D',
+        color: '#55685D',
         marginBottom: 8,
     }
 });
