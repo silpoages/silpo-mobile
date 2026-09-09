@@ -13,7 +13,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <DailyPractice></DailyPractice>
+      {/*<DailyPractice></DailyPractice>*/}
       <StatusBar style="dark" />
     </View>
   );
