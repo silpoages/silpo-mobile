@@ -1,10 +1,18 @@
 import { StyleSheet, Text, View } from 'react-native';
-import UserProfileScreen from './src/screens/UserProfileScreen';
+import { useAppFonts } from '@/hooks/useAppFonts';
+import { colors, fontFamily, fontSize } from '@/theme';
 
 export default function App() {
+  const { isLoaded, error } = useAppFonts();
+
+  if (!isLoaded && !error) {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
-      <UserProfileScreen></UserProfileScreen>
+      <Text style={styles.title}>Silpo Mobile</Text>
+      <StatusBar style="dark" />
     </View>
   );
 }
@@ -12,6 +20,13 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F6F8F3',
+    backgroundColor: colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    fontFamily: fontFamily.extraBold,
+    fontSize: fontSize.display,
+    color: colors.text,
   },
 });
