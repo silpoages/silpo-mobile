@@ -2,7 +2,6 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useAppFonts } from '@/hooks/useAppFonts';
 import { colors, fontFamily, fontSize } from '@/theme';
 import { StatusBar } from 'expo-status-bar';
-import UserProfileScreen from '@/features/profileScreen/UserProfileScreen';
 
 export default function App() {
   const { isLoaded, error } = useAppFonts();
@@ -14,7 +13,6 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Silpo Mobile</Text>
-      <UserProfileScreen></UserProfileScreen>
       <StatusBar style="dark" />
     </View>
   );
