@@ -50,15 +50,17 @@ app/                  # rotas (Expo Router) — cada arquivo é uma rota
 ├── welcome.tsx       # placeholder
 ├── login.tsx         # placeholder
 ├── cadastro.tsx      # placeholder
-├── index.tsx         # placeholder ("Início")
-├── diario.tsx        # placeholder
-├── jornada.tsx       # placeholder
-├── apoio.tsx         # placeholder
-├── perfil.tsx        # placeholder
-└── onboarding/
-    ├── etapa-1.tsx   # placeholder
-    ├── etapa-2.tsx   # placeholder
-    └── etapa-3.tsx   # placeholder
+├── onboarding/
+│   ├── etapa-1.tsx   # placeholder
+│   ├── etapa-2.tsx   # placeholder
+│   └── etapa-3.tsx   # placeholder
+└── (tabs)/           # grupo de abas (não aparece na URL)
+    ├── _layout.tsx   # <Tabs> usando o TabBar customizado (src/components/TabBar.tsx)
+    ├── index.tsx     # aba "Home"    (placeholder)
+    ├── diario.tsx    # aba "Diário"  (placeholder)
+    ├── jornada.tsx   # aba "Jornada" (placeholder)
+    ├── apoio.tsx     # aba "Apoio"   (placeholder)
+    └── perfil.tsx    # sem botão na barra — alcançada a partir de uma aba (placeholder)
 
 src/
 ├── components/   # UI reutilizável
