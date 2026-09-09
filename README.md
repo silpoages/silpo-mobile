@@ -6,6 +6,7 @@ App mobile do projeto Silpo (AGES — PUCRS).
 
 - [React Native](https://reactnative.dev/) **0.86.3** + [TypeScript](https://www.typescriptlang.org/) **6.0.3**
 - [Expo SDK](https://docs.expo.dev/versions/v57.0.0/) **57.0.20** — toolchain e runtime
+- [Expo Router](https://docs.expo.dev/router/introduction/) **57.0.20** — navegação (roteamento baseado em arquivos)
 - [expo-sqlite](https://docs.expo.dev/versions/v57.0.0/sdk/sqlite/) **57.0.2** — banco local (offline)
 - [oxlint](https://oxc.rs/docs/guide/usage/linter.html) — linter
 - [Prettier](https://prettier.io/) — formatação de código
@@ -44,13 +45,57 @@ Escaneie o QR code com o Expo Go (Android) ou câmera (iOS).
 ## Estrutura
 
 ```
+app/                  # rotas (Expo Router) — cada arquivo é uma rota
+├── _layout.tsx       # layout raiz: carrega as fontes e monta o Stack
+├── welcome.tsx       # placeholder
+├── login.tsx         # placeholder
+├── cadastro.tsx      # placeholder
+├── index.tsx         # placeholder ("Início")
+├── diario.tsx        # placeholder
+├── jornada.tsx       # placeholder
+├── apoio.tsx         # placeholder
+├── perfil.tsx        # placeholder
+└── onboarding/
+    ├── etapa-1.tsx   # placeholder
+    ├── etapa-2.tsx   # placeholder
+    └── etapa-3.tsx   # placeholder
+
 src/
 ├── components/   # UI reutilizável
-├── features/     # módulos de domínio
+├── features/     # telas e lógica de cada domínio (ver "Implementar uma tela")
 ├── hooks/        # hooks customizados
 ├── services/     # SQLite
+├── theme/        # tokens de design (cores, fontes)
 └── types/        # tipos TypeScript
 ```
+
+## Navegação (Expo Router)
+
+O app usa [Expo Router](https://docs.expo.dev/router/introduction/): roteamento **baseado em
+arquivos**. Tudo dentro de `app/` vira rota e o nome do arquivo é o caminho da URL.
+
+Os nomes de arquivo em `app/` (segmentos de URL) ficam **em português**, seguindo o vocabulário
+da UI (`kebab-case`). O resto do código continua em inglês.
+
+### Implementar uma tela
+
+O arquivo de rota (`app/`) **não leva a implementação da tela** — ele só importa o componente e
+devolve ele, sem lógica nenhuma. A implementação da tela fica em `src/features/<domínio>/<Nome>Screen.tsx`.
+
+1. Crie o componente em `src/features/<domínio>/<Nome>Screen.tsx` (`PascalCase` + sufixo `Screen`,
+   em inglês; export nomeado — ex.: `export function DiaryScreen() { ... }`).
+2. No arquivo de rota correspondente, importe e renderize:
+
+```tsx
+import { DiaryScreen } from '@/features/diary/DiaryScreen';
+
+export default function DiaryRoute() {
+  return <DiaryScreen />;
+}
+```
+
+Isso mantém `app/` só com roteamento e `src/features/`
+com a tela em si — testável e reutilizável sem depender do router.
 
 ## Fluxo de branches
 
