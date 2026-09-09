@@ -1,35 +1,37 @@
 import { View, ScrollView, Text, StyleSheet } from 'react-native';
 import SectionButtonProfile from '../../components/profileScreen/SectionButtonProfile';
+import type { ProfileIconName } from '../../components/profileScreen/ButtonProfile';
 import { fontFamily } from '@/theme';
 
-const iconProfile = require('../../../assets/profileScreen/icon-profile.svg');
-const iconHeart = require('../../../assets/profileScreen/icon-heart.svg');
-const iconLock = require('../../../assets/profileScreen/icon-lock.svg');
-const iconBall = require('../../../assets/profileScreen/icon-ball.svg');
-const iconBell = require('../../../assets/profileScreen/icon-bell.svg');
-const iconMoon = require('../../../assets/profileScreen/icon-moon.svg');
-const iconStar = require('../../../assets/profileScreen/icon-star.svg');
-const iconWallet = require('../../../assets/profileScreen/icon-wallet.svg');
-const iconExit = require('../../../assets/profileScreen/icon-exit.svg');
+type ProfileSection = {
+  title: string;
+  items: {
+    title: string;
+    icon: ProfileIconName | null;
+    iconColor?: string;
+    info?: string;
+    action: () => void;
+  }[];
+};
 
-const sections = [
+const sections: ProfileSection[] = [
   {
     title: 'CONTA',
     items: [
       {
         title: 'Dados pessoais',
-        icon: iconProfile,
+        icon: 'user',
         action: () => {},
       },
       {
         title: 'Pessoa de conforto',
-        icon: iconHeart,
+        icon: 'heart',
         info: 'Jaskier',
         action: () => {},
       },
       {
         title: 'Privacidade',
-        icon: iconLock,
+        icon: 'lock',
         action: () => {},
       },
     ],
@@ -40,22 +42,22 @@ const sections = [
     items: [
       {
         title: 'Acessibilidade',
-        icon: iconBall,
+        icon: 'circle',
         action: () => {},
       },
       {
         title: 'Notificações',
-        icon: iconBell,
+        icon: 'bell',
         action: () => {},
       },
       {
         title: 'Aparência',
-        icon: iconMoon,
+        icon: 'moon',
         action: () => {},
       },
       {
         title: 'Mensagens Apagadas',
-        icon: iconMoon,
+        icon: 'moon',
         action: () => {},
       },
     ],
@@ -66,13 +68,14 @@ const sections = [
     items: [
       {
         title: 'Silpo Premium',
-        icon: iconStar,
+        icon: 'star',
+        iconColor: '#8A6423',
         info: 'Conhecer',
         action: () => {},
       },
       {
         title: 'Pagamentos',
-        icon: iconWallet,
+        icon: 'credit-card',
         action: () => {},
       },
     ],
@@ -83,7 +86,7 @@ const sections = [
     items: [
       {
         title: 'Sair',
-        icon: iconExit,
+        icon: 'log-out',
         action: () => {},
       },
       {

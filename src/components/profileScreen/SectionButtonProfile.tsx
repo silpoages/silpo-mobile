@@ -1,12 +1,14 @@
-import { View, Text, StyleSheet, ImageSourcePropType } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import ButtonProfile from './ButtonProfile';
+import type { ProfileIconName } from './ButtonProfile';
 import { fontFamily } from '@/theme/fonts';
 
 type SectionButtonProfileProps = {
   title: string;
   items: {
     title: string;
-    icon: ImageSourcePropType;
+    icon: ProfileIconName | null;
+    iconColor?: string;
     info?: string;
     action: () => void;
   }[];

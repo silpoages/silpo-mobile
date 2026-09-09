@@ -1,22 +1,30 @@
-import { Image, ImageSourcePropType, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Feather from '@expo/vector-icons/Feather';
 
 import { colors, fontFamily, fontSize } from '@/theme';
 
+export type ProfileIconName = keyof typeof Feather.glyphMap;
+
 type ProfileButtonProps = {
   title: string;
-  icon: ImageSourcePropType | null;
+  icon: ProfileIconName | null;
+  iconColor?: string;
   info?: string;
   action: () => void;
 };
 
-const iconArrow = require('../../../assets/profileScreen/icon-arrow.svg');
-
-export default function ButtonProfile({ title, icon, info, action }: ProfileButtonProps) {
+export default function ButtonProfile({
+  title,
+  icon,
+  iconColor,
+  info,
+  action,
+}: ProfileButtonProps) {
   return (
     <Pressable style={styles.button} onPress={action}>
       <View style={styles.content}>
         <View style={styles.left}>
-          {icon && <Image source={icon} style={styles.icon} />}
+          {icon && <Feather name={icon} size={19} color={iconColor ?? colors.textSecondary} />}
 
           <Text style={styles.title}>{title}</Text>
         </View>
@@ -24,7 +32,7 @@ export default function ButtonProfile({ title, icon, info, action }: ProfileButt
         <View style={styles.right}>
           {info && <Text style={styles.info}>{info}</Text>}
 
-          <Image source={iconArrow} style={styles.arrow} />
+          <Feather name="chevron-right" size={18} color={colors.textMuted} />
         </View>
       </View>
     </Pressable>
@@ -55,16 +63,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-  },
-
-  icon: {
-    width: 22,
-    height: 22,
-  },
-
-  arrow: {
-    width: 18,
-    height: 18,
   },
 
   title: {
