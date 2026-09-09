@@ -1,26 +1,30 @@
-import { View, Pressable, Text, StyleSheet, Image, ImageSourcePropType } from 'react-native';
+import { Image, ImageSourcePropType, Pressable, StyleSheet, Text, View } from 'react-native';
+
+import { colors, fontFamily, fontSize } from '@/theme';
 
 type ProfileButtonProps = {
   title: string;
-  icon: ImageSourcePropType;
+  icon: ImageSourcePropType | null;
   info?: string;
   action: () => void;
 };
 
-const iconArrow = require('../../assets/profileScreen/icon-arrow.svg');
+const iconArrow = require('../../../assets/profileScreen/icon-arrow.svg');
 
 export default function ButtonProfile({ title, icon, info, action }: ProfileButtonProps) {
   return (
     <Pressable style={styles.button} onPress={action}>
       <View style={styles.content}>
         <View style={styles.left}>
-          <Image source={icon} />
+          {icon && <Image source={icon} style={styles.icon} />}
 
           <Text style={styles.title}>{title}</Text>
         </View>
+
         <View style={styles.right}>
           {info && <Text style={styles.info}>{info}</Text>}
-          <Image source={iconArrow} />
+
+          <Image source={iconArrow} style={styles.arrow} />
         </View>
       </View>
     </Pressable>
@@ -29,16 +33,16 @@ export default function ButtonProfile({ title, icon, info, action }: ProfileButt
 
 const styles = StyleSheet.create({
   button: {
+    alignSelf: 'stretch',
     paddingHorizontal: 15,
     paddingVertical: 18,
-    backgroundColor: 'white',
-    alignSelf: 'stretch',
+    backgroundColor: colors.surface,
   },
 
   content: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'stretch',
+    alignItems: 'center',
   },
 
   left: {
@@ -53,17 +57,25 @@ const styles = StyleSheet.create({
     gap: 12,
   },
 
+  icon: {
+    width: 22,
+    height: 22,
+  },
+
+  arrow: {
+    width: 18,
+    height: 18,
+  },
+
   title: {
-    color: '#37443D',
-    fontSize: 15,
-    fontWeight: 600,
-    textAlign: 'left',
+    fontFamily: fontFamily.semiBold,
+    fontSize: fontSize.md,
+    color: colors.textSecondary,
   },
 
   info: {
-    color: '#9AAAA0',
-    fontSize: 15,
-    fontWeight: 400,
-    textAlign: 'right',
+    fontFamily: fontFamily.regular,
+    fontSize: fontSize.md,
+    color: colors.textMuted,
   },
 });

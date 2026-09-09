@@ -1,15 +1,15 @@
-import { View, ScrollView, Text, StyleSheet, ImageSourcePropType } from 'react-native';
-import SectionButtonProfile from '../components/SectionButtonProfile';
+import { View, ScrollView, Text, StyleSheet } from 'react-native';
+import SectionButtonProfile from '../../components/profileScreen/SectionButtonProfile';
 
-const iconProfile = require('../../assets/profileScreen/icon-profile.svg');
-const iconHeart = require('../../assets/profileScreen/icon-heart.svg');
-const iconLock = require('../../assets/profileScreen/icon-lock.svg');
-const iconBall = require('../../assets/profileScreen/icon-ball.svg');
-const iconBell = require('../../assets/profileScreen/icon-bell.svg');
-const iconMoon = require('../../assets/profileScreen/icon-moon.svg');
-const iconStar = require('../../assets/profileScreen/icon-star.svg');
-const iconWallet = require('../../assets/profileScreen/icon-wallet.svg');
-const iconExit = require('../../assets/profileScreen/icon-exit.svg');
+const iconProfile = require('../../../assets/profileScreen/icon-profile.svg');
+const iconHeart = require('../../../assets/profileScreen/icon-heart.svg');
+const iconLock = require('../../../assets/profileScreen/icon-lock.svg');
+const iconBall = require('../../../assets/profileScreen/icon-ball.svg');
+const iconBell = require('../../../assets/profileScreen/icon-bell.svg');
+const iconMoon = require('../../../assets/profileScreen/icon-moon.svg');
+const iconStar = require('../../../assets/profileScreen/icon-star.svg');
+const iconWallet = require('../../../assets/profileScreen/icon-wallet.svg');
+const iconExit = require('../../../assets/profileScreen/icon-exit.svg');
 
 const sections = [
   {
