@@ -1,5 +1,6 @@
 import { View, ScrollView, Text, StyleSheet } from 'react-native';
 import SectionButtonProfile from '../../components/profileScreen/SectionButtonProfile';
+import { fontFamily } from '@/theme';
 
 const iconProfile = require('../../../assets/profileScreen/icon-profile.svg');
 const iconHeart = require('../../../assets/profileScreen/icon-heart.svg');
@@ -124,6 +125,7 @@ const styles = StyleSheet.create({
   },
 
   title: {
+    fontFamily: fontFamily.extraBold,
     color: '#1F3329',
     fontSize: 24,
     fontWeight: 800,
@@ -154,20 +156,20 @@ const styles = StyleSheet.create({
   },
 
   profileIconText: {
+    fontFamily: fontFamily.extraBold,
     fontSize: 22,
-    fontWeight: '800',
     color: '#FFFFFF',
   },
 
   profileName: {
+    fontFamily: fontFamily.extraBold,
     color: '#1F3329',
     fontSize: 17,
-    fontWeight: 800,
   },
 
   profileEmail: {
+    fontFamily: fontFamily.regular,
     color: '#55685D',
     fontSize: 13,
-    fontWeight: 400,
   },
 });

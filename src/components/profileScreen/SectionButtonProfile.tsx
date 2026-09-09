@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, ImageSourcePropType } from 'react-native';
 import ButtonProfile from './ButtonProfile';
+import { fontFamily } from '@/theme/fonts';
 
 type SectionButtonProfileProps = {
   title: string;
@@ -43,8 +44,8 @@ const styles = StyleSheet.create({
   },
 
   title: {
+    fontFamily: fontFamily.extraBold,
     fontSize: 12,
-    fontWeight: 700,
     letterSpacing: 0.72,
     color: '#55685D',
   },
