@@ -1,5 +1,10 @@
-import ButtonExamplesScreen from '@/features/button/ButtonExamplesScreen';
+import { Text, View } from 'react-native';
 
+// Placeholder route — build the screen here.
 export default function HomeRoute() {
-  return <ButtonExamplesScreen />;
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Text>Home</Text>
+    </View>
+  );
 }
