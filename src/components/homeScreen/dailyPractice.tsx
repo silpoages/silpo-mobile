@@ -1,16 +1,19 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { colors } from '../theme/colors';
-import { fontFamily, fontSize } from '../theme/fonts';
+import { colors } from '../../theme/colors';
+import { fontFamily, fontSize } from '../../theme/fonts';
 
-export function DailyPractice() {
+export type dailyPracticeProps = {
+  title: string;
+  description: string;
+};
+
+export function DailyPractice({ title, description }: dailyPracticeProps) {
   return (
     <View style={styles.card}>
       <Text style={styles.label}>PRÁTICA DO DIA</Text>
-      <Text style={styles.title}>Sentar em um parque</Text>
-      <Text style={styles.description}>
-        Escolha um banco tranquilo e fique o tempo que for confortável. Só isso já conta.
-      </Text>
+      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.description}>{description}</Text>
       <View style={styles.actions}>
         <TouchableOpacity style={styles.primaryButton}>
           <Text style={styles.primaryButtonText}>Quero tentar</Text>
