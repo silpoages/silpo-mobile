@@ -1,46 +1,35 @@
-/** Padrão mínimo de e-mail: algo, arroba, domínio com ponto. */
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-/** Tamanho mínimo de senha anunciado no campo das telas de autenticação. */
-export const PASSWORD_MIN_LENGTH = 8;
+/**
+ * Formato de e-mail para barrar erro de digitação: algo, um arroba e um domínio
+ * com partes não vazias separadas por ponto, terminando em pelo menos 2
+ * caracteres (recusa `a@....cc`, `a@b..com` e `a@b.c`). Não prova que o e-mail
+ * existe — isso é papel do backend.
+ */
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)*\.[^\s@.]{2,}$/;
 
 /** Devolve a mensagem de erro do e-mail, ou `null` quando o valor é válido. */
 export function validateEmail(email: string): string | null {
   const trimmedEmail = email.trim();
 
   if (trimmedEmail.length === 0) {
-    return 'Informe seu e-mail.';
+    return 'O e-mail é obrigatório.';
   }
 
   if (!EMAIL_PATTERN.test(trimmedEmail)) {
-    return 'Digite um e-mail válido.';
-  }
-
-  return null;
-}
-
-/** Devolve a mensagem de erro da senha, ou `null` quando o valor é válido. */
-export function validatePassword(password: string): string | null {
-  if (password.length === 0) {
-    return 'Informe sua senha.';
-  }
-
-  if (password.length < PASSWORD_MIN_LENGTH) {
-    return `A senha precisa de pelo menos ${PASSWORD_MIN_LENGTH} caracteres.`;
+    return 'Formato de e-mail inválido.';
   }
 
   return null;
 }
 
 /**
- * Valida só a presença da senha.
+ * Devolve a mensagem de erro da senha, ou `null` quando o valor é válido.
  *
- * Usada no login: quem já tem conta não deve ser barrado por uma regra de
- * tamanho que vale para a criação de senha.
+ * No login a senha só precisa estar preenchida: quem já tem conta não deve ser
+ * barrado por uma regra de tamanho, que vale para a criação de senha.
  */
-export function validateRequiredPassword(password: string): string | null {
+export function validatePassword(password: string): string | null {
   if (password.length === 0) {
-    return 'Informe sua senha.';
+    return 'A senha é obrigatória.';
   }
 
   return null;

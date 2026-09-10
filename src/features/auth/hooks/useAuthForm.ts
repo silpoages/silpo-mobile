@@ -9,12 +9,8 @@ type AuthFormErrors = {
   form?: string;
 };
 
-type PasswordValidator = (password: string) => string | null;
-
 type UseAuthFormParams = {
   onSubmit: (credentials: Credentials) => Promise<unknown>;
-  /** Regra de senha da tela: criação exige tamanho mínimo, login só presença. */
-  passwordValidator?: PasswordValidator;
 };
 
 /**
@@ -23,7 +19,7 @@ type UseAuthFormParams = {
  * Valida no envio, ancora cada mensagem no campo que a originou e limpa o erro
  * assim que o usuário volta a digitar naquele campo.
  */
-export function useAuthForm({ onSubmit, passwordValidator = validatePassword }: UseAuthFormParams) {
+export function useAuthForm({ onSubmit }: UseAuthFormParams) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<AuthFormErrors>({});
@@ -41,7 +37,7 @@ export function useAuthForm({ onSubmit, passwordValidator = validatePassword }: 
 
   const handleSubmit = useCallback(async () => {
     const emailError = validateEmail(email);
-    const passwordError = passwordValidator(password);
+    const passwordError = validatePassword(password);
 
     if (emailError !== null || passwordError !== null) {
       setErrors({ email: emailError ?? undefined, password: passwordError ?? undefined });
@@ -58,7 +54,7 @@ export function useAuthForm({ onSubmit, passwordValidator = validatePassword }: 
     } finally {
       setIsSubmitting(false);
     }
-  }, [email, onSubmit, password, passwordValidator]);
+  }, [email, onSubmit, password]);
 
   return {
     email,

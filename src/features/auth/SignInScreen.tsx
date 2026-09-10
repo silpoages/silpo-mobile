@@ -1,16 +1,17 @@
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Button, ScreenContainer, TextField } from '@/components';
-import type { AuthStackParamList } from '@/navigation/types';
+import Button from '@/components/Button';
+import { ScreenContainer } from '@/components/ScreenContainer';
+import { TextField } from '@/components/TextField';
 import { colors, layout, spacing, typography } from '@/theme';
 import { AuthDivider, AuthFormFooter, AuthHeader, GoogleButton } from '@/features/auth/components';
 import { useAuthForm } from '@/features/auth/hooks/useAuthForm';
+import type { Credentials } from '@/features/auth/services/authService';
 import { signIn, signInWithGoogle } from '@/features/auth/services/authService';
-import { validateRequiredPassword } from '@/features/auth/validation/authValidation';
 
-type SignInScreenProps = NativeStackScreenProps<AuthStackParamList, 'SignIn'>;
+const GOOGLE_SIGN_IN_ERROR = 'Não foi possível entrar com o Google. Tente novamente.';
 
 /**
  * Login de contas existentes, com alternativa de conta Google.
@@ -21,8 +22,17 @@ type SignInScreenProps = NativeStackScreenProps<AuthStackParamList, 'SignIn'>;
  * `Cadastro` (4236:951), que é o formulário espelho deste, para não introduzir
  * um estilo que não existe no design.
  */
-export function SignInScreen({ navigation }: SignInScreenProps) {
+export function SignInScreen() {
+  const router = useRouter();
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
+  const [googleErrorMessage, setGoogleErrorMessage] = useState<string | null>(null);
+
+  /** `replace` tira o login do histórico: voltar na Home não reabre esta tela. */
+  async function handleSignIn(credentials: Credentials) {
+    await signIn(credentials);
+    router.replace('/');
+  }
+
   const {
     email,
     password,
@@ -31,15 +41,19 @@ export function SignInScreen({ navigation }: SignInScreenProps) {
     handleEmailChange,
     handlePasswordChange,
     handleSubmit,
-  } = useAuthForm({ onSubmit: signIn, passwordValidator: validateRequiredPassword });
+  } = useAuthForm({ onSubmit: handleSignIn });
 
   const isBusy = isSubmitting || isGoogleSubmitting;
 
   async function handleGooglePress() {
+    setGoogleErrorMessage(null);
     setIsGoogleSubmitting(true);
 
     try {
       await signInWithGoogle();
+      router.replace('/');
+    } catch {
+      setGoogleErrorMessage(GOOGLE_SIGN_IN_ERROR);
     } finally {
       setIsGoogleSubmitting(false);
     }
@@ -49,7 +63,7 @@ export function SignInScreen({ navigation }: SignInScreenProps) {
     <ScreenContainer>
       <View style={styles.body}>
         <AuthHeader
-          onPressBack={navigation.goBack}
+          onPressBack={() => router.back()}
           subtitle="Entre para continuar de onde você parou."
           title="Que bom te ver de novo"
         />
@@ -102,7 +116,7 @@ export function SignInScreen({ navigation }: SignInScreenProps) {
 
           <AuthFormFooter
             actionLabel="Cadastre-se"
-            onPressAction={() => navigation.navigate('SignUp')}
+            onPressAction={() => router.navigate('/cadastro')}
             question="Não tem conta?"
           />
         </View>
@@ -116,6 +130,12 @@ export function SignInScreen({ navigation }: SignInScreenProps) {
           loading={isGoogleSubmitting}
           onPress={handleGooglePress}
         />
+
+        {googleErrorMessage ? (
+          <Text accessibilityRole="alert" style={[styles.formError, styles.googleError]}>
+            {googleErrorMessage}
+          </Text>
+        ) : null}
 
         <Text style={styles.privacyNote}>
           Seus registros de emoção são privados e ficam com você.
@@ -138,6 +158,10 @@ const styles = StyleSheet.create({
   formError: {
     ...typography.footnote,
     color: colors.danger,
+  },
+  googleError: {
+    marginTop: spacing.md,
+    textAlign: 'center',
   },
   divider: {
     marginVertical: spacing.xxl,

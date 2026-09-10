@@ -1,13 +1,12 @@
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useRouter } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { BrandLogo, Button, ScreenContainer } from '@/components';
+import { BrandLogo } from '@/components/BrandLogo';
+import Button from '@/components/Button';
 import { DecorativeCircle } from '@/components/icons';
-import type { AuthStackParamList } from '@/navigation/types';
+import { ScreenContainer } from '@/components/ScreenContainer';
 import { colors, layout, spacing, typography } from '@/theme';
 import { SupportPill } from '@/features/auth/components';
-
-type WelcomeScreenProps = NativeStackScreenProps<AuthStackParamList, 'Welcome'>;
 
 /**
  * Pré-login: apresenta a marca e leva ao cadastro ou ao acesso.
@@ -15,7 +14,9 @@ type WelcomeScreenProps = NativeStackScreenProps<AuthStackParamList, 'Welcome'>;
  * Reproduz o frame `Welcome` (4346:11267) do Figma. O círculo decorativo sangra
  * pelo canto inferior direito, como no design.
  */
-export function WelcomeScreen({ navigation }: WelcomeScreenProps) {
+export function WelcomeScreen() {
+  const router = useRouter();
+
   return (
     <ScreenContainer>
       <View pointerEvents="none" style={styles.decoration}>
@@ -35,11 +36,11 @@ export function WelcomeScreen({ navigation }: WelcomeScreenProps) {
       </View>
 
       <View style={styles.actions}>
-        <Button onPress={() => navigation.navigate('SignUp')} size="lg" testID="start-button">
+        <Button onPress={() => router.navigate('/cadastro')} size="lg" testID="start-button">
           Começar
         </Button>
         <Button
-          onPress={() => navigation.navigate('SignIn')}
+          onPress={() => router.navigate('/login')}
           size="lg"
           testID="sign-in-button"
           variant="secondary"
