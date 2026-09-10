@@ -16,7 +16,7 @@ const GOOGLE_SIGN_IN_ERROR = 'Não foi possível entrar com o Google. Tente nova
 /**
  * Login de contas existentes, com alternativa de conta Google.
  *
- * O Figma não tem um frame de login no mesmo padrão das outras telas — os
+ * O Figma não tem um frame de login no mesmo padrão das outras telas. Os
  * únicos existentes (`Login 00` e `entrar 00`, nós 4151:859 e 4151:877) são
  * rascunhos antigos, em outra linguagem visual. Esta tela usa a composição do
  * `Cadastro` (4236:951), que é o formulário espelho deste, para não introduzir

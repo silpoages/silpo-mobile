@@ -2,7 +2,7 @@
  * Formato de e-mail para barrar erro de digitação: algo, um arroba e um domínio
  * com partes não vazias separadas por ponto, terminando em pelo menos 2
  * caracteres (recusa `a@....cc`, `a@b..com` e `a@b.c`). Não prova que o e-mail
- * existe — isso é papel do backend.
+ * existe; isso é papel do backend.
  */
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)*\.[^\s@.]{2,}$/;
 

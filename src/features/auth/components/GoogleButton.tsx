@@ -12,7 +12,7 @@ type GoogleButtonProps = {
  * Botão de entrar com conta Google (nó 4236:980).
  *
  * O design representa a marca por um distintivo com a letra "G" sobre o verde
- * de fundo, e não pelo logotipo colorido — é isso que está reproduzido aqui.
+ * de fundo, e não pelo logotipo colorido. É isso que está reproduzido aqui.
  */
 export function GoogleButton({ onPress, disabled = false, loading = false }: GoogleButtonProps) {
   const isBlocked = disabled || loading;

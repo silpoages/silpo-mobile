@@ -9,7 +9,7 @@ type AuthFormFooterProps = {
 };
 
 /**
- * Linha "Já tem conta? Entrar" — pergunta com o link que troca de tela.
+ * Linha "Já tem conta? Entrar": pergunta com o link que troca de tela.
  *
  * Alinhada à esquerda e com 4 de espaço entre as partes, como o nó 4236:971.
  */

@@ -12,7 +12,7 @@ type AuthHeaderProps = {
 /**
  * Cabeçalho das telas de formulário: voltar, título e texto de apoio.
  *
- * Estrutura do nó 4236:953 do Figma — o botão de voltar tem 44 × 44 com o ícone
+ * Estrutura do nó 4236:953 do Figma: o botão de voltar tem 44 × 44 com o ícone
  * centralizado, e não há espaço entre ele e o título.
  */
 export function AuthHeader({ title, subtitle, onPressBack }: AuthHeaderProps) {
