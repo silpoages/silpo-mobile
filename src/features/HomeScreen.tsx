@@ -5,7 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 export function HomeScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-      <StatusBar style="dark" backgroundColor="#F6F8F3" />
+      <StatusBar style="dark" />
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Header: saudação + botão de apoio */}
         <View style={[styles.block, styles.tempPreview]} />
