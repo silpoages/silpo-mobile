@@ -135,11 +135,16 @@ const styles = StyleSheet.create({
   inputWrapperError: {
     borderColor: colors.danger,
   },
+  /**
+   * `outlineWidth: 0` remove o contorno de foco que o navegador desenha em volta
+   * do `<input>` na web. O foco já aparece na borda do `inputWrapper`.
+   */
   input: {
     ...typography.input,
     color: colors.text,
     flex: 1,
     height: '100%',
+    outlineWidth: 0,
   },
   visibilityToggle: {
     paddingLeft: spacing.md,
