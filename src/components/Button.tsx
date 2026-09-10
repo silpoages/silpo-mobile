@@ -55,7 +55,7 @@ const sizeStyles = {
   lg: { minHeight: 52, paddingHorizontal: 24, fontSize: fontSize.lg },
 } as const;
 
-export function Button({
+export default function Button({
   children,
   leftIcon,
   variant = 'primary',
