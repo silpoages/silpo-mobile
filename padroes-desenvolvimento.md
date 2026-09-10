@@ -17,3 +17,21 @@
 | **Arquivo Python**        | —                         | `snake_case.py`    | Nunca usar `PascalCase` ou hífen                    | `price_calculator.py`                      |
 | **Variável de ambiente**  | `UPPER_SNAKE_CASE`        | `UPPER_SNAKE_CASE` | Nome explícito e sem valores sensíveis no código    | `API_BASE_URL` · `DATABASE_URL`            |
 | **Idioma do código**      | Inglês                    | Inglês             | Nomes técnicos sempre em inglês                     | `getUserById`, não `buscarUsuarioPorId`    |
+
+## Arquivos de rota (Expo Router)
+
+Os arquivos dentro de `app/` seguem a convenção do **Expo Router**, não a de componentes:
+
+- o nome do arquivo é um segmento de URL, então usa `kebab-case` e **fica em português**, acompanhando o vocabulário da UI (`app/dados-pessoais.tsx` → `/dados-pessoais`). É a exceção à regra "idioma do código: inglês" — o resto (funções, variáveis, `src/`) continua em inglês;
+- arquivos especiais mantêm o nome do framework: `_layout.tsx`, grupos entre parênteses (ex.: `(tabs)`) quando existirem;
+- o arquivo de rota **não implementa a tela** — ele só importa o componente de `src/features/<domínio>/<Nome>Screen.tsx` (`PascalCase` + sufixo `Screen`, em inglês) e o renderiza:
+
+  ```tsx
+  import { DiaryScreen } from '@/features/diary/DiaryScreen';
+
+  export default function DiaryRoute() {
+    return <DiaryScreen />;
+  }
+  ```
+
+  Isso mantém `app/` só com roteamento e a tela em si (lógica, estado, sub-componentes) em `src/features/`, testável sem depender do router.
