@@ -1,18 +1,24 @@
 import { View, ScrollView, Text, StyleSheet } from 'react-native';
-import SectionButtonProfile from '../../components/profileScreen/SectionButtonProfile';
-import type { ProfileIconName } from '../../components/profileScreen/ButtonProfile';
-import { fontFamily } from '@/theme';
+import SectionButtonProfile from '@/components/profileScreen/SectionButtonProfile';
+import type { ProfileButtonProps } from '@/components/profileScreen/ButtonProfile';
+import { colors, fontFamily, fontSize } from '@/theme';
 
 type ProfileSection = {
   title: string;
-  items: {
-    title: string;
-    icon: ProfileIconName | null;
-    iconColor?: string;
-    info?: string;
-    action: () => void;
-  }[];
+  items: ProfileButtonProps[];
 };
+
+function handlePersonalDataPress() {}
+function handleComfortPersonPress() {}
+function handlePrivacyPress() {}
+function handleAccessibilityPress() {}
+function handleNotificationsPress() {}
+function handleAppearancePress() {}
+function handleDeletedMessagesPress() {}
+function handlePremiumPress() {}
+function handlePaymentsPress() {}
+function handleLogoutPress() {}
+function handleDeleteAccountPress() {}
 
 const sections: ProfileSection[] = [
   {
@@ -21,18 +27,18 @@ const sections: ProfileSection[] = [
       {
         title: 'Dados pessoais',
         icon: 'user',
-        action: () => {},
+        onPress: handlePersonalDataPress,
       },
       {
         title: 'Pessoa de conforto',
         icon: 'heart',
         info: 'Jaskier',
-        action: () => {},
+        onPress: handleComfortPersonPress,
       },
       {
         title: 'Privacidade',
         icon: 'lock',
-        action: () => {},
+        onPress: handlePrivacyPress,
       },
     ],
   },
@@ -43,22 +49,22 @@ const sections: ProfileSection[] = [
       {
         title: 'Acessibilidade',
         icon: 'circle',
-        action: () => {},
+        onPress: handleAccessibilityPress,
       },
       {
         title: 'Notificações',
         icon: 'bell',
-        action: () => {},
+        onPress: handleNotificationsPress,
       },
       {
         title: 'Aparência',
         icon: 'moon',
-        action: () => {},
+        onPress: handleAppearancePress,
       },
       {
         title: 'Mensagens Apagadas',
         icon: 'moon',
-        action: () => {},
+        onPress: handleDeletedMessagesPress,
       },
     ],
   },
@@ -71,12 +77,12 @@ const sections: ProfileSection[] = [
         icon: 'star',
         iconColor: '#8A6423',
         info: 'Conhecer',
-        action: () => {},
+        onPress: handlePremiumPress,
       },
       {
         title: 'Pagamentos',
         icon: 'credit-card',
-        action: () => {},
+        onPress: handlePaymentsPress,
       },
     ],
   },
@@ -87,12 +93,12 @@ const sections: ProfileSection[] = [
       {
         title: 'Sair',
         icon: 'log-out',
-        action: () => {},
+        onPress: handleLogoutPress,
       },
       {
         title: 'Excluir Conta',
         icon: null,
-        action: () => {},
+        onPress: handleDeleteAccountPress,
       },
     ],
   },
@@ -129,19 +135,18 @@ const styles = StyleSheet.create({
 
   title: {
     fontFamily: fontFamily.extraBold,
-    color: '#1F3329',
-    fontSize: 24,
-    fontWeight: 800,
+    color: colors.text,
+    fontSize: fontSize.display,
   },
 
   profileContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     padding: 18,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
 
-    borderColor: '#DEE8DF',
+    borderColor: colors.border,
     borderWidth: 1,
     borderRadius: 16,
     overflow: 'hidden',
@@ -152,7 +157,7 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 28,
 
-    backgroundColor: '#1F3329',
+    backgroundColor: colors.text,
 
     justifyContent: 'center',
     alignItems: 'center',
@@ -160,19 +165,19 @@ const styles = StyleSheet.create({
 
   profileIconText: {
     fontFamily: fontFamily.extraBold,
-    fontSize: 22,
-    color: '#FFFFFF',
+    fontSize: fontSize.heading,
+    color: colors.textInverse,
   },
 
   profileName: {
     fontFamily: fontFamily.extraBold,
-    color: '#1F3329',
-    fontSize: 17,
+    color: colors.text,
+    fontSize: fontSize.title,
   },
 
   profileEmail: {
     fontFamily: fontFamily.regular,
-    color: '#55685D',
-    fontSize: 13,
+    color: colors.textSecondary,
+    fontSize: fontSize.md,
   },
 });

@@ -1,17 +1,11 @@
 import { View, Text, StyleSheet } from 'react-native';
 import ButtonProfile from './ButtonProfile';
-import type { ProfileIconName } from './ButtonProfile';
-import { fontFamily } from '@/theme/fonts';
+import type { ProfileButtonProps } from './ButtonProfile';
+import { colors, fontFamily, fontSize } from '@/theme';
 
 type SectionButtonProfileProps = {
   title: string;
-  items: {
-    title: string;
-    icon: ProfileIconName | null;
-    iconColor?: string;
-    info?: string;
-    action: () => void;
-  }[];
+  items: ProfileButtonProps[];
 };
 
 export default function SectionButtonProfile({ title, items }: SectionButtonProfileProps) {
@@ -20,8 +14,8 @@ export default function SectionButtonProfile({ title, items }: SectionButtonProf
       <Text style={styles.title}>{title}</Text>
 
       <View style={styles.section}>
-        {items.map((item, index) => (
-          <ButtonProfile key={index} {...item} />
+        {items.map((item) => (
+          <ButtonProfile key={item.title} {...item} />
         ))}
       </View>
     </View>
@@ -39,7 +33,7 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     gap: 1,
 
-    borderColor: '#DEE8DF',
+    borderColor: colors.border,
     borderWidth: 1,
     borderRadius: 16,
     overflow: 'hidden',
@@ -47,8 +41,8 @@ const styles = StyleSheet.create({
 
   title: {
     fontFamily: fontFamily.extraBold,
-    fontSize: 12,
+    fontSize: fontSize.sm,
     letterSpacing: 0.72,
-    color: '#55685D',
+    color: colors.textSecondary,
   },
 });

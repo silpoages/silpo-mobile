@@ -5,12 +5,12 @@ import { colors, fontFamily, fontSize } from '@/theme';
 
 export type ProfileIconName = keyof typeof Feather.glyphMap;
 
-type ProfileButtonProps = {
+export type ProfileButtonProps = {
   title: string;
   icon: ProfileIconName | null;
   iconColor?: string;
   info?: string;
-  action: () => void;
+  onPress: () => void;
 };
 
 export default function ButtonProfile({
@@ -18,10 +18,10 @@ export default function ButtonProfile({
   icon,
   iconColor,
   info,
-  action,
+  onPress,
 }: ProfileButtonProps) {
   return (
-    <Pressable style={styles.button} onPress={action}>
+    <Pressable style={styles.button} onPress={onPress}>
       <View style={styles.content}>
         <View style={styles.left}>
           {icon && <Feather name={icon} size={19} color={iconColor ?? colors.textSecondary} />}
