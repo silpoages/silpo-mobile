@@ -9,7 +9,9 @@ export type ProfileButtonProps = {
   title: string;
   icon: ProfileIconName | null;
   iconColor?: string;
+  titleColor?: string;
   info?: string;
+  showChevron?: boolean;
   onPress: () => void;
 };
 
@@ -17,23 +19,30 @@ export default function ButtonProfile({
   title,
   icon,
   iconColor,
+  titleColor,
   info,
+  showChevron = true,
   onPress,
 }: ProfileButtonProps) {
+  const hasRightContent = Boolean(info) || showChevron;
+
   return (
     <Pressable style={styles.button} onPress={onPress}>
       <View style={styles.content}>
         <View style={styles.left}>
           {icon && <Feather name={icon} size={19} color={iconColor ?? colors.textSecondary} />}
 
-          <Text style={styles.title}>{title}</Text>
+          <Text style={[styles.title, titleColor ? { color: titleColor } : null]}>{title}</Text>
         </View>
 
-        <View style={styles.right}>
-          {info && <Text style={styles.info}>{info}</Text>}
-
-          <Feather name="chevron-right" size={18} color={colors.textMuted} />
-        </View>
+        {hasRightContent ? (
+          <View style={styles.right}>
+            {info ? <Text style={styles.info}>{info}</Text> : null}
+            {showChevron ? (
+              <Feather name="chevron-right" size={18} color={colors.textMuted} />
+            ) : null}
+          </View>
+        ) : null}
       </View>
     </Pressable>
   );
