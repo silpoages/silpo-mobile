@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Pressable, Text, StyleSheet } from 'react-native';
+import { Pressable, Text, View, StyleSheet } from 'react-native';
 import { colors, fontFamily, fontSize } from '@/theme';
 
 export interface ActionButtonProps {
@@ -20,7 +20,7 @@ export function ActionButton({ label, icon, time, onPress, isSelected }: ActionB
       ]}
       onPress={onPress}
     >
-      {icon}
+      <View style={styles.iconWrap}>{icon}</View>
       <Text style={[styles.label, isSelected ? styles.selectedLabel : undefined]}>{label}</Text>
       <Text style={[styles.time, isSelected ? styles.selectedLabel : undefined]}>{time}</Text>
     </Pressable>
@@ -29,35 +29,40 @@ export function ActionButton({ label, icon, time, onPress, isSelected }: ActionB
 
 const styles = StyleSheet.create({
   btn: {
+    flex: 1,
     alignItems: 'flex-start',
     justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
     backgroundColor: colors.surface,
-    borderRadius: 12,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: colors.border,
-    minWidth: 130,
-    maxWidth: 130,
+    gap: 8,
+  },
+  iconWrap: {
+    width: 38,
+    height: 38,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surfaceTint,
   },
   pressed: {
     backgroundColor: colors.surfaceMuted,
     transform: [{ scale: 0.96 }],
   },
   selected: {
-    backgroundColor: colors.surfaceTint,
     borderColor: colors.textSecondary,
     borderWidth: 2,
   },
   label: {
-    marginTop: 4,
-    fontFamily: fontFamily.semiBold,
+    fontFamily: fontFamily.bold,
     fontSize: fontSize.body,
     color: colors.text,
   },
   time: {
-    marginTop: 4,
-    fontFamily: fontFamily.semiBold,
+    fontFamily: fontFamily.regular,
     fontSize: fontSize.sm,
     color: colors.textSecondary,
   },

@@ -1,20 +1,20 @@
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { ActionButton } from './ActionButton';
 import { colors, fontFamily, fontSize } from '@/theme';
 
-const ICON_SIZE = 24;
-const ICON_COLOR = colors.textSecondary;
+const ICON_SIZE = 20;
+const ICON_COLOR = colors.primary;
 
 const respire = <FontAwesome5 name="wind" size={ICON_SIZE} color={ICON_COLOR} />;
 const medite = <MaterialCommunityIcons name="meditation" size={ICON_SIZE} color={ICON_COLOR} />;
 const momento = <MaterialCommunityIcons name="chart-bubble" size={ICON_SIZE} color={ICON_COLOR} />;
 
 const ACTIONS = [
-  { id: 'respire', icon: respire, label: 'Respiração', time: '3-5 min' },
-  { id: 'medite', icon: medite, label: 'Meditação', time: '4-10 min' },
+  { id: 'respire', icon: respire, label: 'Respiração', time: '3–5 min' },
+  { id: 'medite', icon: medite, label: 'Meditação', time: '4–10 min' },
   { id: 'momento', icon: momento, label: 'Um momento', time: 'interativo' },
 ];
 
@@ -34,14 +34,9 @@ export function ActionRow({ onSelectAction }: ActionRowProps) {
   };
 
   return (
-    <View style={styles.box}>
-      <Text style={styles.title}>Exercícios Rápidos</Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        persistentScrollbar={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+    <View style={styles.container}>
+      <Text style={styles.title}>EXERCÍCIOS RÁPIDOS</Text>
+      <View style={styles.row}>
         {ACTIONS.map((item) => (
           <ActionButton
             key={item.id}
@@ -52,30 +47,24 @@ export function ActionRow({ onSelectAction }: ActionRowProps) {
             onPress={() => handlePress(item.id)}
           />
         ))}
-      </ScrollView>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  box: {
+  container: {
     width: '100%',
-    padding: 18,
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: 16,
-    backgroundColor: colors.surface,
-    overflow: 'hidden',
   },
   title: {
-    fontFamily: fontFamily.semiBold,
-    fontSize: fontSize.body,
-    color: colors.text,
+    fontFamily: fontFamily.bold,
+    fontSize: fontSize.sm,
+    color: colors.textSecondary,
+    letterSpacing: 0.6,
     marginBottom: 10,
   },
-  scrollContent: {
+  row: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
+    gap: 10,
   },
 });
