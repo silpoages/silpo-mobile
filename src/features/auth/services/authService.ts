@@ -1,36 +1,58 @@
-/**
- * Camada de autenticação do app.
- *
- * Implementação provisória: o `silpo-backend` ainda não expõe rotas de
- * autenticação. As funções
- * simulam a latência da rede para exercitar os estados de carregamento e erro
- * da interface; quando a rota existir, trocar o corpo delas pela chamada HTTP
- * usando a base de API vinda de variável de ambiente.
- */
+import { apiRequest } from '@/services/apiClient';
+import type { SessionUser } from '@/features/auth/session/SessionContext';
 
 export type Credentials = {
   email: string;
   password: string;
 };
 
-export type AuthenticatedUser = {
-  email: string;
+export type SignInResult = {
+  token: string;
+  user: SessionUser;
 };
 
-const SIMULATED_LATENCY_MS = 900;
+type LoginResponse = {
+  access_token: string;
+  token_type: string;
+  user: {
+    id: string;
+    email: string;
+    full_name: string | null;
+    role: string;
+    onboarding_completed: boolean;
+  };
+};
+
+const GOOGLE_SIGN_IN_SIMULATED_LATENCY_MS = 900;
 
 function delay(milliseconds: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
-/** Autentica uma conta existente. */
-export async function signIn({ email }: Credentials): Promise<AuthenticatedUser> {
-  await delay(SIMULATED_LATENCY_MS);
+/** Autentica uma conta existente via `POST /auth/login`. */
+export async function signIn({ email, password }: Credentials): Promise<SignInResult> {
+  const response = await apiRequest<LoginResponse>('/auth/login', {
+    method: 'POST',
+    body: { email, password },
+  });
 
-  return { email: email.trim() };
+  return {
+    token: response.access_token,
+    user: {
+      id: response.user.id,
+      email: response.user.email,
+      fullName: response.user.full_name,
+      role: response.user.role,
+      onboardingCompleted: response.user.onboarding_completed,
+    },
+  };
 }
 
-/** Autentica pela conta Google do dispositivo. */
+/**
+ * Autentica pela conta Google do dispositivo.
+ *
+ * Ainda simulado: o backend não expõe login social.
+ */
 export async function signInWithGoogle(): Promise<void> {
-  await delay(SIMULATED_LATENCY_MS);
+  await delay(GOOGLE_SIGN_IN_SIMULATED_LATENCY_MS);
 }

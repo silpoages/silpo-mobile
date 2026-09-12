@@ -1,20 +1,27 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { HeartIcon } from '@/components/icons';
 import { colors, layout, radii, typography } from '@/theme';
 
+type SupportPillProps = {
+  onPress: () => void;
+};
+
 /**
  * Selo de apoio imediato no topo da tela de boas-vindas (nó 4346:11272).
  *
- * Segue estático porque o fluxo de Apoio ainda não existe no app; basta trocar
- * por um `Pressable` quando houver destino para ele.
+ * Leva à tela de Apoio (`/apoio`), acessível mesmo sem estar logado.
  */
-export function SupportPill() {
+export function SupportPill({ onPress }: SupportPillProps) {
   return (
-    <View style={styles.pill}>
+    <Pressable
+      accessibilityRole="button"
+      onPress={onPress}
+      style={({ pressed }) => [styles.pill, pressed && styles.pressed]}
+    >
       <HeartIcon />
       <Text style={styles.label}>Preciso de apoio agora</Text>
-    </View>
+    </Pressable>
   );
 }
 
@@ -28,6 +35,9 @@ const styles = StyleSheet.create({
     gap: layout.supportPillGap,
     height: layout.supportPillHeight,
     paddingHorizontal: layout.fieldPaddingHorizontal,
+  },
+  pressed: {
+    opacity: 0.78,
   },
   label: {
     ...typography.pill,

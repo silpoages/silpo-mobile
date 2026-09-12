@@ -8,6 +8,7 @@ import { TextField } from '@/components/TextField';
 import { colors, layout, spacing, typography } from '@/theme';
 import { AuthDivider, AuthFormFooter, AuthHeader, GoogleButton } from '@/features/auth/components';
 import { useAuthForm } from '@/features/auth/hooks/useAuthForm';
+import { useSession } from '@/features/auth/session/SessionContext';
 import type { Credentials } from '@/features/auth/services/authService';
 import { signIn, signInWithGoogle } from '@/features/auth/services/authService';
 
@@ -24,12 +25,14 @@ const GOOGLE_SIGN_IN_ERROR = 'Não foi possível entrar com o Google. Tente nova
  */
 export function SignInScreen() {
   const router = useRouter();
+  const session = useSession();
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   const [googleErrorMessage, setGoogleErrorMessage] = useState<string | null>(null);
 
   /** `replace` tira o login do histórico: voltar na Home não reabre esta tela. */
   async function handleSignIn(credentials: Credentials) {
-    await signIn(credentials);
+    const result = await signIn(credentials);
+    await session.login(result.token, result.user);
     router.replace('/');
   }
 
