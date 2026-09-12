@@ -1,12 +1,16 @@
 import { useState } from 'react';
-import { ScrollView, StyleSheet, View, Text } from 'react-native';
-import { ActionButton } from './actions';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import { ActionButton } from './ActionButton';
+import { colors, fontFamily, fontSize } from '@/theme';
 
-const respire = <FontAwesome5 name="wind" size={24} color="black" />;
-const medite = <MaterialCommunityIcons name="meditation" size={24} color="black" />;
-const momento = <MaterialCommunityIcons name="chart-bubble" size={24} color="black" />;
+const ICON_SIZE = 24;
+const ICON_COLOR = colors.textSecondary;
+
+const respire = <FontAwesome5 name="wind" size={ICON_SIZE} color={ICON_COLOR} />;
+const medite = <MaterialCommunityIcons name="meditation" size={ICON_SIZE} color={ICON_COLOR} />;
+const momento = <MaterialCommunityIcons name="chart-bubble" size={ICON_SIZE} color={ICON_COLOR} />;
 
 const ACTIONS = [
   { id: 'respire', icon: respire, label: 'Respiração', time: '3-5 min' },
@@ -38,18 +42,16 @@ export function ActionRow({ onSelectAction }: ActionRowProps) {
         persistentScrollbar={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <View style={styles.scrollContent}>
-          {ACTIONS.map((item) => (
-            <ActionButton
-              key={item.id}
-              icon={item.icon}
-              label={item.label}
-              time={item.time}
-              isSelected={selected === item.id}
-              onPress={() => handlePress(item.id)}
-            />
-          ))}
-        </View>
+        {ACTIONS.map((item) => (
+          <ActionButton
+            key={item.id}
+            icon={item.icon}
+            label={item.label}
+            time={item.time}
+            isSelected={selected === item.id}
+            onPress={() => handlePress(item.id)}
+          />
+        ))}
       </ScrollView>
     </View>
   );
@@ -57,28 +59,23 @@ export function ActionRow({ onSelectAction }: ActionRowProps) {
 
 const styles = StyleSheet.create({
   box: {
-    width: '95%',
-    marginVertical: 16,
-    paddingHorizontal: 0,
-    paddingVertical: 8,
-    borderWidth: 0,
-    borderColor: '#d5dcd700',
+    width: '100%',
+    padding: 18,
+    borderColor: colors.border,
+    borderWidth: 1,
     borderRadius: 16,
-    backgroundColor: '#f8faf804',
+    backgroundColor: colors.surface,
     overflow: 'hidden',
+  },
+  title: {
+    fontFamily: fontFamily.semiBold,
+    fontSize: fontSize.body,
+    color: colors.text,
+    marginBottom: 10,
   },
   scrollContent: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 2,
-    paddingBottom: 6,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#55685D',
-    marginBottom: 8,
   },
 });

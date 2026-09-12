@@ -5,6 +5,7 @@ import { colors } from '@/theme/colors';
 import { Header } from '@/components/homeScreen/Header';
 import { EmotionsRow } from '@/components/emotions/EmotionsRow';
 import { DailyPractice } from '@/components/homeScreen/DailyPractice';
+import { ActionRow } from '@/components/QuickActions/ActionRow';
 
 const TODAY_PRACTICE = {
   title: 'Respiração 4-7-8',
@@ -19,6 +20,7 @@ export function HomeScreen() {
         <Header userName="Sol" subtitle="Seus sentimentos importam" />
         <EmotionsRow />
         <DailyPractice title={TODAY_PRACTICE.title} description={TODAY_PRACTICE.description} />
+        <ActionRow />
       </ScrollView>
     </SafeAreaView>
   );
