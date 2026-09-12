@@ -1,8 +1,7 @@
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
+import { StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { colors } from '@/theme/colors';
-import { FontFamily, fontSize } from '@/theme/fonts';
 import { Header } from '@/components/homeScreen/Header';
 
 export function HomeScreen() {
@@ -10,8 +9,7 @@ export function HomeScreen() {
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       <StatusBar style="dark" />
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Header: saudação + botão de apoio */}
-        <Header userName="Sol" subtitle="Seu sentimentos importam" />
+        <Header userName="Sol" subtitle="Seus sentimentos importam" />
       </ScrollView>
     </SafeAreaView>
   );
@@ -23,9 +21,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   scrollContent: {
-    paddingTop: 64,
+    paddingTop: 22,
     gap: 16,
     paddingHorizontal: 20,
-    paddingBottom: 116,
+    paddingBottom: 16,
   },
 });
