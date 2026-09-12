@@ -1,27 +1,25 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { colors } from '../../theme/colors';
-import { fontFamily, fontSize } from '../../theme/fonts';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { colors, fontFamily, fontSize } from '@/theme';
 
-export type dailyPracticeProps = {
+export type DailyPracticeProps = {
   title: string;
   description: string;
 };
 
-export function DailyPractice({ title, description }: dailyPracticeProps) {
+export function DailyPractice({ title, description }: DailyPracticeProps) {
   return (
     <View style={styles.card}>
       <Text style={styles.label}>PRÁTICA DO DIA</Text>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.description}>{description}</Text>
       <View style={styles.actions}>
-        <TouchableOpacity style={styles.primaryButton}>
+        <Pressable style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
           <Text style={styles.primaryButtonText}>Quero tentar</Text>
-        </TouchableOpacity>
+        </Pressable>
 
-        <TouchableOpacity style={styles.secondaryButton}>
+        <Pressable style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>
           <Text style={styles.secondaryButtonText}>Ver outras</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   );
@@ -63,6 +61,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
     flexWrap: 'wrap',
+  },
+  pressed: {
+    opacity: 0.85,
   },
   primaryButton: {
     flex: 2,
