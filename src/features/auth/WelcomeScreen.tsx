@@ -24,7 +24,7 @@ export function WelcomeScreen() {
       </View>
 
       <View style={styles.header}>
-        <SupportPill />
+        <SupportPill onPress={() => router.push('/apoio')} />
       </View>
 
       <View style={styles.hero}>
