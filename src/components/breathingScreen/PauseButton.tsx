@@ -7,13 +7,13 @@ type PauseButtonProps = {
   onPress: () => void;
 };
 
-export default function PauseButton({ paused, onPress }: PauseButtonProps) {
+export function PauseButton({ paused, onPress }: PauseButtonProps) {
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [styles.button, { opacity: pressed ? 0.7 : 1 }]}
     >
-      <Feather name={paused ? 'play' : 'pause'} size={21} color={colors.surface} stroke={2} />
+      <Feather name={paused ? 'play' : 'pause'} size={21} color={colors.surface} />
     </Pressable>
   );
 }

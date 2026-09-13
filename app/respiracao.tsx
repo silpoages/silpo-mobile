@@ -1,4 +1,4 @@
-import BreathingScreen from '@/features/breathingScreen/BreathingScreen';
+import { BreathingScreen } from '@/features/breathingScreen/BreathingScreen';
 
 export default function BreathingRoute() {
   return <BreathingScreen />;

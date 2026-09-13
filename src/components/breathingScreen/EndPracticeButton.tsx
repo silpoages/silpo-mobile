@@ -6,7 +6,7 @@ type EndPracticeButtonProps = {
   onPress: () => void;
 };
 
-export default function EndPracticeButton({ onPress }: EndPracticeButtonProps) {
+export function EndPracticeButton({ onPress }: EndPracticeButtonProps) {
   return (
     <Pressable
       onPress={onPress}

@@ -1,7 +1,3 @@
-import CloseButton from '@/components/breathScreen/CloseButton';
-import PauseButton from '@/components/breathScreen/PauseButton';
-import EndPracticeButton from '@/components/breathScreen/EndPracticeButton';
-import PracticeModalButton from '@/components/breathScreen/PracticeModalButton';
 import { useEffect, useRef, useState } from 'react';
 import {
   Animated,
@@ -12,59 +8,58 @@ import {
   Text,
   useWindowDimensions,
 } from 'react-native';
-import { router } from 'expo-router';
-import { colors } from '@/theme/colors';
-import BreathBall from '@/components/breathScreen/BreathBall';
-import { fontFamily, fontSize } from '@/theme';
+import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const phases = [
-  {
-    text: 'Inspire...',
-    duration: 4,
-  },
-  {
-    text: 'Segure...',
-    duration: 7,
-  },
-  {
-    text: 'Solte...',
-    duration: 8,
-  },
+import { CloseButton } from '@/components/CloseButton';
+import { BreathBall } from '@/components/breathingScreen/BreathBall';
+import { EndPracticeButton } from '@/components/breathingScreen/EndPracticeButton';
+import { PauseButton } from '@/components/breathingScreen/PauseButton';
+import { PracticeModalButton } from '@/components/breathingScreen/PracticeModalButton';
+import { colors, fontFamily, fontSize } from '@/theme';
+
+const PHASES = [
+  { text: 'Inspire...', duration: 4 },
+  { text: 'Segure...', duration: 7 },
+  { text: 'Solte...', duration: 8 },
 ];
 
-const phaseGuide = [
+const PHASE_GUIDE = [
   { title: 'Inspire', description: 'Puxe o ar devagar pelo nariz.', duration: '4 segundos' },
   { title: 'Segure', description: 'Mantenha o ar com tranquilidade.', duration: '7 segundos' },
   { title: 'Solte', description: 'Expire lentamente pela boca.', duration: '8 segundos' },
 ];
 
-const minimumBallScale = 0.65;
+const MINIMUM_BALL_SCALE = 0.65;
 
-export default function BreathingScreen() {
+export function BreathingScreen() {
+  const router = useRouter();
   const [timer, setTimer] = useState(0);
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [paused, setPaused] = useState(true);
   const [cycles, setCycles] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
-  const ballScale = useRef(new Animated.Value(minimumBallScale)).current;
+  const ballScale = useRef(new Animated.Value(MINIMUM_BALL_SCALE)).current;
   const modalTranslateY = useRef(new Animated.Value(320)).current;
 
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const ballSize = Math.min(Math.max(width * 0.48, 144), 260, height * 0.32);
 
-  const handleEndPractice = () => {
-    ballScale.stopAnimation();
-    ballScale.setValue(minimumBallScale);
-    setTimer(0);
-    setPhaseIndex(0);
-    setCycles(0);
-    setPaused(true);
-    closeModal();
-  };
+  function handleClose() {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.navigate('/');
+    }
+  }
 
-  const openModal = () => {
+  function handleEndPractice() {
+    ballScale.stopAnimation();
+    handleClose();
+  }
+
+  function openModal() {
     setPaused(true);
     ballScale.stopAnimation();
     setModalVisible(true);
@@ -73,9 +68,9 @@ export default function BreathingScreen() {
       duration: 240,
       useNativeDriver: true,
     }).start();
-  };
+  }
 
-  const closeModal = () => {
+  function closeModal() {
     Animated.timing(modalTranslateY, {
       toValue: 320,
       duration: 200,
@@ -85,7 +80,7 @@ export default function BreathingScreen() {
         setModalVisible(false);
       }
     });
-  };
+  }
 
   useEffect(() => {
     if (paused) {
@@ -104,7 +99,7 @@ export default function BreathingScreen() {
       return;
     }
 
-    const targetScale = phaseIndex === 0 ? 1 : minimumBallScale;
+    const targetScale = phaseIndex === 0 ? 1 : MINIMUM_BALL_SCALE;
     const isHoldPhase = phaseIndex === 1;
 
     if (isHoldPhase) {
@@ -114,7 +109,7 @@ export default function BreathingScreen() {
 
     const animation = Animated.timing(ballScale, {
       toValue: targetScale,
-      duration: Math.max((phases[phaseIndex].duration - timer) * 1000, 1),
+      duration: Math.max((PHASES[phaseIndex].duration - timer) * 1000, 1),
       useNativeDriver: true,
     });
 
@@ -124,12 +119,12 @@ export default function BreathingScreen() {
   }, [ballScale, paused, phaseIndex]);
 
   useEffect(() => {
-    if (timer >= phases[phaseIndex].duration) {
-      if (phaseIndex === phases.length - 1) {
+    if (timer >= PHASES[phaseIndex].duration) {
+      if (phaseIndex === PHASES.length - 1) {
         setCycles((prevCycles) => prevCycles + 1);
       }
 
-      setPhaseIndex((prevIndex) => (prevIndex + 1) % phases.length);
+      setPhaseIndex((prevIndex) => (prevIndex + 1) % PHASES.length);
       setTimer(0);
     }
   }, [phaseIndex, timer]);
@@ -139,7 +134,7 @@ export default function BreathingScreen() {
       style={[styles.container, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 }]}
     >
       <View style={styles.header}>
-        <CloseButton onPress={() => (router.canGoBack() ? router.back() : router.navigate('/'))} />
+        <CloseButton onPress={handleClose} />
       </View>
 
       <View style={styles.content}>
@@ -152,7 +147,7 @@ export default function BreathingScreen() {
             <View style={styles.modalButton}>
               <PracticeModalButton onPress={openModal} />
             </View>
-            <Text style={styles.title}>{phases[phaseIndex]?.text}</Text>
+            <Text style={styles.title}>{PHASES[phaseIndex].text}</Text>
           </View>
           <Text style={styles.subtitle}>
             {timer}s · {cycles} ciclos completos
@@ -174,7 +169,7 @@ export default function BreathingScreen() {
             <Text style={styles.modalTitle}>Como respirar corretamente</Text>
             <Text style={styles.modalSubtitle}>Acompanhe cada etapa da prática.</Text>
             <View style={styles.guideList}>
-              {phaseGuide.map((phase) => (
+              {PHASE_GUIDE.map((phase) => (
                 <View key={phase.title} style={styles.guideItem}>
                   <View style={styles.guideText}>
                     <Text style={styles.guideTitle}>{phase.title}</Text>

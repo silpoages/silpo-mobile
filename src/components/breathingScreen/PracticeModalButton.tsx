@@ -6,7 +6,7 @@ type PracticeModalButtonProps = {
   onPress: () => void;
 };
 
-export default function PracticeModalButton({ onPress }: PracticeModalButtonProps) {
+export function PracticeModalButton({ onPress }: PracticeModalButtonProps) {
   return (
     <Pressable
       onPress={onPress}
