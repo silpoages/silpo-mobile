@@ -56,3 +56,20 @@ export async function signIn({ email, password }: Credentials): Promise<SignInRe
 export async function signInWithGoogle(): Promise<void> {
   await delay(GOOGLE_SIGN_IN_SIMULATED_LATENCY_MS);
 }
+
+type RegisterResponse = {
+  id: string;
+  email: string;
+  role: string;
+  onboarding_completed: boolean;
+};
+
+/** `POST /auth/register` não devolve token — autentica em seguida com as mesmas credenciais. */
+export async function register({ email, password }: Credentials): Promise<SignInResult> {
+  await apiRequest<RegisterResponse>('/auth/register', {
+    method: 'POST',
+    body: { email, password },
+  });
+
+  return signIn({ email, password });
+}
