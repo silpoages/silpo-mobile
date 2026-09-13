@@ -23,7 +23,12 @@
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
-    "plugins": ["expo-sqlite", "expo-font", "expo-router"],
+    "plugins": [
+      "expo-sqlite",
+      "expo-font",
+      "expo-router",
+      "@react-native-community/datetimepicker"
+    ],
     "experiments": {
       "typedRoutes": true
     }
