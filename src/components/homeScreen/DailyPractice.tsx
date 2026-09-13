@@ -4,16 +4,20 @@ import { colors, fontFamily, fontSize } from '@/theme';
 export type DailyPracticeProps = {
   title: string;
   description: string;
+  onPressStart?: () => void;
 };
 
-export function DailyPractice({ title, description }: DailyPracticeProps) {
+export function DailyPractice({ title, description, onPressStart }: DailyPracticeProps) {
   return (
     <View style={styles.card}>
       <Text style={styles.label}>PRÁTICA DO DIA</Text>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.description}>{description}</Text>
       <View style={styles.actions}>
-        <Pressable style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
+        <Pressable
+          onPress={onPressStart}
+          style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}
+        >
           <Text style={styles.primaryButtonText}>Quero tentar</Text>
         </Pressable>
 

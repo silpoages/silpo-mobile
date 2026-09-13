@@ -1,6 +1,7 @@
 import { StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { useRouter } from 'expo-router';
 import { colors } from '@/theme/colors';
 import { Header } from '@/components/homeScreen/Header';
 import { EmotionsRow } from '@/components/emotions/EmotionsRow';
@@ -12,15 +13,34 @@ const TODAY_PRACTICE = {
   description: 'Uma pausa de 2 minutos para acalmar o corpo antes de seguir com o dia.',
 };
 
+/** Quick actions com uma tela própria já implementada — as demais ainda não têm destino. */
+const ACTION_ROUTES: Record<string, '/respiracao'> = {
+  respire: '/respiracao',
+};
+
 export function HomeScreen() {
+  const router = useRouter();
+
+  function handleSelectAction(action: string) {
+    const route = ACTION_ROUTES[action];
+
+    if (route) {
+      router.push(route);
+    }
+  }
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       <StatusBar style="dark" />
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Header userName="Sol" subtitle="Seus sentimentos importam" />
         <EmotionsRow />
-        <DailyPractice title={TODAY_PRACTICE.title} description={TODAY_PRACTICE.description} />
-        <ActionRow />
+        <DailyPractice
+          title={TODAY_PRACTICE.title}
+          description={TODAY_PRACTICE.description}
+          onPressStart={() => router.push('/respiracao')}
+        />
+        <ActionRow onSelectAction={handleSelectAction} />
       </ScrollView>
     </SafeAreaView>
   );
