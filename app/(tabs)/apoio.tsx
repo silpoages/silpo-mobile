@@ -1,10 +1,5 @@
-import { Text, View } from 'react-native';
+import { SupportScreen } from '@/features/supportScreen/SupportScreen';
 
-// Placeholder route — build the screen here.
 export default function SupportRoute() {
-  return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Apoio</Text>
-    </View>
-  );
+  return <SupportScreen />;
 }

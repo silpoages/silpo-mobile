@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native';
-import ButtonProfile from './ButtonProfile';
-import type { ProfileButtonProps } from './ButtonProfile';
+import ButtonProfile from '@/components/profileScreen/ButtonProfile';
+import type { ProfileButtonProps } from '@/components/profileScreen/ButtonProfile';
 import { colors, fontFamily, fontSize } from '@/theme';
 
 type SectionButtonProfileProps = {
@@ -11,7 +11,7 @@ type SectionButtonProfileProps = {
 export default function SectionButtonProfile({ title, items }: SectionButtonProfileProps) {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
+      {title ? <Text style={styles.title}>{title}</Text> : null}
 
       <View style={styles.section}>
         {items.map((item) => (
