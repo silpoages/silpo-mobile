@@ -1,10 +1,5 @@
-import { Text, View } from 'react-native';
+import { OnboardingStep3Screen } from '@/features/onboarding/OnboardingStep3Screen';
 
-// Placeholder route — build the screen here.
 export default function OnboardingStep3Route() {
-  return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Onboarding — 3 de 3</Text>
-    </View>
-  );
+  return <OnboardingStep3Screen />;
 }

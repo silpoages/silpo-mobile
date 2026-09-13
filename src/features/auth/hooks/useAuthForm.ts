@@ -1,7 +1,11 @@
 import { useCallback, useState } from 'react';
 
+import { ApiError } from '@/services/apiClient';
 import type { Credentials } from '@/features/auth/services/authService';
-import { validateEmail, validatePassword } from '@/features/auth/validation/authValidation';
+import {
+  validateEmail,
+  validatePassword as validateLoginPassword,
+} from '@/features/auth/validation/authValidation';
 
 type AuthFormErrors = {
   email?: string;
@@ -9,8 +13,12 @@ type AuthFormErrors = {
   form?: string;
 };
 
+const GENERIC_ERROR_MESSAGE = 'Não foi possível concluir agora. Tente novamente.';
+
 type UseAuthFormParams = {
   onSubmit: (credentials: Credentials) => Promise<unknown>;
+  /** Regra de senha a validar no envio; por padrão, a do login (só não-vazia). */
+  validatePassword?: (password: string) => string | null;
 };
 
 /**
@@ -19,7 +27,10 @@ type UseAuthFormParams = {
  * Valida no envio, ancora cada mensagem no campo que a originou e limpa o erro
  * assim que o usuário volta a digitar naquele campo.
  */
-export function useAuthForm({ onSubmit }: UseAuthFormParams) {
+export function useAuthForm({
+  onSubmit,
+  validatePassword = validateLoginPassword,
+}: UseAuthFormParams) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<AuthFormErrors>({});
@@ -49,12 +60,13 @@ export function useAuthForm({ onSubmit }: UseAuthFormParams) {
 
     try {
       await onSubmit({ email: email.trim(), password });
-    } catch {
-      setErrors({ form: 'Não foi possível concluir agora. Tente novamente.' });
+    } catch (error) {
+      const message = error instanceof ApiError ? error.message : GENERIC_ERROR_MESSAGE;
+      setErrors({ form: message });
     } finally {
       setIsSubmitting(false);
     }
-  }, [email, onSubmit, password]);
+  }, [email, onSubmit, password, validatePassword]);
 
   return {
     email,

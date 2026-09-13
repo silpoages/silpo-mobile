@@ -34,3 +34,18 @@ export function validatePassword(password: string): string | null {
 
   return null;
 }
+
+const MIN_PASSWORD_LENGTH = 8;
+
+/** Espelha o `Field(min_length=8)` de `RegisterInput` no backend. */
+export function validateNewPassword(password: string): string | null {
+  if (password.length === 0) {
+    return 'A senha é obrigatória.';
+  }
+
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    return `A senha deve ter pelo menos ${MIN_PASSWORD_LENGTH} caracteres.`;
+  }
+
+  return null;
+}

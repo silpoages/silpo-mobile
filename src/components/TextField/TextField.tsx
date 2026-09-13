@@ -6,7 +6,8 @@ import { colors, layout, radii, spacing, typography } from '@/theme';
 import { EyeIcon } from '@/components/icons';
 
 type TextFieldProps = {
-  label: string;
+  /** Rótulo acima do campo. Omitido quando o Figma não tem um (ex.: onboarding). */
+  label?: string;
   value: string;
   onChangeText: (value: string) => void;
   placeholder?: string;
@@ -57,7 +58,7 @@ export function TextField({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>{label}</Text>
+      {label ? <Text style={styles.label}>{label}</Text> : null}
 
       <View
         style={[
@@ -67,7 +68,7 @@ export function TextField({
         ]}
       >
         <TextInput
-          accessibilityLabel={label}
+          accessibilityLabel={label ?? placeholder}
           autoCapitalize={autoCapitalize}
           autoComplete={autoComplete}
           autoCorrect={false}
