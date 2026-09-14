@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 import Button from '@/components/Button';
+import { validatePhoneNumber } from '@/features/supportScreen/validation';
 import { colors, fontFamily, fontSize, radii, spacing } from '@/theme';
 
 type AddContactModalProps = {
@@ -30,11 +31,13 @@ export function AddContactModal({
 }: AddContactModalProps) {
   const [fullName, setFullName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneError, setPhoneError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!visible) {
       setFullName('');
       setPhoneNumber('');
+      setPhoneError(null);
     }
   }, [visible]);
 
@@ -48,7 +51,19 @@ export function AddContactModal({
     onClose();
   }
 
+  function handlePhoneChange(value: string) {
+    setPhoneNumber(value);
+    setPhoneError(null);
+  }
+
   function handleConfirm() {
+    const error = validatePhoneNumber(phoneNumber);
+
+    if (error) {
+      setPhoneError(error);
+      return;
+    }
+
     onConfirm(fullName.trim(), phoneNumber.trim());
   }
 
@@ -83,13 +98,18 @@ export function AddContactModal({
             <Text style={styles.label}>Telefone</Text>
             <TextInput
               value={phoneNumber}
-              onChangeText={setPhoneNumber}
+              onChangeText={handlePhoneChange}
               placeholder="+55 51 99999-8888"
               placeholderTextColor={colors.textMuted}
               keyboardType="phone-pad"
               editable={!loading}
               style={styles.input}
             />
+            {phoneError ? (
+              <Text accessibilityRole="alert" style={styles.errorText}>
+                {phoneError}
+              </Text>
+            ) : null}
           </View>
 
           {errorMessage ? (

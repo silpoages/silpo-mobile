@@ -9,6 +9,7 @@ import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader';
 import { useSession } from '@/features/auth/session/SessionContext';
 import { useOnboarding } from '@/features/onboarding/OnboardingContext';
 import { createEmergencyContact } from '@/features/supportScreen/emergencyContactsService';
+import { validatePhoneNumber } from '@/features/supportScreen/validation';
 import { ApiError } from '@/services/apiClient';
 import { colors, fontFamily, fontSize, spacing, typography } from '@/theme';
 
@@ -34,6 +35,13 @@ export function OnboardingStep2Screen() {
 
     if (trimmedName.length === 0 || trimmedPhone.length === 0) {
       goToStep3();
+      return;
+    }
+
+    const phoneValidationError = validatePhoneNumber(trimmedPhone);
+
+    if (phoneValidationError) {
+      setErrorMessage(phoneValidationError);
       return;
     }
 
