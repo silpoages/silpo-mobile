@@ -1,5 +1,4 @@
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import Button from '@/components/Button';
@@ -10,9 +9,9 @@ import { AuthDivider, AuthFormFooter, AuthHeader, GoogleButton } from '@/feature
 import { useAuthForm } from '@/features/auth/hooks/useAuthForm';
 import { useSession } from '@/features/auth/session/SessionContext';
 import type { Credentials } from '@/features/auth/services/authService';
-import { signIn, signInWithGoogle } from '@/features/auth/services/authService';
+import { signIn } from '@/features/auth/services/authService';
 
-const GOOGLE_SIGN_IN_ERROR = 'Não foi possível entrar com o Google. Tente novamente.';
+function handleGooglePress() {}
 
 /**
  * Login de contas existentes, com alternativa de conta Google.
@@ -26,8 +25,6 @@ const GOOGLE_SIGN_IN_ERROR = 'Não foi possível entrar com o Google. Tente nova
 export function SignInScreen() {
   const router = useRouter();
   const session = useSession();
-  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
-  const [googleErrorMessage, setGoogleErrorMessage] = useState<string | null>(null);
 
   /** `replace` tira o login do histórico: voltar na Home não reabre esta tela. */
   async function handleSignIn(credentials: Credentials) {
@@ -46,22 +43,6 @@ export function SignInScreen() {
     handleSubmit,
   } = useAuthForm({ onSubmit: handleSignIn });
 
-  const isBusy = isSubmitting || isGoogleSubmitting;
-
-  async function handleGooglePress() {
-    setGoogleErrorMessage(null);
-    setIsGoogleSubmitting(true);
-
-    try {
-      await signInWithGoogle();
-      router.replace('/');
-    } catch {
-      setGoogleErrorMessage(GOOGLE_SIGN_IN_ERROR);
-    } finally {
-      setIsGoogleSubmitting(false);
-    }
-  }
-
   return (
     <ScreenContainer>
       <View style={styles.body}>
@@ -74,7 +55,7 @@ export function SignInScreen() {
         <View style={styles.form}>
           <TextField
             autoComplete="email"
-            editable={!isBusy}
+            editable={!isSubmitting}
             errorMessage={errors.email}
             keyboardType="email-address"
             label="E-mail"
@@ -88,7 +69,7 @@ export function SignInScreen() {
 
           <TextField
             autoComplete="current-password"
-            editable={!isBusy}
+            editable={!isSubmitting}
             errorMessage={errors.password}
             label="Senha"
             onChangeText={handlePasswordChange}
@@ -107,13 +88,7 @@ export function SignInScreen() {
             </Text>
           ) : null}
 
-          <Button
-            disabled={isGoogleSubmitting}
-            loading={isSubmitting}
-            onPress={handleSubmit}
-            size="lg"
-            testID="submit-button"
-          >
+          <Button loading={isSubmitting} onPress={handleSubmit} size="lg" testID="submit-button">
             Entrar
           </Button>
 
@@ -128,17 +103,7 @@ export function SignInScreen() {
           <AuthDivider />
         </View>
 
-        <GoogleButton
-          disabled={isSubmitting}
-          loading={isGoogleSubmitting}
-          onPress={handleGooglePress}
-        />
-
-        {googleErrorMessage ? (
-          <Text accessibilityRole="alert" style={[styles.formError, styles.googleError]}>
-            {googleErrorMessage}
-          </Text>
-        ) : null}
+        <GoogleButton disabled={isSubmitting} onPress={handleGooglePress} />
 
         <Text style={styles.privacyNote}>
           Seus registros de emoção são privados e ficam com você.
@@ -161,10 +126,6 @@ const styles = StyleSheet.create({
   formError: {
     ...typography.footnote,
     color: colors.danger,
-  },
-  googleError: {
-    marginTop: spacing.md,
-    textAlign: 'center',
   },
   divider: {
     marginVertical: spacing.xxl,

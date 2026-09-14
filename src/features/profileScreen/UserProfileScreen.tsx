@@ -1,9 +1,11 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View, ScrollView, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import SectionButtonProfile from '@/components/profileScreen/SectionButtonProfile';
 import type { ProfileButtonProps } from '@/components/profileScreen/ButtonProfile';
 import DeleteAccountModal from '@/features/profileScreen/DeleteAccountModal';
+import { useSession } from '@/features/auth/session/SessionContext';
+import { listEmergencyContacts } from '@/features/supportScreen/emergencyContactsService';
 import { deleteCurrentUser } from '@/services/user';
 import { colors, fontFamily, fontSize } from '@/theme';
 
@@ -14,12 +16,23 @@ type ProfileSection = {
 
 export default function UserProfileScreen() {
   const router = useRouter();
+  const session = useSession();
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const isDeletingAccountRef = useRef(false);
+  const [comfortPersonName, setComfortPersonName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!session.token) {
+      return;
+    }
+
+    listEmergencyContacts(session.token)
+      .then((contacts) => setComfortPersonName(contacts[0]?.fullName ?? null))
+      .catch(() => {});
+  }, [session.token]);
 
   function handlePersonalDataPress() {}
-  function handleComfortPersonPress() {}
   function handlePrivacyPress() {}
   function handleAccessibilityPress() {}
   function handleNotificationsPress() {}
@@ -27,7 +40,15 @@ export default function UserProfileScreen() {
   function handleDeletedMessagesPress() {}
   function handlePremiumPress() {}
   function handlePaymentsPress() {}
-  function handleLogoutPress() {}
+
+  function handleComfortPersonPress() {
+    router.push('/apoio');
+  }
+
+  async function handleLogoutPress() {
+    await session.logout();
+    router.replace('/welcome');
+  }
 
   function handleDeleteAccountPress() {
     setIsDeleteModalVisible(true);
@@ -42,7 +63,7 @@ export default function UserProfileScreen() {
   }
 
   async function handleConfirmDeleteAccount() {
-    if (isDeletingAccountRef.current) {
+    if (isDeletingAccountRef.current || !session.token || !session.user) {
       return;
     }
 
@@ -50,14 +71,18 @@ export default function UserProfileScreen() {
     setIsDeletingAccount(true);
 
     try {
-      await deleteCurrentUser();
+      await deleteCurrentUser(session.token, session.user.id);
+      await session.logout();
       setIsDeleteModalVisible(false);
-      router.replace('/login');
+      router.replace('/welcome');
     } finally {
       isDeletingAccountRef.current = false;
       setIsDeletingAccount(false);
     }
   }
+
+  const userName = session.user?.fullName?.trim() || session.user?.email || 'Você';
+  const nameInitial = userName.charAt(0).toUpperCase();
 
   const sections: ProfileSection[] = [
     {
@@ -71,7 +96,7 @@ export default function UserProfileScreen() {
         {
           title: 'Pessoa de conforto',
           icon: 'heart',
-          info: 'Jaskier',
+          info: comfortPersonName ?? undefined,
           onPress: handleComfortPersonPress,
         },
         {
@@ -148,11 +173,11 @@ export default function UserProfileScreen() {
         <Text style={styles.title}>Perfil</Text>
         <View style={styles.profileContainer}>
           <View style={styles.profileIcon}>
-            <Text style={styles.profileIconText}>M</Text>
+            <Text style={styles.profileIconText}>{nameInitial}</Text>
           </View>
           <View>
-            <Text style={styles.profileName}>Mago dos Games</Text>
-            <Text style={styles.profileEmail}>mago@gmail.com</Text>
+            <Text style={styles.profileName}>{userName}</Text>
+            <Text style={styles.profileEmail}>{session.user?.email}</Text>
           </View>
         </View>
 
