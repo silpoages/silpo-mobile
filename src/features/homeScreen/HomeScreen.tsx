@@ -7,6 +7,7 @@ import { Header } from '@/components/homeScreen/Header';
 import { EmotionsRow } from '@/components/emotions/EmotionsRow';
 import { DailyPractice } from '@/components/homeScreen/DailyPractice';
 import { ActionRow } from '@/components/QuickActions/ActionRow';
+import { useSession } from '@/features/auth/session/SessionContext';
 
 const TODAY_PRACTICE = {
   title: 'Respiração 4-7-8',
@@ -20,6 +21,7 @@ const ACTION_ROUTES: Record<string, '/respiracao'> = {
 
 export function HomeScreen() {
   const router = useRouter();
+  const session = useSession();
 
   function handleSelectAction(action: string) {
     const route = ACTION_ROUTES[action];
@@ -29,11 +31,17 @@ export function HomeScreen() {
     }
   }
 
+  const userName = session.user?.fullName?.trim() || session.user?.email || '';
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       <StatusBar style="dark" />
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <Header userName="Sol" subtitle="Seus sentimentos importam" />
+        <Header
+          onPressAvatar={() => router.push('/perfil')}
+          subtitle="Seus sentimentos importam"
+          userName={userName}
+        />
         <EmotionsRow />
         <DailyPractice
           title={TODAY_PRACTICE.title}
