@@ -1,10 +1,11 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { Pressable, View, Text, StyleSheet } from 'react-native';
 import { colors } from '@/theme/colors';
 import { fontFamily, fontSize } from '@/theme/fonts';
 
 type HeaderProps = {
   userName: string;
   subtitle: string;
+  onPressAvatar?: () => void;
 };
 
 /** Saudação de acordo com o horário do dispositivo. */
@@ -15,7 +16,7 @@ function getGreeting(): string {
   return 'Boa noite';
 }
 
-export function Header({ userName, subtitle }: HeaderProps) {
+export function Header({ userName, subtitle, onPressAvatar }: HeaderProps) {
   const nameInitial = userName.trim().charAt(0).toUpperCase();
 
   return (
@@ -28,9 +29,14 @@ export function Header({ userName, subtitle }: HeaderProps) {
           {subtitle}
         </Text>
       </View>
-      <View style={styles.avatar}>
+      <Pressable
+        accessibilityLabel="Perfil"
+        accessibilityRole="button"
+        onPress={onPressAvatar}
+        style={styles.avatar}
+      >
         <Text style={styles.initial}>{nameInitial}</Text>
-      </View>
+      </Pressable>
     </View>
   );
 }

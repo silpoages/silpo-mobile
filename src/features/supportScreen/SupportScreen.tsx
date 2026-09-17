@@ -87,12 +87,12 @@ export function SupportScreen() {
     <ScreenContainer>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Apoio</Text>
-        <CloseButton onPress={handleClose} />
+        {session.isAuthenticated ? null : <CloseButton onPress={handleClose} />}
       </View>
 
       <View style={styles.intro}>
         <View style={styles.introIcon}>
-          <HeartIcon size={22} color={colors.support.dark} />
+          <HeartIcon size={22} color={colors.surface} />
         </View>
         <Text style={styles.introTitle}>Você não precisa enfrentar esse momento sozinho.</Text>
         <Text style={styles.introSubtitle}>Estas opções estão aqui para você, sempre.</Text>
@@ -123,7 +123,7 @@ export function SupportScreen() {
             <Text style={styles.breathingTitle}>Respirar pode ajudar agora</Text>
             <Text style={styles.breathingDescription}>Um exercício guiado de 3 minutos.</Text>
           </View>
-          <Button variant="secondary" size="sm">
+          <Button variant="secondary" size="sm" onPress={() => router.push('/respiracao')}>
             Começar
           </Button>
         </View>
@@ -164,38 +164,41 @@ const styles = StyleSheet.create({
   },
   intro: {
     alignItems: 'center',
+    backgroundColor: colors.support.surface,
+    borderRadius: 20,
     gap: spacing.sm,
+    paddingHorizontal: spacing.xl,
     paddingVertical: spacing.xxl,
   },
   introIcon: {
     width: 48,
     height: 48,
     borderRadius: 999,
-    backgroundColor: colors.support.surface,
+    backgroundColor: colors.support.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.sm,
   },
   introTitle: {
-    fontFamily: fontFamily.bold,
+    fontFamily: fontFamily.extraBold,
     fontSize: fontSize.title,
-    color: colors.text,
+    color: colors.support.text,
     textAlign: 'center',
   },
   introSubtitle: {
     fontFamily: fontFamily.regular,
-    fontSize: fontSize.body,
-    color: colors.textSecondary,
+    fontSize: fontSize.md,
+    color: colors.support.muted,
     textAlign: 'center',
   },
   section: {
     gap: spacing.lg,
   },
   cvvCard: {
-    backgroundColor: colors.support.surface,
+    backgroundColor: colors.surface,
     borderRadius: radii.field,
     borderWidth: 1,
-    borderColor: colors.support.border,
+    borderColor: colors.border,
     padding: spacing.xl,
     gap: spacing.md,
     alignItems: 'flex-start',
@@ -203,12 +206,12 @@ const styles = StyleSheet.create({
   cvvTitle: {
     fontFamily: fontFamily.bold,
     fontSize: fontSize.lg,
-    color: colors.support.text,
+    color: colors.text,
   },
   cvvDescription: {
     fontFamily: fontFamily.regular,
     fontSize: fontSize.body,
-    color: colors.support.muted,
+    color: colors.textSecondary,
   },
   breathingCard: {
     backgroundColor: colors.surface,

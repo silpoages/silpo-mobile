@@ -1,9 +1,11 @@
 import { apiRequest } from '@/services/apiClient';
 
-const STUB_DELAY_MS = 600;
-
-export async function deleteCurrentUser(): Promise<void> {
-  await new Promise((resolve) => setTimeout(resolve, STUB_DELAY_MS));
+/** `DELETE /users/{userId}` — só apaga a própria conta (ou qualquer uma, se admin). */
+export async function deleteCurrentUser(token: string, userId: string): Promise<void> {
+  await apiRequest<{ message: string }>(`/users/${userId}`, {
+    method: 'DELETE',
+    token,
+  });
 }
 
 export type Gender = 'MALE' | 'FEMALE' | 'NON_BINARY' | 'OTHER' | 'PREFER_NOT_TO_SAY';
