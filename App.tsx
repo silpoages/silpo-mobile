@@ -1,12 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Button } from '@/components';
+import { Button, ContinueJourneyCard } from '@/components';
 import { useAppFonts } from '@/hooks/useAppFonts';
 import { colors, fontFamily, fontSize } from '@/theme';
 import { TabBar, TabKey } from './src/components/TabBar';
 
-import { ActionRow } from '../silpo-mobile/src/components/QuickActions/ActionRow';
+import { ActionRow } from './src/components/QuickActions/ActionRow';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('jornada');
@@ -38,9 +38,10 @@ export default function App() {
           Agora nao
         </Button>
       </View>
+      <ContinueJourneyCard />
       <TabBar activeTab={activeTab} onTabPress={setActiveTab} />
       <StatusBar style="dark" />
-      <ActionRow/>
+      <ActionRow />
     </View>
   );
 }
