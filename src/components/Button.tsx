@@ -55,7 +55,7 @@ const sizeStyles = {
   lg: { minHeight: 52, paddingHorizontal: 24, fontSize: fontSize.lg },
 } as const;
 
-export function Button({
+export default function Button({
   children,
   leftIcon,
   variant = 'primary',
@@ -100,7 +100,6 @@ export function Button({
               styles.text,
               { color: palette.color, fontSize: dimensions.fontSize },
               textStyle,
-              leftIcon ? styles.textWithIcon : undefined,
             ]}
           >
             {children}
@@ -113,15 +112,14 @@ export function Button({
 
 const styles = StyleSheet.create({
   button: {
+    flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
     justifyContent: 'center',
+    gap: 8,
+    borderWidth: 1,
   },
   text: {
     fontFamily: fontFamily.bold,
     textAlign: 'center',
-  },
-  textWithIcon: {
-    marginLeft: 8,
   },
 });

@@ -3,6 +3,8 @@ export const colors = {
   surface: '#FFFFFF',
   surfaceMuted: '#EFF4EE',
   surfaceTint: '#E3F0E7',
+  /** Tom mais fechado do `surfaceTint`, usado no círculo interno da tela de boas-vindas. */
+  surfaceTintStrong: '#CDEBD3',
 
   text: '#1F3329',
   textSecondary: '#55685D',
