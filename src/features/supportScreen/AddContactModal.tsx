@@ -14,6 +14,34 @@ import Button from '@/components/Button';
 import { validatePhoneNumber } from '@/features/supportScreen/validation';
 import { colors, fontFamily, fontSize, radii, spacing } from '@/theme';
 
+const COUNTRY_CODE = '55';
+
+/** Aplica a máscara `+55 DD 9XXXX-XXXX`, com código do país fixo. */
+function maskPhoneInput(raw: string): string {
+  const digits = raw.replace(/\D/g, '');
+  const typed = digits.slice(COUNTRY_CODE.length).slice(0, 11);
+
+  if (!typed) {
+    return '';
+  }
+
+  const ddd = typed.slice(0, 2);
+  const firstPart = typed.slice(2, 7);
+  const secondPart = typed.slice(7, 11);
+
+  let masked = `+${COUNTRY_CODE}`;
+  if (ddd) masked += ` ${ddd}`;
+  if (firstPart) masked += ` ${firstPart}`;
+  if (secondPart) masked += `-${secondPart}`;
+
+  return masked;
+}
+
+/** Remove a máscara e devolve só os dígitos (com código do país) — formato que o backend espera. */
+function toRawPhone(masked: string): string {
+  return masked.replace(/\D/g, '');
+}
+
 type AddContactModalProps = {
   visible: boolean;
   loading: boolean;
@@ -52,7 +80,7 @@ export function AddContactModal({
   }
 
   function handlePhoneChange(value: string) {
-    setPhoneNumber(value);
+    setPhoneNumber(maskPhoneInput(value));
     setPhoneError(null);
   }
 
@@ -64,7 +92,7 @@ export function AddContactModal({
       return;
     }
 
-    onConfirm(fullName.trim(), phoneNumber.trim());
+    onConfirm(fullName.trim(), toRawPhone(phoneNumber));
   }
 
   return (
