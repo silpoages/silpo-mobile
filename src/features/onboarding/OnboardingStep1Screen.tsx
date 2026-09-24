@@ -36,6 +36,7 @@ export function OnboardingStep1Screen() {
     gender,
     setGender,
     dailyReminderEnabled,
+    setIsProfileSaved,
   } = useOnboarding();
 
   const [errors, setErrors] = useState<Step1Errors>({});
@@ -79,6 +80,7 @@ export function OnboardingStep1Screen() {
         fullName: updated.fullName,
         onboardingCompleted: updated.onboardingCompleted,
       });
+      setIsProfileSaved(true);
 
       router.push('/onboarding/etapa-2');
     } catch (error) {
