@@ -7,7 +7,10 @@ const WELCOME_ROUTE: Href = '/welcome';
 export const HOME_ROUTE: Href = '/';
 
 /** Entrada de quem tem sessão mas ainda não passou pelo onboarding. */
-const ONBOARDING_FIRST_STEP_ROUTE: Href = '/onboarding/etapa-1';
+export const ONBOARDING_FIRST_STEP_ROUTE: Href = '/onboarding/etapa-1';
+
+/** Etapas do onboarding: as únicas telas internas liberadas antes de concluí-lo. */
+const ONBOARDING_ROUTE_PREFIX = '/onboarding/';
 
 /** Abertas com e sem sessão: a Welcome leva ao apoio, que oferece a respiração. */
 const PUBLIC_ROUTES = ['/apoio', '/respiracao'];
@@ -22,8 +25,8 @@ type SessionAccess = {
 
 /**
  * Destino do redirecionamento, ou `null` quando a rota pode ficar. Nega por
- * padrão: tela fora das listas exige sessão. Quem já concluiu o onboarding é
- * barrado em `app/onboarding/_layout.tsx`.
+ * padrão: tela fora das listas exige sessão e onboarding concluído. Quem já
+ * concluiu o onboarding é barrado em `app/onboarding/_layout.tsx`.
  */
 export function resolveRedirect(pathname: string, session: SessionAccess): Href | null {
   if (PUBLIC_ROUTES.includes(pathname)) {
@@ -38,5 +41,13 @@ export function resolveRedirect(pathname: string, session: SessionAccess): Href 
     return session.onboardingCompleted ? HOME_ROUTE : ONBOARDING_FIRST_STEP_ROUTE;
   }
 
-  return session.isAuthenticated ? null : WELCOME_ROUTE;
+  if (!session.isAuthenticated) {
+    return WELCOME_ROUTE;
+  }
+
+  if (!session.onboardingCompleted && !pathname.startsWith(ONBOARDING_ROUTE_PREFIX)) {
+    return ONBOARDING_FIRST_STEP_ROUTE;
+  }
+
+  return null;
 }
