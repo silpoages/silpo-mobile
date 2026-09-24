@@ -7,6 +7,7 @@ import { Header } from '@/components/homeScreen/Header';
 import { EmotionsRow } from '@/components/emotions/EmotionsRow';
 import { DailyPractice } from '@/components/homeScreen/DailyPractice';
 import { ActionRow } from '@/components/QuickActions/ActionRow';
+import { ContinueJourneyCard } from '@/components/ContinueJourneyCard';
 import { useSession } from '@/features/auth/session/SessionContext';
 
 const TODAY_PRACTICE = {
@@ -48,6 +49,7 @@ export function HomeScreen() {
           description={TODAY_PRACTICE.description}
           onPressStart={() => router.push('/respiracao')}
         />
+        <ContinueJourneyCard />
         <ActionRow onSelectAction={handleSelectAction} />
       </ScrollView>
     </SafeAreaView>
