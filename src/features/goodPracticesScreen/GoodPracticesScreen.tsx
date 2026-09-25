@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
-
 import { BackButton } from '@/components/BackButton';
 import Button from '@/components/Button';
 import { ScreenContainer } from '@/components/ScreenContainer';
-import { StartedBadge } from '@/components/StartedBadge';
-import { StepItem } from '@/components/StepItem';
-import { colors, fontFamily, fontSize, radii, spacing, typography } from '@/theme';
+import { StartedBadge } from '@/components/goodPracticesScreen/StartedBadge';
+import { StepItem } from '@/components/goodPracticesScreen/StepItem';
+import { colors, radii, spacing, typography } from '@/theme';
 
 const GUIDANCE_STEPS = [
   'Respire fundo uma vez antes de começar.',
@@ -42,43 +41,47 @@ export function GoodPracticesScreen({ title, description }: GoodPracticesScreenP
         <BackButton onPress={handleClose} />
       </View>
 
-      <View style={styles.content}>
-        <View style={styles.textBox}>
-          <Text style={styles.eyebrow}>Prática do bem</Text>
-          {/* alterar para receber o título da prática aqui.*/}
-          <Text style={styles.title}>{'Sentar em um parque'}</Text>
-          {/* alterar para receber a descrição da prática aqui.*/}
-          <Text style={styles.description}>
-            {'Escolha um banco tranquilo e fique o tempo que for confortável. Só isso já conta'}
-          </Text>
-        </View>
+      <View style={styles.textBox}>
+        <Text style={styles.label}>Prática do bem</Text>
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.description}>{description}</Text>
+      </View>
 
-        {isStarted && <StartedBadge />}
+      {isStarted && <StartedBadge style={styles.startedBadge} />}
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Se quiser, um caminho</Text>
-          {GUIDANCE_STEPS.map((step, index) => (
-            <StepItem key={step} number={index + 1} text={step} />
-          ))}
-        </View>
+      <View style={styles.card}>
+        <Text style={styles.label}>Se quiser, um caminho</Text>
+        {GUIDANCE_STEPS.map((step, index) => (
+          <StepItem key={step} number={index + 1} text={step} />
+        ))}
       </View>
 
       <View style={styles.footer}>
         {isStarted ? (
           <>
-            <Button size="lg" onPress={handleClose}>
+            <Button size="lg" testID="finish-practice-button" onPress={handleClose}>
               Concluir prática
             </Button>
-            <Button variant="secondary" size="lg" style={styles.ghostButton} onPress={handleClose}>
+            <Button
+              variant="ghost"
+              size="md"
+              testID="postpone-practice-button"
+              onPress={handleClose}
+            >
               Deixar para depois
             </Button>
           </>
         ) : (
           <>
-            <Button size="lg" onPress={handleStartPractice}>
+            <Button size="lg" testID="start-practice-button" onPress={handleStartPractice}>
               Começar agora
             </Button>
-            <Button variant="secondary" size="lg" style={styles.ghostButton} onPress={handleClose}>
+            <Button
+              variant="ghost"
+              size="md"
+              testID="dismiss-practice-button"
+              onPress={handleClose}
+            >
               Agora não
             </Button>
           </>
@@ -96,33 +99,33 @@ const styles = StyleSheet.create({
   header: {
     width: '100%',
     alignItems: 'flex-start',
-  },
-  content: {
-    width: '100%',
-    marginTop: spacing.lg,
-    gap: spacing.xxl,
+    marginBottom: spacing.lg,
   },
   textBox: {
     width: '100%',
     gap: spacing.md,
   },
-  eyebrow: {
-    fontFamily: fontFamily.bold,
-    fontSize: fontSize.xs,
+  label: {
+    ...typography.fieldLabel,
+    color: colors.primary,
     letterSpacing: 1,
     textTransform: 'uppercase',
-    color: colors.primary,
   },
   title: {
     ...typography.title,
     color: colors.text,
+    marginTop: spacing.sm,
   },
   description: {
     ...typography.subtitle,
     color: colors.textSecondary,
   },
+  startedBadge: {
+    marginTop: spacing.lg,
+  },
   card: {
     width: '100%',
+    marginTop: spacing.xxl,
     padding: spacing.xl,
     gap: spacing.lg,
     borderRadius: radii.button,
@@ -130,20 +133,9 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.surface,
   },
-  cardTitle: {
-    fontFamily: fontFamily.bold,
-    fontSize: fontSize.sm,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    color: colors.text,
-  },
   footer: {
     width: '100%',
     marginTop: spacing.xxl,
     gap: spacing.md,
-  },
-  ghostButton: {
-    backgroundColor: 'transparent',
-    borderColor: 'transparent',
   },
 });

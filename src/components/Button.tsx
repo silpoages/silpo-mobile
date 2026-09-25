@@ -11,7 +11,7 @@ import {
 import type { ReactNode } from 'react';
 import { colors, fontFamily, fontSize } from '@/theme';
 
-type ButtonVariant = 'primary' | 'secondary' | 'support' | 'supportText';
+type ButtonVariant = 'primary' | 'secondary' | 'support' | 'supportText' | 'ghost';
 type ButtonSize = 'sm' | 'md' | 'lg';
 type ButtonShape = 'rounded' | 'pill';
 
@@ -46,6 +46,11 @@ const variantStyles = {
     backgroundColor: colors.support.surface,
     borderColor: colors.support.surface,
     color: colors.support.text,
+  },
+  ghost: {
+    backgroundColor: 'transparent',
+    borderColor: 'transparent',
+    color: colors.primary,
   },
 } as const;
 
