@@ -24,7 +24,8 @@ type Step1Errors = {
  */
 export function OnboardingStep1Screen() {
   const router = useRouter();
-  const { fullName, setFullName, birthDate, setBirthDate, gender, setGender } = useOnboarding();
+  const { fullName, setFullName, birthDate, setBirthDate, gender, setGender, setIsProfileSaved } =
+    useOnboarding();
 
   const [errors, setErrors] = useState<Step1Errors>({});
 
@@ -39,6 +40,7 @@ export function OnboardingStep1Screen() {
     }
 
     setErrors({});
+    setIsProfileSaved(true);
     router.push('/onboarding/etapa-2');
   }
 

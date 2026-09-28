@@ -7,7 +7,7 @@ const WELCOME_ROUTE: Href = '/welcome';
 export const HOME_ROUTE: Href = '/';
 
 /** Entrada de quem tem sessão mas ainda não passou pelo onboarding. */
-const ONBOARDING_FIRST_STEP_ROUTE: Href = '/onboarding/etapa-1';
+export const ONBOARDING_FIRST_STEP_ROUTE: Href = '/onboarding/etapa-1';
 
 /**
  * Abertas sem sessão: a Welcome leva ao apoio, que oferece a respiração.

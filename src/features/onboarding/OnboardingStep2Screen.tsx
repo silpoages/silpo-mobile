@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -7,6 +7,7 @@ import { ScreenContainer } from '@/components/ScreenContainer';
 import { TextField } from '@/components/TextField';
 import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader';
 import { useSession } from '@/features/auth/session/SessionContext';
+import { ONBOARDING_FIRST_STEP_ROUTE } from '@/features/auth/session/routeAccess';
 import { useOnboarding } from '@/features/onboarding/OnboardingContext';
 import { createEmergencyContact } from '@/features/supportScreen/emergencyContactsService';
 import { validatePhoneNumber } from '@/features/supportScreen/validation';
@@ -20,7 +21,8 @@ const GENERIC_ERROR_MESSAGE =
 export function OnboardingStep2Screen() {
   const router = useRouter();
   const session = useSession();
-  const { supportName, setSupportName, supportPhone, setSupportPhone } = useOnboarding();
+  const { supportName, setSupportName, supportPhone, setSupportPhone, isProfileSaved } =
+    useOnboarding();
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -63,6 +65,10 @@ export function OnboardingStep2Screen() {
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  if (!isProfileSaved) {
+    return <Redirect href={ONBOARDING_FIRST_STEP_ROUTE} />;
   }
 
   return (
