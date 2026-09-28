@@ -8,23 +8,28 @@ const TOTAL_STEPS = 3;
 
 type OnboardingHeaderProps = {
   step: number;
-  onPressBack: () => void;
+  /** Ausente na etapa 1: sair do fluxo só volta para cá. */
+  onPressBack?: () => void;
 };
 
 /** Cabeçalho das 3 etapas do onboarding: voltar, progresso e "N de 3" (nó 4236:989). */
 export function OnboardingHeader({ step, onPressBack }: OnboardingHeaderProps) {
   return (
     <View style={styles.row}>
-      <Pressable
-        accessibilityLabel="Voltar"
-        accessibilityRole="button"
-        hitSlop={spacing.md}
-        onPress={onPressBack}
-        style={({ pressed }) => [styles.backButton, pressed && styles.backButtonPressed]}
-        testID="back-button"
-      >
-        <ChevronLeftIcon />
-      </Pressable>
+      {onPressBack ? (
+        <Pressable
+          accessibilityLabel="Voltar"
+          accessibilityRole="button"
+          hitSlop={spacing.md}
+          onPress={onPressBack}
+          style={({ pressed }) => [styles.backButton, pressed && styles.backButtonPressed]}
+          testID="back-button"
+        >
+          <ChevronLeftIcon />
+        </Pressable>
+      ) : (
+        <View style={styles.backButton} />
+      )}
 
       <ProgressBar step={step} totalSteps={TOTAL_STEPS} />
 

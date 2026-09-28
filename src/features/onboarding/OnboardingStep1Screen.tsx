@@ -8,49 +8,28 @@ import { TextField } from '@/components/TextField';
 import { BirthDateField } from '@/components/onboarding/BirthDateField';
 import { GenderSelectField } from '@/components/onboarding/GenderSelectField';
 import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader';
-import { useSession } from '@/features/auth/session/SessionContext';
-import { toISODate } from '@/features/onboarding/date';
 import { useOnboarding } from '@/features/onboarding/OnboardingContext';
-import { ApiError } from '@/services/apiClient';
-import { updateCurrentUser } from '@/services/user';
 import { colors, fontFamily, fontSize, spacing, typography } from '@/theme';
-
-const GENERIC_ERROR_MESSAGE = 'Não foi possível salvar agora. Tente novamente.';
 
 type Step1Errors = {
   fullName?: string;
   birthDate?: string;
   gender?: string;
-  form?: string;
 };
 
-/** Etapa 1 de 3: nome, data de nascimento e gênero (nó 4236:986 do Figma). */
+/**
+ * Etapa 1 de 3: nome, data de nascimento e gênero (nó 4236:986 do Figma).
+ * O `PATCH /users` só acontece na etapa 3: o backend marca `onboarding_completed`
+ * em qualquer atualização, e o guard usa essa flag para saber se o fluxo acabou.
+ */
 export function OnboardingStep1Screen() {
   const router = useRouter();
-  const session = useSession();
-  const {
-    fullName,
-    setFullName,
-    birthDate,
-    setBirthDate,
-    gender,
-    setGender,
-    dailyReminderEnabled,
-    setIsProfileSaved,
-  } = useOnboarding();
+  const { fullName, setFullName, birthDate, setBirthDate, gender, setGender, setIsProfileSaved } =
+    useOnboarding();
 
   const [errors, setErrors] = useState<Step1Errors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handlePressBack() {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace('/welcome');
-    }
-  }
-
-  async function handleContinue() {
+  function handleContinue() {
     const fullNameError = fullName.trim().length === 0 ? 'O nome é obrigatório.' : undefined;
     const birthDateError = birthDate === null ? 'A data de nascimento é obrigatória.' : undefined;
     const genderError = gender === null ? 'O gênero é obrigatório.' : undefined;
@@ -60,41 +39,15 @@ export function OnboardingStep1Screen() {
       return;
     }
 
-    if (!session.token || !session.user || !birthDate || !gender) {
-      return;
-    }
-
     setErrors({});
-    setIsSubmitting(true);
-
-    try {
-      const updated = await updateCurrentUser(session.token, {
-        fullName: fullName.trim(),
-        birthDate: toISODate(birthDate),
-        gender,
-        dailyReminderEnabled,
-      });
-
-      await session.login(session.token, {
-        ...session.user,
-        fullName: updated.fullName,
-        onboardingCompleted: updated.onboardingCompleted,
-      });
-      setIsProfileSaved(true);
-
-      router.push('/onboarding/etapa-2');
-    } catch (error) {
-      const message = error instanceof ApiError ? error.message : GENERIC_ERROR_MESSAGE;
-      setErrors({ form: message });
-    } finally {
-      setIsSubmitting(false);
-    }
+    setIsProfileSaved(true);
+    router.push('/onboarding/etapa-2');
   }
 
   return (
     <ScreenContainer>
       <View style={styles.body}>
-        <OnboardingHeader onPressBack={handlePressBack} step={1} />
+        <OnboardingHeader step={1} />
 
         <View style={styles.content}>
           <Text style={styles.title}>Como você gostaria de ser chamado?</Text>
@@ -104,11 +57,10 @@ export function OnboardingStep1Screen() {
 
           <TextField
             autoCapitalize="words"
-            editable={!isSubmitting}
             errorMessage={errors.fullName}
             onChangeText={(newValue) => {
               setFullName(newValue);
-              setErrors((current) => ({ ...current, fullName: undefined, form: undefined }));
+              setErrors((current) => ({ ...current, fullName: undefined }));
             }}
             placeholder="Seu nome ou apelido"
             returnKeyType="next"
@@ -120,7 +72,7 @@ export function OnboardingStep1Screen() {
             errorMessage={errors.birthDate}
             onChange={(newValue) => {
               setBirthDate(newValue);
-              setErrors((current) => ({ ...current, birthDate: undefined, form: undefined }));
+              setErrors((current) => ({ ...current, birthDate: undefined }));
             }}
             value={birthDate}
           />
@@ -129,25 +81,14 @@ export function OnboardingStep1Screen() {
             errorMessage={errors.gender}
             onChange={(newValue) => {
               setGender(newValue);
-              setErrors((current) => ({ ...current, gender: undefined, form: undefined }));
+              setErrors((current) => ({ ...current, gender: undefined }));
             }}
             value={gender}
           />
         </View>
 
-        {errors.form ? (
-          <Text accessibilityRole="alert" style={styles.formError}>
-            {errors.form}
-          </Text>
-        ) : null}
-
         <View style={styles.actions}>
-          <Button
-            loading={isSubmitting}
-            onPress={handleContinue}
-            size="lg"
-            testID="continue-button"
-          >
+          <Button onPress={handleContinue} size="lg" testID="continue-button">
             Continuar
           </Button>
         </View>
@@ -176,11 +117,6 @@ const styles = StyleSheet.create({
   subtitle: {
     ...typography.subtitle,
     color: colors.textSecondary,
-  },
-  formError: {
-    ...typography.footnote,
-    color: colors.danger,
-    textAlign: 'center',
   },
   actions: {
     gap: spacing.lg,

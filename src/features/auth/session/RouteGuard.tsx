@@ -1,37 +1,29 @@
-import { usePathname, useRootNavigationState, useRouter } from 'expo-router';
-import { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Redirect, usePathname, useRootNavigationState } from 'expo-router';
 
 import { useSession } from '@/features/auth/session/SessionContext';
 import { resolveRedirect } from '@/features/auth/session/routeAccess';
-import { colors } from '@/theme';
 
-/** Aplica `routeAccess` a cada mudança de rota, depois que o navegador raiz existe. */
+/**
+ * Manda a rota atual para o destino de `routeAccess`.
+ * O redirecionamento acontece no render, para a Home não aparecer antes da Welcome.
+ */
 export function RouteGuard() {
   const pathname = usePathname();
-  const router = useRouter();
   const session = useSession();
   const navigationState = useRootNavigationState();
 
-  const isNavigationReady = navigationState?.key != null;
+  if (navigationState?.key == null) {
+    return null;
+  }
+
   const destination = resolveRedirect(pathname, {
     isAuthenticated: session.isAuthenticated,
     onboardingCompleted: session.user?.onboardingCompleted ?? false,
   });
 
-  useEffect(() => {
-    if (isNavigationReady && destination !== null) {
-      router.replace(destination);
-    }
-  }, [destination, isNavigationReady, pathname, router]);
+  if (destination === null) {
+    return null;
+  }
 
-  // O redirecionamento só roda depois da pintura; até lá, a rota barrada fica coberta.
-  return destination === null ? null : <View style={styles.cover} />;
+  return <Redirect href={destination} />;
 }
-
-const styles = StyleSheet.create({
-  cover: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: colors.background,
-  },
-});

@@ -24,7 +24,7 @@ export default function RootLayout() {
   );
 }
 
-/** Espera a sessão persistida carregar, senão a Welcome pisca para quem está logado. */
+/** Espera a sessão persistida carregar, senão a Home aparece antes do guard. */
 function RootNavigator() {
   const session = useSession();
 

@@ -15,7 +15,7 @@ type OnboardingContextValue = {
   setSupportName: (value: string) => void;
   supportPhone: string;
   setSupportPhone: (value: string) => void;
-  /** `true` depois que a etapa 1 salvou o perfil; as etapas 2 e 3 dependem dele. */
+  /** `true` depois que a etapa 1 validou o perfil; as etapas 2 e 3 dependem dele. */
   isProfileSaved: boolean;
   setIsProfileSaved: (value: boolean) => void;
 };
