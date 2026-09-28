@@ -15,6 +15,9 @@ type OnboardingContextValue = {
   setSupportName: (value: string) => void;
   supportPhone: string;
   setSupportPhone: (value: string) => void;
+  /** `true` depois que a etapa 1 salvou o perfil; as etapas 2 e 3 dependem dele. */
+  isProfileSaved: boolean;
+  setIsProfileSaved: (value: boolean) => void;
 };
 
 const OnboardingContext = createContext<OnboardingContextValue | null>(null);
@@ -27,6 +30,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   const [dailyReminderEnabled, setDailyReminderEnabled] = useState(true);
   const [supportName, setSupportName] = useState('');
   const [supportPhone, setSupportPhone] = useState('');
+  const [isProfileSaved, setIsProfileSaved] = useState(false);
 
   const value = useMemo<OnboardingContextValue>(
     () => ({
@@ -42,8 +46,10 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
       setSupportName,
       supportPhone,
       setSupportPhone,
+      isProfileSaved,
+      setIsProfileSaved,
     }),
-    [fullName, birthDate, gender, dailyReminderEnabled, supportName, supportPhone],
+    [fullName, birthDate, gender, dailyReminderEnabled, supportName, supportPhone, isProfileSaved],
   );
 
   return <OnboardingContext.Provider value={value}>{children}</OnboardingContext.Provider>;
