@@ -38,7 +38,7 @@ export default function VerificationCodeForm({
     return () => clearInterval(timer);
   }, []);
 
-  function enviarCodigo() {
+  function handleResendCode() {
     // Implementar depois
 
     setSecondsRemaining(CODE_EXPIRATION_SECONDS);
@@ -71,7 +71,7 @@ export default function VerificationCodeForm({
           onPressAction={() => {
             if (secondsRemaining > 0) return;
 
-            enviarCodigo();
+            handleResendCode();
           }}
           question="Não recebeu?"
         />

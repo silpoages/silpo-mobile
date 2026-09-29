@@ -14,18 +14,18 @@ import ChangedPasswordForm from '@/components/forgetPasswordScreen/ChangedPasswo
 
 export default function ForgetPasswordScreen() {
   const router = useRouter();
-  const [etapa, setEtapa] = useState(1);
+  const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
-  const [codigo, setCodigo] = useState('');
-  const [senha, setSenha] = useState('');
-  const [confirmacaoSenha, setConfirmacaoSenha] = useState('');
+  const [code, setCode] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [emailError, setEmailError] = useState<string>();
-  const [codigoError, setCodigoError] = useState<string>();
-  const [senhaError, setSenhaError] = useState<string>();
+  const [codeError, setCodeError] = useState<string>();
+  const [passwordError, setPasswordError] = useState<string>();
 
   function handleBack() {
-    if (etapa > 1) {
-      setEtapa((currentEtapa) => currentEtapa - 1);
+    if (step > 1) {
+      setStep((currentStep) => currentStep - 1);
       return;
     }
 
@@ -37,18 +37,18 @@ export default function ForgetPasswordScreen() {
     setEmailError(undefined);
   }
 
-  function handleCodigoChange(value: string) {
-    setCodigo(value.replace(/[^0-9]/g, '').slice(0, 6));
-    setCodigoError(undefined);
+  function handleCodeChange(value: string) {
+    setCode(value.replace(/[^0-9]/g, '').slice(0, 6));
+    setCodeError(undefined);
   }
 
-  function handleSenhaChange(value: string) {
-    setSenha(value);
-    setSenhaError(undefined);
+  function handlePasswordChange(value: string) {
+    setPassword(value);
+    setPasswordError(undefined);
   }
 
   function handleSubmit() {
-    if (etapa === 1) {
+    if (step === 1) {
       const error = validateEmail(email);
 
       if (error) {
@@ -56,44 +56,44 @@ export default function ForgetPasswordScreen() {
         return;
       }
 
-      setEtapa(2);
+      setStep(2);
       return;
     }
 
-    if (etapa === 2) {
-      if (codigo.length !== 6) {
-        setCodigoError('Digite o código de 6 dígitos.');
+    if (step === 2) {
+      if (code.length !== 6) {
+        setCodeError('Digite o código de 6 dígitos.');
         return;
       }
 
-      setEtapa(3);
+      setStep(3);
       return;
     }
 
-    if (etapa === 3) {
-      if (!senha) {
-        setSenhaError('Digite a nova senha e confirme.');
+    if (step === 3) {
+      if (!password) {
+        setPasswordError('Digite a nova senha e confirme.');
         return;
       }
 
-      if (!confirmacaoSenha) {
-        setSenhaError('Preencha a confirmação da senha.');
+      const passwordValidationError = validateNewPassword(password);
+
+      if (passwordValidationError) {
+        setPasswordError(passwordValidationError);
         return;
       }
 
-      setEtapa(4);
-      return;
-    }
+      if (!passwordConfirmation) {
+        setPasswordError('Preencha a confirmação da senha.');
+        return;
+      }
 
-    const error = validateNewPassword(senha);
+      if (password !== passwordConfirmation) {
+        setPasswordError('As senhas precisam ser iguais.');
+        return;
+      }
 
-    if (error) {
-      setSenhaError(error);
-      return;
-    }
-
-    if (senha !== confirmacaoSenha) {
-      setSenhaError('As senhas precisam ser iguais.');
+      setStep(4);
       return;
     }
   }
@@ -111,33 +111,33 @@ export default function ForgetPasswordScreen() {
       <View style={styles.body}>
         <AuthHeader
           onPressBack={handleBack}
-          subtitle={subtitles[etapa - 1]}
-          title={titles[etapa - 1]}
+          subtitle={subtitles[step - 1]}
+          title={titles[step - 1]}
         />
 
         <View style={styles.form}>
-          {etapa === 1 ? (
+          {step === 1 ? (
             <EmailForm
               email={email}
               error={emailError}
               onChangeEmail={handleEmailChange}
               onSubmit={handleSubmit}
             />
-          ) : etapa === 2 ? (
+          ) : step === 2 ? (
             <VerificationCodeForm
-              code={codigo}
-              error={codigoError}
-              onChangeCode={handleCodigoChange}
+              code={code}
+              error={codeError}
+              onChangeCode={handleCodeChange}
               onSubmit={handleSubmit}
             />
-          ) : etapa === 3 ? (
+          ) : step === 3 ? (
             <NewPasswordForm
-              error={senhaError}
-              onChangePassword={handleSenhaChange}
-              onChangePasswordConfirmation={setConfirmacaoSenha}
+              error={passwordError}
+              onChangePassword={handlePasswordChange}
+              onChangePasswordConfirmation={setPasswordConfirmation}
               onSubmit={handleSubmit}
-              password={senha}
-              passwordConfirmation={confirmacaoSenha}
+              password={password}
+              passwordConfirmation={passwordConfirmation}
             />
           ) : (
             <ChangedPasswordForm />
