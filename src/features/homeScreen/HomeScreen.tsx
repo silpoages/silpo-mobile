@@ -9,6 +9,8 @@ import { DailyPractice } from '@/components/homeScreen/DailyPractice';
 import { ActionRow } from '@/components/QuickActions/ActionRow';
 import { useSession } from '@/features/auth/session/SessionContext';
 
+import { startQuickAction, type QuickActionId } from './quickActionsService';
+
 const TODAY_PRACTICE = {
   title: 'Respiração 4-7-8',
   description: 'Uma pausa de 2 minutos para acalmar o corpo antes de seguir com o dia.',
@@ -26,9 +28,16 @@ export function HomeScreen() {
   function handleSelectAction(action: string) {
     const route = ACTION_ROUTES[action];
 
-    if (route) {
-      router.push(route);
+    if (!route || !session.token) {
+      return;
     }
+    void startQuickAction(session.token, action as QuickActionId)
+      .then(() => {
+        router.push(route);
+      })
+      .catch((error) => {
+        console.error('Não foi possível iniciar a atividade', error);
+      });
   }
 
   const userName = session.user?.fullName?.trim() || session.user?.email || '';
