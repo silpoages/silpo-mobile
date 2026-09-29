@@ -47,12 +47,13 @@ export function SupportScreen() {
     loadContacts();
   }, [loadContacts]);
 
+  /**
+   * O X só aparece sem sessão, e quem está sem sessão chega aqui pela Welcome.
+   * `back()` não serve: o Apoio é uma aba, e voltar numa aba leva para a Home,
+   * que o guard manda para o login.
+   */
   function handleClose() {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.navigate('/');
-    }
+    router.dismissTo('/welcome');
   }
 
   function handleCallCvv() {
