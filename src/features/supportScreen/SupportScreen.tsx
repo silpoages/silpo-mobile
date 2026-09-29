@@ -50,7 +50,7 @@ export function SupportScreen() {
   /**
    * O X só aparece sem sessão, e quem está sem sessão chega aqui pela Welcome.
    * `back()` não serve: o Apoio é uma aba, e voltar numa aba leva para a Home,
-   * que o guard manda para o login.
+   * não para a tela anterior.
    */
   function handleClose() {
     router.dismissTo('/welcome');
