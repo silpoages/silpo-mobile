@@ -51,6 +51,7 @@ export function HomeScreen() {
           title={TODAY_PRACTICE.title}
           description={TODAY_PRACTICE.description}
           onPressStart={() => router.push('/respiracao')}
+          onPressSeeOthers={() => router.push('/praticas')}
         />
         <ActionRow onSelectAction={handleSelectAction} />
         <ContinueJourneyCard

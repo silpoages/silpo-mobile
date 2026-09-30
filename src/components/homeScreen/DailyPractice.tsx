@@ -5,9 +5,15 @@ export type DailyPracticeProps = {
   title: string;
   description: string;
   onPressStart?: () => void;
+  onPressSeeOthers?: () => void;
 };
 
-export function DailyPractice({ title, description, onPressStart }: DailyPracticeProps) {
+export function DailyPractice({
+  title,
+  description,
+  onPressStart,
+  onPressSeeOthers,
+}: DailyPracticeProps) {
   return (
     <View style={styles.card}>
       <Text style={styles.label}>PRÁTICA DO DIA</Text>
@@ -21,7 +27,10 @@ export function DailyPractice({ title, description, onPressStart }: DailyPractic
           <Text style={styles.primaryButtonText}>Quero tentar</Text>
         </Pressable>
 
-        <Pressable style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>
+        <Pressable
+          onPress={onPressSeeOthers}
+          style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+        >
           <Text style={styles.secondaryButtonText}>Ver outras</Text>
         </Pressable>
       </View>
