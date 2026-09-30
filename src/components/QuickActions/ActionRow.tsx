@@ -13,9 +13,9 @@ const medite = <MaterialCommunityIcons name="meditation" size={ICON_SIZE} color=
 const momento = <MaterialCommunityIcons name="chart-bubble" size={ICON_SIZE} color={ICON_COLOR} />;
 
 const ACTIONS = [
-  { id: 'respire', icon: respire, label: 'Respiração', time: '3–5 min' },
-  { id: 'medite', icon: medite, label: 'Meditação', time: '4–10 min' },
-  { id: 'momento', icon: momento, label: 'Um momento', time: 'interativo' },
+  { id: 'respirar', icon: respire, label: 'Respiração', time: '3–5 min' },
+  { id: 'meditar', icon: medite, label: 'Meditação', time: '4–10 min' },
+  { id: 'autorregulação', icon: momento, label: 'Autorregulação', time: 'interativo' },
 ];
 
 interface ActionRowProps {
