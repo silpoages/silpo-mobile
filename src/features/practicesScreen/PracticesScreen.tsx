@@ -1,14 +1,15 @@
 import { StyleSheet, ScrollView, View, Text, ActivityIndicator, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { colors } from '@/theme/colors';
-import { fontFamily, fontSize } from '@/theme';
+import { useRouter } from 'expo-router';
+import { colors, fontFamily, fontSize } from '@/theme';
 import { Header } from '@/components/practicesScreen/Header';
 import { PracticeCard, Practice } from '@/components/practicesScreen/PracticeCard';
 
 type ScreenState = 'loading' | 'error' | 'empty' | 'success';
 
-const DEBUG_STATE = 'success' as ScreenState;
+/** Fixo em `success` até a lista vir do backend; os demais estados já têm tela. */
+const SCREEN_STATE = 'success' as ScreenState;
 
 const MOCK_PRACTICES: Practice[] = [
   {
@@ -44,17 +45,17 @@ const MOCK_PRACTICES: Practice[] = [
 ];
 
 export function PracticesScreen() {
-  const practices = DEBUG_STATE === 'success' ? MOCK_PRACTICES : [];
+  const router = useRouter();
+  const practices = SCREEN_STATE === 'success' ? MOCK_PRACTICES : [];
 
-  function handlePracticePress(practice: Practice) {
-    // TODO: navegar para o detalhe da prática
-    console.log('Prática escolhida:', practice.id);
+  function handlePracticePress() {
+    router.push('/praticas-do-bem');
   }
   function handleRetry() {
     // TODO: buscar as práticas de novo
   }
   function renderContent() {
-    if (DEBUG_STATE === 'loading') {
+    if (SCREEN_STATE === 'loading') {
       return (
         <View style={styles.centerFeedback}>
           <ActivityIndicator color={colors.primary} size="large" />
@@ -62,7 +63,7 @@ export function PracticesScreen() {
         </View>
       );
     }
-    if (DEBUG_STATE === 'error') {
+    if (SCREEN_STATE === 'error') {
       return (
         <View style={styles.centerFeedback}>
           <Text style={styles.feedbackTitle}>Não foi possível carregar as práticas</Text>

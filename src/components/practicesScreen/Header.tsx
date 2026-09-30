@@ -1,23 +1,22 @@
-import { Pressable, View, Text, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { colors } from '@/theme/colors';
-import { fontFamily, fontSize } from '@/theme/fonts';
+import { BackButton } from '@/components/BackButton';
+import { colors, fontFamily, fontSize } from '@/theme';
 
 export function Header() {
   const router = useRouter();
 
+  function handleBack() {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.navigate('/');
+    }
+  }
+
   return (
     <View>
-      <Pressable
-        onPress={() => router.back()}
-        style={styles.backArrow}
-        hitSlop={10}
-        accessibilityRole="button"
-        accessibilityLabel="Voltar"
-      >
-        <Ionicons name="chevron-back" size={20} color={colors.text} />
-      </Pressable>
+      <BackButton onPress={handleBack} />
 
       <View style={styles.textContainer}>
         <Text style={styles.title}>Outras práticas</Text>
@@ -28,13 +27,9 @@ export function Header() {
 }
 
 const styles = StyleSheet.create({
-  backArrow: {
-    alignSelf: 'flex-start',
-    marginBottom: 20,
-    marginLeft: 15,
-  },
   textContainer: {
     gap: 5,
+    marginTop: 12,
     marginLeft: 15,
   },
   title: {

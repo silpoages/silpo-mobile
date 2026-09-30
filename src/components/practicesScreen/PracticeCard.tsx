@@ -1,6 +1,5 @@
 import { StyleSheet, View, Text, Pressable } from 'react-native';
-import { colors } from '@/theme/colors';
-import { fontFamily, fontSize } from '@/theme';
+import { colors, fontFamily, fontSize } from '@/theme';
 
 export type Practice = {
   id: string;

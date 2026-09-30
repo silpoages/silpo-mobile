@@ -1,16 +1,19 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { colors, fontFamily, fontSize } from '@/theme';
-import { useRouter } from 'expo-router';
 
 export type DailyPracticeProps = {
   title: string;
   description: string;
   onPressStart?: () => void;
+  onPressSeeOthers?: () => void;
 };
 
-export function DailyPractice({ title, description, onPressStart }: DailyPracticeProps) {
-  const router = useRouter();
-
+export function DailyPractice({
+  title,
+  description,
+  onPressStart,
+  onPressSeeOthers,
+}: DailyPracticeProps) {
   return (
     <View style={styles.card}>
       <Text style={styles.label}>PRÁTICA DO DIA</Text>
@@ -25,7 +28,7 @@ export function DailyPractice({ title, description, onPressStart }: DailyPractic
         </Pressable>
 
         <Pressable
-          onPress={() => router.push('/praticas')}
+          onPress={onPressSeeOthers}
           style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
         >
           <Text style={styles.secondaryButtonText}>Ver outras</Text>
