@@ -1,7 +1,7 @@
 import type { Href } from 'expo-router';
 
-/** Entrada de quem não tem sessão. */
-const LOGIN_ROUTE: Href = '/login';
+/** Entrada de quem não tem sessão. A Welcome é o pré-login e leva ao login e ao cadastro. */
+export const WELCOME_ROUTE: Href = '/welcome';
 
 /** Entrada de quem tem sessão e já passou pelo onboarding. */
 export const HOME_ROUTE: Href = '/';
@@ -10,7 +10,7 @@ export const HOME_ROUTE: Href = '/';
 export const ONBOARDING_FIRST_STEP_ROUTE: Href = '/onboarding/etapa-1';
 
 /**
- * Abertas sem sessão: o apoio oferece a respiração.
+ * Abertas sem sessão: a Welcome leva ao apoio, que oferece a respiração.
  * Com sessão e onboarding pendente, essas rotas também voltam para o onboarding.
  */
 const PUBLIC_ROUTES = ['/apoio', '/respiracao'];
@@ -43,7 +43,7 @@ export function resolveRedirect(pathname: string, session: SessionAccess): Href 
       return null;
     }
 
-    return LOGIN_ROUTE;
+    return WELCOME_ROUTE;
   }
 
   if (!session.onboardingCompleted) {
