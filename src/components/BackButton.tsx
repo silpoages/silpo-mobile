@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 
-import { colors, layout } from '@/theme';
+import { ChevronLeftIcon } from '@/components/icons';
+import { layout } from '@/theme';
 
 type BackButtonProps = {
   onPress: () => void;
@@ -16,7 +16,7 @@ export function BackButton({ onPress }: BackButtonProps) {
       accessibilityLabel="Voltar"
       style={({ pressed }) => [styles.button, pressed && styles.pressed]}
     >
-      <Ionicons name="chevron-back" size={24} color={colors.text} />
+      <ChevronLeftIcon />
     </Pressable>
   );
 }
@@ -25,6 +25,7 @@ const styles = StyleSheet.create({
   button: {
     width: layout.backButtonSize,
     height: layout.backButtonSize,
+    alignItems: 'center',
     justifyContent: 'center',
   },
   pressed: {
