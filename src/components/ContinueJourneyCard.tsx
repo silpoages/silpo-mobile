@@ -1,14 +1,20 @@
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, Text, View } from 'react-native';
-import { colors, fontFamily, fontSize } from '@/theme';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { colors, fontFamily, fontSize, spacing } from '@/theme';
 
 type ContinueJourneyCardProps = {
-  daysRegistered?: number;
+  daysRegistered: number;
+  onPress: () => void;
 };
 
-export function ContinueJourneyCard({ daysRegistered = 8 }: ContinueJourneyCardProps) {
+export function ContinueJourneyCard({ daysRegistered, onPress }: ContinueJourneyCardProps) {
   return (
-    <View style={styles.card} accessibilityLabel="Continue sua jornada">
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="Continue sua jornada"
+      onPress={onPress}
+      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+    >
       <View style={styles.iconContainer}>
         <Ionicons name="leaf-outline" size={24} color={colors.primary} />
       </View>
@@ -19,7 +25,7 @@ export function ContinueJourneyCard({ daysRegistered = 8 }: ContinueJourneyCardP
         </Text>
       </View>
       <Ionicons name="chevron-forward" size={24} color={colors.textMuted} />
-    </View>
+    </Pressable>
   );
 }
 
@@ -28,8 +34,8 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
-    padding: 16,
+    gap: spacing.xl,
+    padding: 18,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 16,
@@ -45,7 +51,10 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    gap: 4,
+    gap: spacing.xs,
+  },
+  pressed: {
+    opacity: 0.85,
   },
   title: {
     color: colors.text,

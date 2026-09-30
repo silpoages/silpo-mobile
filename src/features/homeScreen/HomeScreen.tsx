@@ -15,6 +15,9 @@ const TODAY_PRACTICE = {
   description: 'Uma pausa de 2 minutos para acalmar o corpo antes de seguir com o dia.',
 };
 
+/** Placeholder até o backend expor os dias de registro do mês. */
+const DAYS_REGISTERED_THIS_MONTH = 8;
+
 /** Quick actions com uma tela própria já implementada — as demais ainda não têm destino. */
 const ACTION_ROUTES: Record<string, '/respiracao'> = {
   respire: '/respiracao',
@@ -49,8 +52,11 @@ export function HomeScreen() {
           description={TODAY_PRACTICE.description}
           onPressStart={() => router.push('/respiracao')}
         />
-        <ContinueJourneyCard />
         <ActionRow onSelectAction={handleSelectAction} />
+        <ContinueJourneyCard
+          daysRegistered={DAYS_REGISTERED_THIS_MONTH}
+          onPress={() => router.push('/jornada')}
+        />
       </ScrollView>
     </SafeAreaView>
   );
