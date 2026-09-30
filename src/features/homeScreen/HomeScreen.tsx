@@ -7,12 +7,16 @@ import { Header } from '@/components/homeScreen/Header';
 import { EmotionsRow } from '@/components/emotions/EmotionsRow';
 import { DailyPractice } from '@/components/homeScreen/DailyPractice';
 import { ActionRow } from '@/components/QuickActions/ActionRow';
+import { ContinueJourneyCard } from '@/components/ContinueJourneyCard';
 import { useSession } from '@/features/auth/session/SessionContext';
 
 const TODAY_PRACTICE = {
   title: 'Respiração 4-7-8',
   description: 'Uma pausa de 2 minutos para acalmar o corpo antes de seguir com o dia.',
 };
+
+/** Placeholder até o backend expor os dias de registro do mês. */
+const DAYS_REGISTERED_THIS_MONTH = 8;
 
 /** Quick actions com uma tela própria já implementada — as demais ainda não têm destino. */
 const ACTION_ROUTES: Record<string, '/respiracao'> = {
@@ -49,6 +53,10 @@ export function HomeScreen() {
           onPressStart={() => router.push('/respiracao')}
         />
         <ActionRow onSelectAction={handleSelectAction} />
+        <ContinueJourneyCard
+          daysRegistered={DAYS_REGISTERED_THIS_MONTH}
+          onPress={() => router.push('/jornada')}
+        />
       </ScrollView>
     </SafeAreaView>
   );

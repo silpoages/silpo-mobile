@@ -30,7 +30,7 @@ export function SignInScreen() {
   async function handleSignIn(credentials: Credentials) {
     const result = await signIn(credentials);
     await session.login(result.token, result.user);
-    router.replace('/');
+    router.replace(result.user.onboardingCompleted ? '/' : '/onboarding/etapa-1');
   }
 
   const {
