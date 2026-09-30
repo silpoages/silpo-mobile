@@ -10,6 +10,7 @@ import { useSession } from '@/features/auth/session/SessionContext';
 import { ONBOARDING_FIRST_STEP_ROUTE } from '@/features/auth/session/routeAccess';
 import { useOnboarding } from '@/features/onboarding/OnboardingContext';
 import { createEmergencyContact } from '@/features/supportScreen/emergencyContactsService';
+import { maskPhoneInput, toRawPhone } from '@/features/supportScreen/phone';
 import { validatePhoneNumber } from '@/features/supportScreen/validation';
 import { ApiError } from '@/services/apiClient';
 import { colors, fontFamily, fontSize, spacing, typography } from '@/theme';
@@ -57,7 +58,7 @@ export function OnboardingStep2Screen() {
     try {
       await createEmergencyContact(session.token, {
         fullName: trimmedName,
-        phoneNumber: trimmedPhone,
+        phoneNumber: toRawPhone(trimmedPhone),
       });
       goToStep3();
     } catch (error) {
@@ -96,8 +97,8 @@ export function OnboardingStep2Screen() {
           <TextField
             editable={!isSubmitting}
             keyboardType="phone-pad"
-            onChangeText={setSupportPhone}
-            placeholder="Telefone"
+            onChangeText={(value) => setSupportPhone(maskPhoneInput(value))}
+            placeholder="+55 51 99999-8888"
             returnKeyType="done"
             testID="support-phone-field"
             value={supportPhone}
