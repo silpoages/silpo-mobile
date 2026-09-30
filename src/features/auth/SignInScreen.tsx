@@ -82,6 +82,12 @@ export function SignInScreen() {
             value={password}
           />
 
+          <AuthFormFooter
+            actionLabel="Esqueceu a senha?"
+            onPressAction={() => router.push('/esqueci-senha')}
+            question=""
+          />
+
           {errors.form ? (
             <Text accessibilityRole="alert" style={styles.formError}>
               {errors.form}
