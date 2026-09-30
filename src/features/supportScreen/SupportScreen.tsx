@@ -14,7 +14,7 @@ import {
   listEmergencyContacts,
   type EmergencyContact,
 } from '@/features/supportScreen/emergencyContactsService';
-import { colors, fontFamily, fontSize, radii, spacing } from '@/theme';
+import { colors, fontFamily, fontSize, layout, radii, spacing } from '@/theme';
 
 const CVV_PHONE_NUMBER = '188';
 
@@ -47,12 +47,13 @@ export function SupportScreen() {
     loadContacts();
   }, [loadContacts]);
 
+  /**
+   * O X só aparece sem sessão, e quem está sem sessão chega aqui pela Welcome.
+   * `back()` não serve: o Apoio é uma aba, e voltar numa aba leva para a Home,
+   * não para a tela anterior.
+   */
   function handleClose() {
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.navigate('/');
-    }
+    router.dismissTo('/welcome');
   }
 
   function handleCallCvv() {
@@ -84,7 +85,7 @@ export function SupportScreen() {
   }
 
   return (
-    <ScreenContainer>
+    <ScreenContainer contentStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Apoio</Text>
         {session.isAuthenticated ? null : <CloseButton onPress={handleClose} />}
@@ -151,11 +152,15 @@ export function SupportScreen() {
 }
 
 const styles = StyleSheet.create({
+  content: {
+    gap: spacing.lg,
+    paddingTop: spacing.md,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: spacing.md,
+    minHeight: layout.backButtonSize,
   },
   headerTitle: {
     fontFamily: fontFamily.extraBold,
@@ -243,6 +248,6 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textMuted,
     textAlign: 'center',
-    paddingVertical: spacing.xxl,
+    paddingBottom: spacing.xxl,
   },
 });
