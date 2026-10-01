@@ -1,16 +1,34 @@
+import { useLocalSearchParams } from 'expo-router';
+
 import { GoodPracticesScreen } from '@/features/goodPracticesScreen/GoodPracticesScreen';
 
-/** Placeholder até a tela receber a prática escolhida. */
-const PLACEHOLDER_PRACTICE = {
-  title: 'Sentar em um parque',
-  description: 'Escolha um banco tranquilo e fique o tempo que for confortável. Só isso já conta',
-};
+function firstParam(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) {
+    return value[0] ?? '';
+  }
+
+  return value ?? '';
+}
 
 export default function GoodPracticesRoute() {
-  return (
-    <GoodPracticesScreen
-      title={PLACEHOLDER_PRACTICE.title}
-      description={PLACEHOLDER_PRACTICE.description}
-    />
-  );
+  const params = useLocalSearchParams<{
+    id?: string;
+    title?: string;
+    description?: string;
+  }>();
+  const id = firstParam(params.id);
+  const title = firstParam(params.title);
+  const description = firstParam(params.description);
+
+  if (!id || !title) {
+    return (
+      <GoodPracticesScreen
+        id=""
+        title="Prática indisponível"
+        description="Volte e escolha uma prática da lista."
+      />
+    );
+  }
+
+  return <GoodPracticesScreen id={id} title={title} description={description} />;
 }

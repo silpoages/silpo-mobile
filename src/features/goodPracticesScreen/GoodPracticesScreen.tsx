@@ -6,6 +6,8 @@ import Button from '@/components/Button';
 import { ScreenContainer } from '@/components/ScreenContainer';
 import { StartedBadge } from '@/components/goodPracticesScreen/StartedBadge';
 import { StepItem } from '@/components/goodPracticesScreen/StepItem';
+import { useSession } from '@/features/auth/session/SessionContext';
+import { completeGoodPractice } from '@/features/goodPracticesScreen/goodPracticesService';
 import { colors, radii, spacing, typography } from '@/theme';
 
 const GUIDANCE_STEPS = [
@@ -14,14 +16,20 @@ const GUIDANCE_STEPS = [
   'Se preferir voltar, tudo bem. Tentar já conta.',
 ];
 
+const FINISH_ERROR_MESSAGE = 'Não foi possível concluir agora. Tente novamente.';
+
 type GoodPracticesScreenProps = {
+  id: string;
   title: string;
   description: string;
 };
 
-export function GoodPracticesScreen({ title, description }: GoodPracticesScreenProps) {
+export function GoodPracticesScreen({ id, title, description }: GoodPracticesScreenProps) {
   const router = useRouter();
+  const session = useSession();
   const [isStarted, setIsStarted] = useState(false);
+  const [isFinishing, setIsFinishing] = useState(false);
+  const [finishError, setFinishError] = useState<string | null>(null);
 
   function handleClose() {
     if (router.canGoBack()) {
@@ -33,6 +41,24 @@ export function GoodPracticesScreen({ title, description }: GoodPracticesScreenP
 
   function handleStartPractice() {
     setIsStarted(true);
+  }
+
+  async function handleFinishPractice() {
+    if (!session.token || !id || isFinishing) {
+      return;
+    }
+
+    setFinishError(null);
+    setIsFinishing(true);
+
+    try {
+      await completeGoodPractice(session.token, id);
+      handleClose();
+    } catch {
+      setFinishError(FINISH_ERROR_MESSAGE);
+    } finally {
+      setIsFinishing(false);
+    }
   }
 
   return (
@@ -59,7 +85,13 @@ export function GoodPracticesScreen({ title, description }: GoodPracticesScreenP
       <View style={styles.footer}>
         {isStarted ? (
           <>
-            <Button size="lg" testID="finish-practice-button" onPress={handleClose}>
+            {finishError ? <Text style={styles.finishError}>{finishError}</Text> : null}
+            <Button
+              size="lg"
+              testID="finish-practice-button"
+              loading={isFinishing}
+              onPress={handleFinishPractice}
+            >
               Concluir prática
             </Button>
             <Button
@@ -137,5 +169,10 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: spacing.xxl,
     gap: spacing.md,
+  },
+  finishError: {
+    ...typography.subtitle,
+    color: colors.danger,
+    textAlign: 'center',
   },
 });
