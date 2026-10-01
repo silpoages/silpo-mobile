@@ -1,7 +1,5 @@
 import { apiRequest } from '@/services/apiClient';
 
-export const BREATHING_ACTIVITY_ID = '550e8400-e29b-41d4-a716-446655440001';
-
 export type BreathingActivity = {
   id: string;
   name: string;
@@ -27,6 +25,16 @@ type BreathingActivityResponse = {
 };
 
 const INVALID_RESPONSE_MESSAGE = 'A API retornou parâmetros de respiração inválidos.';
+const MISSING_ACTIVITY_MESSAGE = 'Nenhuma atividade de respiração está disponível.';
+
+type ActivityListItem = {
+  id: string;
+  type: string;
+};
+
+type ActivityListResponse = {
+  items: ActivityListItem[];
+};
 
 function isPositiveInteger(value: unknown): value is number {
   return typeof value === 'number' && Number.isInteger(value) && value > 0;
@@ -80,10 +88,28 @@ function toBreathingActivity(raw: unknown): BreathingActivity {
   };
 }
 
-export async function getBreathingActivity(
-  token: string | null,
-  activityId: string = BREATHING_ACTIVITY_ID,
-): Promise<BreathingActivity> {
+async function findBreathingActivityId(token: string | null): Promise<string> {
+  const response = await apiRequest<unknown>('/activities', { token });
+
+  if (typeof response !== 'object' || response === null || !('items' in response)) {
+    throw new Error(INVALID_RESPONSE_MESSAGE);
+  }
+
+  const items = (response as ActivityListResponse).items;
+  if (!Array.isArray(items)) {
+    throw new Error(INVALID_RESPONSE_MESSAGE);
+  }
+
+  const breathing = items.find((item) => item?.type === 'breathing' && typeof item.id === 'string');
+  if (!breathing) {
+    throw new Error(MISSING_ACTIVITY_MESSAGE);
+  }
+
+  return breathing.id;
+}
+
+export async function getBreathingActivity(token: string | null): Promise<BreathingActivity> {
+  const activityId = await findBreathingActivityId(token);
   const response = await apiRequest<unknown>(`/activities/${encodeURIComponent(activityId)}`, {
     token,
   });
