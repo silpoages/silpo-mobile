@@ -3,7 +3,7 @@ import { StyleSheet, ScrollView, View, Text, ActivityIndicator, Pressable } from
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
-import { colors, fontFamily, fontSize } from '@/theme';
+import { colors, fontFamily, fontSize, layout, spacing } from '@/theme';
 import { Header } from '@/components/practicesScreen/Header';
 import { PracticeCard, Practice } from '@/components/practicesScreen/PracticeCard';
 import { useSession } from '@/features/auth/session/SessionContext';
@@ -109,9 +109,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   headerContainer: {
-    paddingTop: 22,
-    paddingHorizontal: 20,
-    paddingBottom: 16,
+    alignSelf: 'center',
+    width: '100%',
+    maxWidth: layout.contentMaxWidth + layout.screenPadding * 2,
+    paddingTop: spacing.xl,
+    paddingHorizontal: layout.screenPadding,
+    paddingBottom: spacing.xl,
   },
   scroll: {
     flex: 1,

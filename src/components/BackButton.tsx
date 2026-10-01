@@ -5,15 +5,17 @@ import { layout } from '@/theme';
 
 type BackButtonProps = {
   onPress: () => void;
+  testID?: string;
 };
 
-export function BackButton({ onPress }: BackButtonProps) {
+export function BackButton({ onPress, testID }: BackButtonProps) {
   return (
     <Pressable
       onPress={onPress}
       hitSlop={12}
       accessibilityRole="button"
       accessibilityLabel="Voltar"
+      testID={testID}
       style={({ pressed }) => [styles.button, pressed && styles.pressed]}
     >
       <ChevronLeftIcon />

@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
     paddingBottom: spacing.xxl,
-    paddingTop: spacing.md,
+    paddingTop: spacing.xl,
   },
   content: {
     flexGrow: 1,

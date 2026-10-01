@@ -1,8 +1,8 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { ChevronLeftIcon } from '@/components/icons';
+import { BackButton } from '@/components/BackButton';
 import { ProgressBar } from '@/components/onboarding/ProgressBar';
-import { colors, fontFamily, fontSize, radii, spacing } from '@/theme';
+import { colors, fontFamily, fontSize, layout, spacing } from '@/theme';
 
 const TOTAL_STEPS = 3;
 
@@ -17,16 +17,7 @@ export function OnboardingHeader({ step, onPressBack }: OnboardingHeaderProps) {
   return (
     <View style={styles.row}>
       {onPressBack ? (
-        <Pressable
-          accessibilityLabel="Voltar"
-          accessibilityRole="button"
-          hitSlop={spacing.md}
-          onPress={onPressBack}
-          style={({ pressed }) => [styles.backButton, pressed && styles.backButtonPressed]}
-          testID="back-button"
-        >
-          <ChevronLeftIcon />
-        </Pressable>
+        <BackButton onPress={onPressBack} testID="back-button" />
       ) : (
         <View style={styles.backButton} />
       )}
@@ -45,17 +36,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     gap: spacing.lg,
-    height: 44,
+    height: layout.backButtonSize,
   },
   backButton: {
-    alignItems: 'center',
-    borderRadius: radii.field,
-    height: 44,
-    justifyContent: 'center',
-    width: 44,
-  },
-  backButtonPressed: {
-    backgroundColor: colors.surface,
+    height: layout.backButtonSize,
+    width: layout.backButtonSize,
   },
   stepLabel: {
     color: colors.textSecondary,
