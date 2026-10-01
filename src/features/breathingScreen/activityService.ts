@@ -16,12 +16,10 @@ type BreathingActivityResponse = {
   name: string;
   type: string;
   max_duration_seconds: number | null;
-  breathing: {
-    inhale_seconds: number;
-    hold_seconds: number;
-    exhale_seconds: number;
-    repeat_count: number | null;
-  };
+  inhale_seconds: number;
+  hold_seconds: number;
+  exhale_seconds: number;
+  repeat_count: number | null;
 };
 
 const INVALID_RESPONSE_MESSAGE = 'A API retornou parâmetros de respiração inválidos.';
@@ -50,29 +48,23 @@ function toBreathingActivity(raw: unknown): BreathingActivity {
   }
 
   const data = raw as Partial<BreathingActivityResponse>;
-  const config = data.breathing;
-
-  if (typeof config !== 'object' || config === null) {
-    throw new Error(INVALID_RESPONSE_MESSAGE);
-  }
-
   const maxDuration = data.max_duration_seconds ?? null;
-  const repeat = config.repeat_count ?? null;
+  const repeat = data.repeat_count ?? null;
 
   if (
     typeof data.id !== 'string' ||
     typeof data.name !== 'string' ||
     data.type !== 'breathing' ||
-    !isPositiveInteger(config.inhale_seconds) ||
-    !isPositiveInteger(config.hold_seconds) ||
-    !isPositiveInteger(config.exhale_seconds) ||
+    !isPositiveInteger(data.inhale_seconds) ||
+    !isPositiveInteger(data.hold_seconds) ||
+    !isPositiveInteger(data.exhale_seconds) ||
     !isNullOrPositiveInteger(repeat) ||
     !isNullOrPositiveInteger(maxDuration)
   ) {
     throw new Error(INVALID_RESPONSE_MESSAGE);
   }
 
-  const cycleSeconds = config.inhale_seconds + config.hold_seconds + config.exhale_seconds;
+  const cycleSeconds = data.inhale_seconds + data.hold_seconds + data.exhale_seconds;
   const repeatCount =
     repeat ?? (maxDuration === null ? 1 : Math.max(1, Math.floor(maxDuration / cycleSeconds)));
 
@@ -81,9 +73,9 @@ function toBreathingActivity(raw: unknown): BreathingActivity {
     name: data.name,
     type: 'breathing',
     maxDurationSeconds: maxDuration,
-    inhaleSeconds: config.inhale_seconds,
-    holdSeconds: config.hold_seconds,
-    exhaleSeconds: config.exhale_seconds,
+    inhaleSeconds: data.inhale_seconds,
+    holdSeconds: data.hold_seconds,
+    exhaleSeconds: data.exhale_seconds,
     repeatCount,
   };
 }
