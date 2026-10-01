@@ -46,6 +46,7 @@ export function PracticesScreen() {
         id: practice.id,
         title: practice.title,
         description: practice.description,
+        source: 'other',
       },
     });
   }
@@ -76,7 +77,6 @@ export function PracticesScreen() {
       return (
         <View style={styles.centerFeedback}>
           <Text style={styles.feedbackTitle}>Nenhuma prática disponível</Text>
-          <Text style={styles.feedbackSubtitle}>Novas práticas vão aparecer aqui.</Text>
         </View>
       );
     }

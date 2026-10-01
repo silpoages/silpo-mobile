@@ -15,10 +15,12 @@ export default function GoodPracticesRoute() {
     id?: string;
     title?: string;
     description?: string;
+    source?: string;
   }>();
   const id = firstParam(params.id);
   const title = firstParam(params.title);
   const description = firstParam(params.description);
+  const isDailyPractice = firstParam(params.source) === 'daily';
 
   if (!id || !title) {
     return (
@@ -30,5 +32,12 @@ export default function GoodPracticesRoute() {
     );
   }
 
-  return <GoodPracticesScreen id={id} title={title} description={description} />;
+  return (
+    <GoodPracticesScreen
+      id={id}
+      title={title}
+      description={description}
+      isDailyPractice={isDailyPractice}
+    />
+  );
 }
