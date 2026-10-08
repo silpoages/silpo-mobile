@@ -7,6 +7,7 @@ import { CloseButton } from '@/components/CloseButton';
 import { HeartIcon } from '@/components/icons';
 import { ScreenContainer } from '@/components/ScreenContainer';
 import { ContactCard } from '@/components/supportScreen/ContactCard';
+import { WELCOME_ROUTE } from '@/features/auth/session/routeAccess';
 import { useSession } from '@/features/auth/session/SessionContext';
 import { AddContactModal } from '@/features/supportScreen/AddContactModal';
 import {
@@ -53,7 +54,7 @@ export function SupportScreen() {
    * não para a tela anterior.
    */
   function handleClose() {
-    router.dismissTo('/welcome');
+    router.dismissTo(WELCOME_ROUTE);
   }
 
   function handleCallCvv() {
