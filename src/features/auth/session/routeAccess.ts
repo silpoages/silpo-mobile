@@ -1,4 +1,5 @@
 import type { Href } from 'expo-router';
+import { emit } from 'expo-router/build/navigationEvents';
 
 /** Entrada de quem não tem sessão. A Welcome é o pré-login e leva ao login e ao cadastro. */
 export const WELCOME_ROUTE: Href = '/welcome';
@@ -16,7 +17,7 @@ export const ONBOARDING_FIRST_STEP_ROUTE: Href = '/onboarding/etapa-1';
 const PUBLIC_ROUTES = ['/apoio', '/respiracao'];
 
 /** Telas de entrada: só fazem sentido para quem ainda não entrou. */
-const GUEST_ONLY_ROUTES = ['/welcome', '/login', '/cadastro'];
+const GUEST_ONLY_ROUTES = ['/welcome', '/login', '/cadastro', '/confirmar-email'];
 
 type SessionAccess = {
   isAuthenticated: boolean;
