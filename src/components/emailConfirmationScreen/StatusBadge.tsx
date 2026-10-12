@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-import { CheckIcon } from '@/components/icons/checkIcon';
+import { CheckIcon } from '@/components/icons/CheckIcon';
 import { EmailIcon } from '@/components/icons/EmailIcon';
 import { colors, radii } from '@/theme';
 
