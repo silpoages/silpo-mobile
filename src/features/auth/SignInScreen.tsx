@@ -8,6 +8,7 @@ import { colors, layout, spacing, typography } from '@/theme';
 import { AuthDivider, AuthFormFooter, AuthHeader, GoogleButton } from '@/features/auth/components';
 import { useAuthForm } from '@/features/auth/hooks/useAuthForm';
 import { useSession } from '@/features/auth/session/SessionContext';
+import { WELCOME_ROUTE } from '@/features/auth/session/routeAccess';
 import type { Credentials } from '@/features/auth/services/authService';
 import { signIn } from '@/features/auth/services/authService';
 
@@ -33,6 +34,19 @@ export function SignInScreen() {
     router.replace(result.user.onboardingCompleted ? '/' : '/onboarding/etapa-1');
   }
 
+  /**
+   * Aberta direto por URL, esta tela não tem a Welcome na pilha e `back()` estoura
+   * `GO_BACK`. Sem histórico, a Welcome é o destino de quem desiste de entrar.
+   */
+  function handleBack() {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.replace(WELCOME_ROUTE);
+  }
+
   const {
     email,
     password,
@@ -47,7 +61,7 @@ export function SignInScreen() {
     <ScreenContainer>
       <View style={styles.body}>
         <AuthHeader
-          onPressBack={() => router.back()}
+          onPressBack={handleBack}
           subtitle="Entre para continuar de onde você parou."
           title="Que bom te ver de novo"
         />
