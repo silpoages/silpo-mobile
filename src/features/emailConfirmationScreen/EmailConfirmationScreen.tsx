@@ -9,12 +9,29 @@ import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader';
 import { colors, fontFamily, fontSize, spacing, typography } from '@/theme';
 import { useSession } from '@/features/auth/session/SessionContext';
 import { useResendCooldown } from '@/features/emailConfirmationScreen/useResendCooldown';
+import { resendConfirmationEmail } from '@/features/emailConfirmationScreen/emailConfirmationServices';
 
 export function EmailConfirmationScreen() {
   const [isConfirmed, setIsConfirmed] = useState(false);
   const session = useSession();
   const email = session.user?.email ?? '';
   const { secondsLeft, isCoolingDown, restart } = useResendCooldown(30);
+  const [isResending, setIsResending] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  async function handleResend() {
+    setErrorMessage(null);
+    setIsResending(true);
+
+    try {
+      await resendConfirmationEmail(email);
+      restart();
+    } catch {
+      setErrorMessage('Não foi possível reenviar agora. Tente novamente.');
+    } finally {
+      setIsResending(false);
+    }
+  }
 
   return (
     <ScreenContainer>
@@ -44,15 +61,15 @@ export function EmailConfirmationScreen() {
         </View>
 
         <View style={styles.actions}>
-          {isConfirmed ? (
-            <Button onPress={() => {}} size="lg">
-              Continuar
-            </Button>
-          ) : (
-            <Button disabled={isCoolingDown} onPress={() => {}} size="lg">
-              {isCoolingDown ? `Reenviar em ${secondsLeft}s` : 'Reenviar e-mail'}
-            </Button>
-          )}
+          {errorMessage ? (
+            <Text accessibilityRole="alert" style={styles.formError}>
+              {errorMessage}
+            </Text>
+          ) : null}
+
+          <Button disabled={isCoolingDown} loading={isResending} onPress={handleResend} size="lg">
+            {isCoolingDown ? `Reenviar em ${secondsLeft}s` : 'Reenviar e-mail'}
+          </Button>
         </View>
       </View>
     </ScreenContainer>
@@ -87,5 +104,10 @@ const styles = StyleSheet.create({
   },
   actions: {
     paddingTop: spacing.lg,
+  },
+  formError: {
+    ...typography.footnote,
+    color: colors.danger,
+    textAlign: 'center',
   },
 });
