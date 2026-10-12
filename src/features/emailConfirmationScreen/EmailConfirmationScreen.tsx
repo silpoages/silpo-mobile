@@ -7,9 +7,14 @@ import { HelpCard } from '@/components/emailConfirmationScreen/HelpCard';
 import { StatusBadge } from '@/components/emailConfirmationScreen/StatusBadge';
 import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader';
 import { colors, fontFamily, fontSize, spacing, typography } from '@/theme';
+import { useSession } from '@/features/auth/session/SessionContext';
+import { useResendCooldown } from '@/features/emailConfirmationScreen/useResendCooldown';
 
 export function EmailConfirmationScreen() {
   const [isConfirmed, setIsConfirmed] = useState(false);
+  const session = useSession();
+  const email = session.user?.email ?? '';
+  const { secondsLeft, isCoolingDown, restart } = useResendCooldown(30);
 
   return (
     <ScreenContainer>
@@ -25,12 +30,12 @@ export function EmailConfirmationScreen() {
 
           {isConfirmed ? (
             <Text style={styles.subtitle}>
-              Tudo certo com <Text style={styles.email}>sol@email.com</Text>. Seu cadastro está
-              completo — falta só um último detalhe.
+              Tudo certo com <Text style={styles.email}>{email}</Text>. Seu cadastro está completo —
+              falta só um último detalhe.
             </Text>
           ) : (
             <Text style={styles.subtitle}>
-              Enviamos um link para <Text style={styles.email}>sol@email.com</Text>. Toque nele para
+              Enviamos um link para <Text style={styles.email}>{email}</Text>. Toque nele para
               confirmar seu cadastro — ele te traz de volta para cá.
             </Text>
           )}
@@ -44,8 +49,8 @@ export function EmailConfirmationScreen() {
               Continuar
             </Button>
           ) : (
-            <Button disabled onPress={() => {}} size="lg">
-              Reenviar em 30s
+            <Button disabled={isCoolingDown} onPress={() => {}} size="lg">
+              {isCoolingDown ? `Reenviar em ${secondsLeft}s` : 'Reenviar e-mail'}
             </Button>
           )}
         </View>
