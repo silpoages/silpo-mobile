@@ -1,6 +1,8 @@
-import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Stack, useRouter } from 'expo-router';
+import { BackHandler, StyleSheet, Text, View } from 'react-native';
 
+import { WELCOME_ROUTE } from '@/features/auth/session/routeAccess';
 import Button from '@/components/Button';
 import { ScreenContainer } from '@/components/ScreenContainer';
 import { HelpCard } from '@/components/emailConfirmationScreen/HelpCard';
@@ -12,12 +14,32 @@ import { useResendCooldown } from '@/features/emailConfirmationScreen/useResendC
 import { resendConfirmationEmail } from '@/features/emailConfirmationScreen/emailConfirmationServices';
 
 export function EmailConfirmationScreen() {
-  const [isConfirmed, setIsConfirmed] = useState(false);
+  const router = useRouter();
   const session = useSession();
   const email = session.user?.email ?? '';
-  const { secondsLeft, isCoolingDown, restart } = useResendCooldown(30);
+  const [isConfirmed, setIsConfirmed] = useState(true);
   const [isResending, setIsResending] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { secondsLeft, isCoolingDown, restart } = useResendCooldown(30);
+
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => true);
+    return () => subscription.remove();
+  }, []);
+
+  function handleContinue() {
+    router.replace('/onboarding/etapa-1');
+  }
+
+  async function handleBack() {
+    await session.logout();
+    router.replace(WELCOME_ROUTE);
+  }
+
+  async function handleChangeEmail() {
+    await session.logout();
+    router.replace('/cadastro');
+  }
 
   async function handleResend() {
     setErrorMessage(null);
@@ -35,8 +57,9 @@ export function EmailConfirmationScreen() {
 
   return (
     <ScreenContainer>
+      <Stack.Screen options={{ gestureEnabled: false }} />
       <View style={styles.body}>
-        <OnboardingHeader step={4} />
+        <OnboardingHeader step={1} onPressBack={handleBack} />
 
         <View style={styles.content}>
           <StatusBadge variant={isConfirmed ? 'confirmed' : 'pending'} />
@@ -48,7 +71,7 @@ export function EmailConfirmationScreen() {
           {isConfirmed ? (
             <Text style={styles.subtitle}>
               Tudo certo com <Text style={styles.email}>{email}</Text>. Seu cadastro está completo —
-              falta só um último detalhe.
+              faltam só mais algumas informações.
             </Text>
           ) : (
             <Text style={styles.subtitle}>
@@ -57,19 +80,25 @@ export function EmailConfirmationScreen() {
             </Text>
           )}
 
-          {isConfirmed ? null : <HelpCard onPressChangeEmail={() => {}} />}
+          {isConfirmed ? null : <HelpCard onPressChangeEmail={handleChangeEmail} />}
         </View>
 
         <View style={styles.actions}>
-          {errorMessage ? (
+          {!isConfirmed && errorMessage ? (
             <Text accessibilityRole="alert" style={styles.formError}>
               {errorMessage}
             </Text>
           ) : null}
 
-          <Button disabled={isCoolingDown} loading={isResending} onPress={handleResend} size="lg">
-            {isCoolingDown ? `Reenviar em ${secondsLeft}s` : 'Reenviar e-mail'}
-          </Button>
+          {isConfirmed ? (
+            <Button onPress={handleContinue} size="lg">
+              Continuar
+            </Button>
+          ) : (
+            <Button disabled={isCoolingDown} loading={isResending} onPress={handleResend} size="lg">
+              {isCoolingDown ? `Reenviar em ${secondsLeft}s` : 'Reenviar e-mail'}
+            </Button>
+          )}
         </View>
       </View>
     </ScreenContainer>

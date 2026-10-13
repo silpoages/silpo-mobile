@@ -47,7 +47,7 @@ export function OnboardingStep1Screen() {
   return (
     <ScreenContainer>
       <View style={styles.body}>
-        <OnboardingHeader step={1} />
+        <OnboardingHeader step={2} />
 
         <View style={styles.content}>
           <Text style={styles.title}>Como você gostaria de ser chamado?</Text>
