@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Stack, useRouter } from 'expo-router';
+import { Redirect, Stack, useRouter } from 'expo-router';
 import { BackHandler, StyleSheet, Text, View } from 'react-native';
 
-import { WELCOME_ROUTE } from '@/features/auth/session/routeAccess';
+import {
+  HOME_ROUTE,
+  ONBOARDING_FIRST_STEP_ROUTE,
+  WELCOME_ROUTE,
+} from '@/features/auth/session/routeAccess';
 import Button from '@/components/Button';
 import { ScreenContainer } from '@/components/ScreenContainer';
 import { HelpCard } from '@/components/emailConfirmationScreen/HelpCard';
@@ -12,41 +16,59 @@ import { colors, fontFamily, fontSize, spacing, typography } from '@/theme';
 import { useSession } from '@/features/auth/session/SessionContext';
 import { useResendCooldown } from '@/features/emailConfirmationScreen/useResendCooldown';
 import { resendConfirmationEmail } from '@/features/emailConfirmationScreen/emailConfirmationServices';
+import {
+  clearPendingConfirmation,
+  getPendingConfirmation,
+} from '@/features/emailConfirmationScreen/pendingConfirmation';
+import { useEmailConfirmationPolling } from '@/features/emailConfirmationScreen/useEmailConfirmationPolling';
 
 export function EmailConfirmationScreen() {
   const router = useRouter();
   const session = useSession();
-  const email = session.user?.email ?? '';
-  const [isConfirmed, setIsConfirmed] = useState(true);
+  const [credentials] = useState(getPendingConfirmation);
+
+  const confirmedResult = useEmailConfirmationPolling(credentials);
+  const { secondsLeft, isCoolingDown, restart } = useResendCooldown(30);
+
   const [isResending, setIsResending] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { secondsLeft, isCoolingDown, restart } = useResendCooldown(30);
+
+  const isConfirmed = confirmedResult !== null;
 
   useEffect(() => {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => true);
+
     return () => subscription.remove();
   }, []);
+
+  if (credentials === null) {
+    return <Redirect href={WELCOME_ROUTE} />;
+  }
 
   function handleContinue() {
     router.replace('/onboarding/etapa-1');
   }
 
-  async function handleBack() {
-    await session.logout();
+  function handleBack() {
+    clearPendingConfirmation();
     router.replace(WELCOME_ROUTE);
   }
 
-  async function handleChangeEmail() {
-    await session.logout();
+  function handleChangeEmail() {
+    clearPendingConfirmation();
     router.replace('/cadastro');
   }
 
   async function handleResend() {
+    if (credentials === null) {
+      return;
+    }
+
     setErrorMessage(null);
     setIsResending(true);
 
     try {
-      await resendConfirmationEmail(email);
+      await resendConfirmationEmail(credentials.email);
       restart();
     } catch {
       setErrorMessage('Não foi possível reenviar agora. Tente novamente.');
@@ -70,13 +92,13 @@ export function EmailConfirmationScreen() {
 
           {isConfirmed ? (
             <Text style={styles.subtitle}>
-              Tudo certo com <Text style={styles.email}>{email}</Text>. Seu cadastro está completo —
-              faltam só mais algumas informações.
+              Tudo certo com <Text style={styles.email}>{credentials.email}</Text>. Seu cadastro
+              está quase completo — faltam só mais algumas informações.
             </Text>
           ) : (
             <Text style={styles.subtitle}>
-              Enviamos um link para <Text style={styles.email}>{email}</Text>. Toque nele para
-              confirmar seu cadastro — ele te traz de volta para cá.
+              Enviamos um link para <Text style={styles.email}>{credentials.email}</Text>. Toque
+              nele para confirmar seu cadastro — ele te traz de volta para cá.
             </Text>
           )}
 
