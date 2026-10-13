@@ -45,8 +45,16 @@ export function EmailConfirmationScreen() {
     return <Redirect href={WELCOME_ROUTE} />;
   }
 
-  function handleContinue() {
-    router.replace('/onboarding/etapa-1');
+  async function handleContinue() {
+    if (confirmedResult === null) {
+      return;
+    }
+
+    clearPendingConfirmation();
+    await session.login(confirmedResult.token, confirmedResult.user);
+    router.replace(
+      confirmedResult.user.onboardingCompleted ? HOME_ROUTE : ONBOARDING_FIRST_STEP_ROUTE,
+    );
   }
 
   function handleBack() {
