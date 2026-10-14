@@ -10,6 +10,10 @@ import { useAuthForm } from '@/features/auth/hooks/useAuthForm';
 import { useSession } from '@/features/auth/session/SessionContext';
 import type { Credentials } from '@/features/auth/services/authService';
 import { signIn } from '@/features/auth/services/authService';
+import {
+  isEmailNotConfirmedError,
+  setPendingConfirmation,
+} from '@/features/emailConfirmationScreen/pendingConfirmation';
 
 function handleGooglePress() {}
 
@@ -28,9 +32,29 @@ export function SignInScreen() {
 
   /** `replace` tira o login do histórico: voltar na Home não reabre esta tela. */
   async function handleSignIn(credentials: Credentials) {
-    const result = await signIn(credentials);
-    await session.login(result.token, result.user);
-    router.replace(result.user.onboardingCompleted ? '/' : '/onboarding/etapa-1');
+    try {
+      const result = await signIn(credentials);
+
+      if (!result.isEmailConfirmed) {
+        openEmailConfirmation(credentials);
+        return;
+      }
+
+      await session.login(result.token, result.user);
+      router.replace(result.user.onboardingCompleted ? '/' : '/onboarding/etapa-1');
+    } catch (error) {
+      if (isEmailNotConfirmedError(error)) {
+        openEmailConfirmation(credentials);
+        return;
+      }
+
+      throw error;
+    }
+  }
+
+  function openEmailConfirmation(credentials: Credentials) {
+    setPendingConfirmation(credentials);
+    router.replace('/confirmar-email');
   }
 
   const {

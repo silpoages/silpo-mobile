@@ -68,7 +68,7 @@ export function OnboardingStep3Screen() {
   return (
     <ScreenContainer>
       <View style={styles.body}>
-        <OnboardingHeader onPressBack={() => router.back()} step={3} />
+        <OnboardingHeader onPressBack={() => router.back()} step={4} />
 
         <View style={styles.content}>
           <Text style={styles.title}>Podemos te lembrar com carinho?</Text>

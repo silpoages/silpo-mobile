@@ -4,7 +4,7 @@ import { ChevronLeftIcon } from '@/components/icons';
 import { ProgressBar } from '@/components/onboarding/ProgressBar';
 import { colors, fontFamily, fontSize, radii, spacing } from '@/theme';
 
-const TOTAL_STEPS = 3;
+const TOTAL_STEPS = 4;
 
 type OnboardingHeaderProps = {
   step: number;
@@ -12,7 +12,7 @@ type OnboardingHeaderProps = {
   onPressBack?: () => void;
 };
 
-/** Cabeçalho das 3 etapas do onboarding: voltar, progresso e "N de 3" (nó 4236:989). */
+/** Cabeçalho das 4 etapas do onboarding: voltar, progresso e "N de 4" (nó 4236:989). */
 export function OnboardingHeader({ step, onPressBack }: OnboardingHeaderProps) {
   return (
     <View style={styles.row}>

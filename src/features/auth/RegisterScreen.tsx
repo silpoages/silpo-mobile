@@ -11,6 +11,10 @@ import { useSession } from '@/features/auth/session/SessionContext';
 import type { Credentials } from '@/features/auth/services/authService';
 import { register } from '@/features/auth/services/authService';
 import { validateNewPassword } from '@/features/auth/validation/authValidation';
+import {
+  isEmailNotConfirmedError,
+  setPendingConfirmation,
+} from '@/features/emailConfirmationScreen/pendingConfirmation';
 
 function handleGooglePress() {}
 
@@ -19,10 +23,30 @@ export function RegisterScreen() {
   const router = useRouter();
   const session = useSession();
 
+  function openEmailConfirmation(credentials: Credentials) {
+    setPendingConfirmation(credentials);
+    router.replace('/confirmar-email');
+  }
+
   async function handleRegister(credentials: Credentials) {
-    const result = await register(credentials);
-    await session.login(result.token, result.user);
-    router.replace('/onboarding/etapa-1');
+    try {
+      const result = await register(credentials);
+
+      if (!result.isEmailConfirmed) {
+        openEmailConfirmation(credentials);
+        return;
+      }
+
+      await session.login(result.token, result.user);
+      router.replace('/onboarding/etapa-1');
+    } catch (error) {
+      if (isEmailNotConfirmedError(error)) {
+        openEmailConfirmation(credentials);
+        return;
+      }
+
+      throw error;
+    }
   }
 
   const {
