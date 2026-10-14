@@ -1,5 +1,4 @@
 import type { Href } from 'expo-router';
-import { emit } from 'expo-router/build/navigationEvents';
 
 /** Entrada de quem não tem sessão. A Welcome é o pré-login e leva ao login e ao cadastro. */
 export const WELCOME_ROUTE: Href = '/welcome';

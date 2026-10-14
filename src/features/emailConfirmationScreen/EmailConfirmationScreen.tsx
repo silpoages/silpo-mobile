@@ -15,7 +15,7 @@ import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader';
 import { colors, fontFamily, fontSize, spacing, typography } from '@/theme';
 import { useSession } from '@/features/auth/session/SessionContext';
 import { useResendCooldown } from '@/features/emailConfirmationScreen/useResendCooldown';
-import { resendConfirmationEmail } from '@/features/emailConfirmationScreen/emailConfirmationServices';
+import { resendConfirmationEmail } from '@/features/emailConfirmationScreen/emailConfirmationService';
 import {
   clearPendingConfirmation,
   getPendingConfirmation,
@@ -32,7 +32,6 @@ export function EmailConfirmationScreen() {
 
   const [isResending, setIsResending] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
   const isConfirmed = confirmedResult !== null;
 
   useEffect(() => {
