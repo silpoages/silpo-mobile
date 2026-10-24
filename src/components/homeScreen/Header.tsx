@@ -1,4 +1,5 @@
-import { Pressable, View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { ProfileAvatar } from '@/components/ProfileAvatar';
 import { colors } from '@/theme/colors';
 import { fontFamily, fontSize } from '@/theme/fonts';
 
@@ -17,8 +18,6 @@ function getGreeting(): string {
 }
 
 export function Header({ userName, subtitle, onPressAvatar }: HeaderProps) {
-  const nameInitial = userName.trim().charAt(0).toUpperCase();
-
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>
@@ -29,14 +28,7 @@ export function Header({ userName, subtitle, onPressAvatar }: HeaderProps) {
           {subtitle}
         </Text>
       </View>
-      <Pressable
-        accessibilityLabel="Perfil"
-        accessibilityRole="button"
-        onPress={onPressAvatar}
-        style={styles.avatar}
-      >
-        <Text style={styles.initial}>{nameInitial}</Text>
-      </Pressable>
+      <ProfileAvatar userName={userName} onPress={onPressAvatar} />
     </View>
   );
 }
@@ -63,18 +55,5 @@ const styles = StyleSheet.create({
     fontSize: fontSize.body,
     color: colors.textSecondary,
     marginTop: 3,
-  },
-  avatar: {
-    width: 52,
-    height: 52,
-    borderRadius: 999,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  initial: {
-    fontFamily: fontFamily.extraBold,
-    fontSize: fontSize.heading,
-    color: colors.surface,
   },
 });

@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { EmotionButton } from './EmotionButton';
 import { ConfirmMoodModal } from './ConfirmMoodModal';
+import { EMOTIONS } from './emotionConfig';
 import { createMoodLog, getTodayMoodLog, type MoodId } from './moodLogService';
 import { ApiError } from '@/services/apiClient';
 import { useSession } from '@/features/auth/session/SessionContext';
@@ -10,34 +11,6 @@ import { colors, fontFamily, fontSize } from '@/theme';
 
 const ICON_SIZE = 24;
 const ICON_COLOR = colors.textSecondary;
-
-const happyIcon = (
-  <MaterialCommunityIcons name="emoticon-excited-outline" size={ICON_SIZE} color={ICON_COLOR} />
-);
-const wellIcon = (
-  <MaterialCommunityIcons name="emoticon-outline" size={ICON_SIZE} color={ICON_COLOR} />
-);
-const tiredIcon = (
-  <MaterialCommunityIcons name="emoticon-neutral-outline" size={ICON_SIZE} color={ICON_COLOR} />
-);
-const sadIcon = (
-  <MaterialCommunityIcons name="emoticon-sad-outline" size={ICON_SIZE} color={ICON_COLOR} />
-);
-const anxiousIcon = (
-  <MaterialCommunityIcons name="emoticon-frown-outline" size={ICON_SIZE} color={ICON_COLOR} />
-);
-const angryIcon = (
-  <MaterialCommunityIcons name="emoticon-angry-outline" size={ICON_SIZE} color={ICON_COLOR} />
-);
-
-const EMOTIONS: { id: MoodId; emoji: typeof happyIcon; label: string }[] = [
-  { id: 'FELIZ', emoji: happyIcon, label: 'Feliz' },
-  { id: 'BEM', emoji: wellIcon, label: 'Bem' },
-  { id: 'CANSADO', emoji: tiredIcon, label: 'Cansado' },
-  { id: 'TRISTE', emoji: sadIcon, label: 'Triste' },
-  { id: 'ANSIOSO', emoji: anxiousIcon, label: 'Ansioso' },
-  { id: 'IRRITADO', emoji: angryIcon, label: 'Irritado' },
-];
 
 const GENERIC_ERROR_MESSAGE = 'Não foi possível registrar agora. Tente novamente.';
 
@@ -129,7 +102,9 @@ export function EmotionsRow() {
         {EMOTIONS.map((item) => (
           <EmotionButton
             key={item.id}
-            emoji={item.emoji}
+            emoji={
+              <MaterialCommunityIcons name={item.iconName} size={ICON_SIZE} color={ICON_COLOR} />
+            }
             label={item.label}
             isSelected={todayMood === item.id}
             disabled={isLocked}
