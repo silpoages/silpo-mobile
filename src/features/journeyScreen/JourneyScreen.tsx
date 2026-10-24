@@ -125,7 +125,10 @@ export function JourneyScreen({
 }
 
 const styles = StyleSheet.create({
+  /** Mesma largura e margem lateral da Home, para o avatar não mudar de lugar entre as abas. */
   content: {
+    maxWidth: '100%',
+    paddingHorizontal: 20,
     gap: spacing.xl,
     paddingTop: 22,
     paddingBottom: spacing.xl,
