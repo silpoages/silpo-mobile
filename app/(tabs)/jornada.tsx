@@ -1,10 +1,6 @@
-import { Text, View } from 'react-native';
+import { JourneyScreen } from '@/features/journeyScreen/JourneyScreen';
 
-// Placeholder route — build the screen here.
+// Sem integração com a API nesta etapa: a tela abre no estado vazio até receber os dados.
 export default function JourneyRoute() {
-  return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Jornada</Text>
-    </View>
-  );
+  return <JourneyScreen />;
 }
