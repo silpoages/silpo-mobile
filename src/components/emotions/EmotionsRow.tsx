@@ -14,7 +14,12 @@ const ICON_COLOR = colors.textSecondary;
 
 const GENERIC_ERROR_MESSAGE = 'Não foi possível registrar agora. Tente novamente.';
 
-export function EmotionsRow() {
+type EmotionsRowProps = {
+  /** Chamado depois que o registro de hoje é gravado, para quem exibe dados derivados dele. */
+  onMoodRegistered?: () => void;
+};
+
+export function EmotionsRow({ onMoodRegistered }: EmotionsRowProps) {
   const session = useSession();
 
   const [todayMood, setTodayMood] = useState<MoodId | null>(null);
@@ -76,6 +81,7 @@ export function EmotionsRow() {
       const log = await createMoodLog(session.token, pendingMood);
       setTodayMood(log.mood);
       setPendingMood(null);
+      onMoodRegistered?.();
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {
         await loadTodayMood();

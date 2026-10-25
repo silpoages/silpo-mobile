@@ -14,9 +14,7 @@ import {
   getDailyGoodPractice,
   type DailyGoodPractice,
 } from '@/features/goodPracticesScreen/goodPracticesService';
-
-/** Placeholder até o backend expor os dias de registro do mês. */
-const DAYS_REGISTERED_THIS_MONTH = 8;
+import { useJourney } from '@/features/journeyScreen/useJourney';
 
 /** Quick actions com uma tela própria já implementada — as demais ainda não têm destino. */
 const ACTION_ROUTES: Record<string, '/respiracao'> = {
@@ -26,6 +24,7 @@ const ACTION_ROUTES: Record<string, '/respiracao'> = {
 export function HomeScreen() {
   const router = useRouter();
   const session = useSession();
+  const { journey, refresh: refreshJourney } = useJourney();
   const [dailyPractice, setDailyPractice] = useState<DailyGoodPractice | null>(null);
   const [practiceState, setPracticeState] = useState<'loading' | 'error' | 'empty' | 'success'>(
     'loading',
@@ -94,7 +93,7 @@ export function HomeScreen() {
           subtitle="Seus sentimentos importam"
           userName={userName}
         />
-        <EmotionsRow />
+        <EmotionsRow onMoodRegistered={refreshJourney} />
         <DailyPractice
           title={
             dailyPractice?.title ??
@@ -118,7 +117,7 @@ export function HomeScreen() {
         />
         <ActionRow onSelectAction={handleSelectAction} />
         <ContinueJourneyCard
-          daysRegistered={DAYS_REGISTERED_THIS_MONTH}
+          daysRegistered={journey?.daysRegistered ?? null}
           onPress={() => router.push('/jornada')}
         />
       </ScrollView>
