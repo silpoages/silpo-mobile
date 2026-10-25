@@ -2,23 +2,15 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { ScreenContainer } from '@/components/ScreenContainer';
-import type { MoodId } from '@/components/emotions/moodLogService';
 import { JourneyHeader } from '@/components/journeyScreen/JourneyHeader';
 import { JourneySummaryCard } from '@/components/journeyScreen/JourneySummaryCard';
 import { JourneyMetricCard } from '@/components/journeyScreen/JourneyMetricCard';
 import { MoodDistributionCard } from '@/components/journeyScreen/MoodDistributionCard';
 import { AchievementsSummaryCard } from '@/components/journeyScreen/AchievementsSummaryCard';
 import { useSession } from '@/features/auth/session/SessionContext';
+import type { JourneyData } from './journeyService';
 import { pluralize } from './pluralize';
 import { colors, fontFamily, fontSize, spacing } from '@/theme';
-
-export type JourneyData = {
-  daysRegistered: number;
-  practicesTried: number;
-  exercisesCompleted: number;
-  moodCounts: Partial<Record<MoodId, number>>;
-  achievements: { unlocked: number; total: number };
-};
 
 type JourneyScreenProps = {
   /** Resumo do mês. Sem dados (ou tudo zerado), a tela mostra o estado vazio. */
@@ -33,7 +25,8 @@ function isJourneyEmpty(journey: JourneyData | null): journey is null {
     journey === null ||
     (journey.daysRegistered === 0 &&
       journey.practicesTried === 0 &&
-      journey.exercisesCompleted === 0)
+      journey.exercisesCompleted === 0 &&
+      journey.achievements.unlocked === 0)
   );
 }
 

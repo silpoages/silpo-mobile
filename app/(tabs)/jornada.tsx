@@ -1,6 +1,10 @@
 import { JourneyScreen } from '@/features/journeyScreen/JourneyScreen';
+import { useJourney } from '@/features/journeyScreen/useJourney';
 
-// Sem integração com a API nesta etapa: a tela abre no estado vazio até receber os dados.
 export default function JourneyRoute() {
-  return <JourneyScreen />;
+  const { journey, isLoading, hasError, retry } = useJourney();
+
+  return (
+    <JourneyScreen journey={journey} isLoading={isLoading} hasError={hasError} onRetry={retry} />
+  );
 }
