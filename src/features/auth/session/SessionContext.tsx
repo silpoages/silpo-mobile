@@ -1,5 +1,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
 
 const TOKEN_STORAGE_KEY = 'silpo.session.token';
 const USER_STORAGE_KEY = 'silpo.session.user';
@@ -58,18 +66,19 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     setUser(newUser);
   }
 
-  async function logout() {
+  // Estável entre renders: telas usam `logout` como dependência de efeitos (ex.: 401 na Jornada).
+  const logout = useCallback(async () => {
     await Promise.all([
       AsyncStorage.removeItem(TOKEN_STORAGE_KEY),
       AsyncStorage.removeItem(USER_STORAGE_KEY),
     ]);
     setToken(null);
     setUser(null);
-  }
+  }, []);
 
   const value = useMemo<SessionContextValue>(
     () => ({ token, user, isAuthenticated: token !== null, isLoading, login, logout }),
-    [token, user, isLoading],
+    [token, user, isLoading, logout],
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

@@ -108,3 +108,36 @@ export async function getBreathingActivity(token: string | null): Promise<Breath
 
   return toBreathingActivity(response);
 }
+
+export type ActivitySession = {
+  id: string;
+  activityId: string;
+  timeSpentSeconds: number;
+  completedAt: string;
+};
+
+type ActivitySessionResponse = {
+  session_id: string;
+  activity_id: string;
+  time_spent_seconds: number;
+  completed_at: string;
+};
+
+/** Registra um exercício concluído (`POST /activities/{id}/sessions`). */
+export async function createActivitySession(
+  token: string,
+  activityId: string,
+  timeSpentSeconds: number,
+): Promise<ActivitySession> {
+  const response = await apiRequest<ActivitySessionResponse>(
+    `/activities/${encodeURIComponent(activityId)}/sessions`,
+    { method: 'POST', token, body: { time_spent_seconds: timeSpentSeconds } },
+  );
+
+  return {
+    id: response.session_id,
+    activityId: response.activity_id,
+    timeSpentSeconds: response.time_spent_seconds,
+    completedAt: response.completed_at,
+  };
+}
