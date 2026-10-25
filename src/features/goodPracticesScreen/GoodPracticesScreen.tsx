@@ -1,13 +1,17 @@
-import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { BackButton } from '@/components/BackButton';
 import Button from '@/components/Button';
 import { ScreenContainer } from '@/components/ScreenContainer';
 import { StartedBadge } from '@/components/goodPracticesScreen/StartedBadge';
+import { CompletedBadge } from '@/components/goodPracticesScreen/CompletedBadge';
 import { StepItem } from '@/components/goodPracticesScreen/StepItem';
 import { useSession } from '@/features/auth/session/SessionContext';
-import { completeGoodPractice } from '@/features/goodPracticesScreen/goodPracticesService';
+import {
+  completeGoodPractice,
+  getDailyGoodPractice,
+} from '@/features/goodPracticesScreen/goodPracticesService';
 import { colors, radii, spacing, typography } from '@/theme';
 
 const GUIDANCE_STEPS = [
@@ -22,14 +26,61 @@ type GoodPracticesScreenProps = {
   id: string;
   title: string;
   description: string;
+  isDailyPractice?: boolean;
 };
 
-export function GoodPracticesScreen({ id, title, description }: GoodPracticesScreenProps) {
+type DailyStatus = 'loading' | 'other' | 'available' | 'completed';
+type DailyStatusResult = Exclude<DailyStatus, 'loading'>;
+
+export function GoodPracticesScreen({
+  id,
+  title,
+  description,
+  isDailyPractice = false,
+}: GoodPracticesScreenProps) {
   const router = useRouter();
   const session = useSession();
   const [isStarted, setIsStarted] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
   const [finishError, setFinishError] = useState<string | null>(null);
+  const [dailyResult, setDailyResult] = useState<{
+    key: string;
+    status: DailyStatusResult;
+  } | null>(null);
+  const dailyKey = `${session.user?.id ?? ''}:${id}`;
+  const dailyStatus: DailyStatus =
+    !isDailyPractice || !session.token || !id
+      ? 'other'
+      : dailyResult?.key === dailyKey
+        ? dailyResult.status
+        : 'loading';
+
+  useEffect(() => {
+    if (!isDailyPractice || !session.token || !id) {
+      return;
+    }
+
+    let active = true;
+    getDailyGoodPractice(session.token)
+      .then((dailyPractice) => {
+        if (!active) return;
+        if (dailyPractice?.id !== id) {
+          setDailyResult({ key: dailyKey, status: 'other' });
+        } else {
+          setDailyResult({
+            key: dailyKey,
+            status: dailyPractice.completedToday ? 'completed' : 'available',
+          });
+        }
+      })
+      .catch(() => {
+        if (active) setDailyResult({ key: dailyKey, status: 'other' });
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [dailyKey, id, isDailyPractice, session.token]);
 
   function handleClose() {
     if (router.canGoBack()) {
@@ -53,7 +104,12 @@ export function GoodPracticesScreen({ id, title, description }: GoodPracticesScr
 
     try {
       await completeGoodPractice(session.token, id);
-      handleClose();
+      if (dailyStatus === 'available') {
+        setIsStarted(false);
+        setDailyResult({ key: dailyKey, status: 'completed' });
+      } else {
+        handleClose();
+      }
     } catch {
       setFinishError(FINISH_ERROR_MESSAGE);
     } finally {
@@ -73,7 +129,11 @@ export function GoodPracticesScreen({ id, title, description }: GoodPracticesScr
         <Text style={styles.description}>{description}</Text>
       </View>
 
-      {isStarted && <StartedBadge style={styles.startedBadge} />}
+      {dailyStatus === 'completed' ? (
+        <CompletedBadge style={styles.startedBadge} />
+      ) : (
+        isStarted && <StartedBadge style={styles.startedBadge} />
+      )}
 
       <View style={styles.card}>
         <Text style={styles.label}>Se quiser, um caminho</Text>
@@ -83,7 +143,13 @@ export function GoodPracticesScreen({ id, title, description }: GoodPracticesScr
       </View>
 
       <View style={styles.footer}>
-        {isStarted ? (
+        {dailyStatus === 'loading' ? (
+          <ActivityIndicator color={colors.primary} />
+        ) : dailyStatus === 'completed' ? (
+          <Button size="lg" onPress={handleClose}>
+            Voltar
+          </Button>
+        ) : isStarted ? (
           <>
             {finishError ? <Text style={styles.finishError}>{finishError}</Text> : null}
             <Button

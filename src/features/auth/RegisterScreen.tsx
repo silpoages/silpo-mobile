@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
     paddingBottom: spacing.xxl,
-    paddingTop: spacing.md,
+    paddingTop: spacing.xl,
   },
   form: {
     gap: spacing.xl,

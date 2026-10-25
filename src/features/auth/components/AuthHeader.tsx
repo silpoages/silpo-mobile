@@ -1,7 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { ChevronLeftIcon } from '@/components/icons';
-import { colors, layout, radii, spacing, typography } from '@/theme';
+import { BackButton } from '@/components/BackButton';
+import { colors, layout, typography } from '@/theme';
 
 type AuthHeaderProps = {
   title: string;
@@ -18,16 +18,7 @@ type AuthHeaderProps = {
 export function AuthHeader({ title, subtitle, onPressBack }: AuthHeaderProps) {
   return (
     <View>
-      <Pressable
-        accessibilityLabel="Voltar"
-        accessibilityRole="button"
-        hitSlop={spacing.md}
-        onPress={onPressBack}
-        style={({ pressed }) => [styles.backButton, pressed && styles.backButtonPressed]}
-        testID="back-button"
-      >
-        <ChevronLeftIcon />
-      </Pressable>
+      <BackButton onPress={onPressBack} testID="back-button" />
 
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.subtitle}>{subtitle}</Text>
@@ -36,17 +27,6 @@ export function AuthHeader({ title, subtitle, onPressBack }: AuthHeaderProps) {
 }
 
 const styles = StyleSheet.create({
-  backButton: {
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    borderRadius: radii.field,
-    height: layout.backButtonSize,
-    justifyContent: 'center',
-    width: layout.backButtonSize,
-  },
-  backButtonPressed: {
-    backgroundColor: colors.surface,
-  },
   title: {
     ...typography.title,
     color: colors.text,
