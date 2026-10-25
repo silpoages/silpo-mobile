@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Animated,
@@ -20,7 +20,7 @@ import { PauseButton } from '@/components/breathingScreen/PauseButton';
 import { PracticeModalButton } from '@/components/breathingScreen/PracticeModalButton';
 import { ApiError } from '@/services/apiClient';
 import { colors, fontFamily, fontSize } from '@/theme';
-import { getBreathingActivity } from './activityService';
+import { createActivitySession, getBreathingActivity } from './activityService';
 
 const PHASE_GUIDE = [
   { title: 'Inspire', description: 'Puxe o ar devagar pelo nariz.' },
@@ -31,6 +31,10 @@ const PHASE_GUIDE = [
 const MINIMUM_BALL_SCALE = 0.65;
 
 type BreathingActivity = import('./activityService').BreathingActivity;
+
+type RecordStatus = 'idle' | 'saving' | 'saved' | 'error';
+
+const SESSION_EXPIRED_MESSAGE = 'Sua sessão expirou. Entre novamente para continuar.';
 
 export function BreathingScreen() {
   const router = useRouter();
@@ -43,6 +47,9 @@ export function BreathingScreen() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [paused, setPaused] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
+  const [recordStatus, setRecordStatus] = useState<RecordStatus>('idle');
+  // Trava o envio da sessão: fica `true` durante o POST e depois que ele dá certo.
+  const isRecordingRef = useRef(false);
   const ballScale = useRef(new Animated.Value(MINIMUM_BALL_SCALE)).current;
   const modalTranslateY = useRef(new Animated.Value(320)).current;
 
@@ -94,7 +101,7 @@ export function BreathingScreen() {
           setAuthRequired(isUnauthorized);
           setLoadError(
             isUnauthorized
-              ? 'Sua sessão expirou. Entre novamente para continuar.'
+              ? SESSION_EXPIRED_MESSAGE
               : error instanceof Error
                 ? error.message
                 : 'Não foi possível carregar a atividade.',
@@ -125,7 +132,41 @@ export function BreathingScreen() {
     handleClose();
   }
 
+  const recordSession = useCallback(async () => {
+    if (isRecordingRef.current || !activity || !session.token) {
+      return;
+    }
+
+    isRecordingRef.current = true;
+    setRecordStatus('saving');
+
+    try {
+      await createActivitySession(session.token, activity.id, activeTimeLimit);
+      setRecordStatus('saved');
+    } catch (error) {
+      isRecordingRef.current = false;
+
+      if (error instanceof ApiError && error.status === 401) {
+        setAuthRequired(true);
+        setLoadError(SESSION_EXPIRED_MESSAGE);
+        void session.logout();
+        return;
+      }
+
+      setRecordStatus('error');
+    }
+  }, [activeTimeLimit, activity, session]);
+
+  // A sessão só é gravada quando o exercício chega ao fim; encerrar antes não registra nada.
+  useEffect(() => {
+    if (practiceCompleted) {
+      void recordSession();
+    }
+  }, [practiceCompleted, recordSession]);
+
   function handleRetry() {
+    isRecordingRef.current = false;
+    setRecordStatus('idle');
     setActivity(null);
     setIsLoading(true);
     setAuthRequired(false);
@@ -272,6 +313,25 @@ export function BreathingScreen() {
           <Text style={styles.subtitle}>
             {timer}s · {cycles}/{activity.repeatCount} ciclos completos
           </Text>
+          {practiceCompleted && recordStatus === 'saving' ? (
+            <Text style={styles.recordMessage}>Registrando sua prática...</Text>
+          ) : null}
+          {practiceCompleted && recordStatus === 'saved' ? (
+            <Text style={styles.recordMessage}>Prática registrada na sua jornada.</Text>
+          ) : null}
+          {practiceCompleted && recordStatus === 'error' ? (
+            <>
+              <Text style={styles.recordError}>Não foi possível registrar a prática.</Text>
+              <Pressable
+                accessibilityRole="button"
+                hitSlop={8}
+                onPress={() => void recordSession()}
+                style={styles.recordAction}
+              >
+                <Text style={styles.recordActionText}>Tentar registrar de novo</Text>
+              </Pressable>
+            </>
+          ) : null}
         </View>
       </View>
 
@@ -383,6 +443,27 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.regular,
     fontSize: fontSize.lg,
     color: colors.textSecondary,
+  },
+  recordMessage: {
+    fontFamily: fontFamily.regular,
+    fontSize: fontSize.body,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+  recordError: {
+    fontFamily: fontFamily.semiBold,
+    fontSize: fontSize.body,
+    color: colors.danger,
+    textAlign: 'center',
+  },
+  recordAction: {
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  recordActionText: {
+    fontFamily: fontFamily.semiBold,
+    fontSize: fontSize.body,
+    color: colors.primary,
   },
   footer: {
     alignItems: 'center',
