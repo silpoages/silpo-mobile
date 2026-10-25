@@ -26,6 +26,14 @@ export const colors = {
     border: '#DDD6EC',
   },
 
+  /** Preenchimento das barras de distribuição de emoções, na Jornada. */
+  chartFill: '#9CC9A9',
+
+  achievement: {
+    surface: '#F6EEDD',
+    icon: '#8A6A3B',
+  },
+
   danger: '#9E4A41',
 } as const;
 
