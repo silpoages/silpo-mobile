@@ -3,16 +3,22 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { ScreenContainer } from '@/components/ScreenContainer';
+import ChangedPasswordForm from '@/components/forgotPasswordScreen/ChangedPasswordForm';
+import EmailForm from '@/components/forgotPasswordScreen/EmailForm';
+import NewPasswordForm from '@/components/forgotPasswordScreen/NewPasswordForm';
+import VerificationCodeForm from '@/components/forgotPasswordScreen/VerificationCodeForm';
 import { AuthHeader } from '@/features/auth/components/AuthHeader';
-
 import { validateEmail, validateNewPassword } from '@/features/auth/validation/authValidation';
-import { colors, layout, spacing, fontSize, fontFamily } from '@/theme';
-import EmailForm from '@/components/forgetPasswordScreen/EmailForm';
-import VerificationCodeForm from '@/components/forgetPasswordScreen/VerificationCodeForm';
-import NewPasswordForm from '@/components/forgetPasswordScreen/NewPasswordForm';
-import ChangedPasswordForm from '@/components/forgetPasswordScreen/ChangedPasswordForm';
+import { colors, layout, spacing, typography } from '@/theme';
 
-export default function ForgetPasswordScreen() {
+const CODE_LENGTH = 6;
+
+/**
+ * Recuperação de senha em 4 etapas: e-mail, código, nova senha e confirmação.
+ *
+ * Ainda só a interface: nenhuma etapa chama o backend.
+ */
+export function ForgotPasswordScreen() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
@@ -22,14 +28,16 @@ export default function ForgetPasswordScreen() {
   const [emailError, setEmailError] = useState<string>();
   const [codeError, setCodeError] = useState<string>();
   const [passwordError, setPasswordError] = useState<string>();
+  const [confirmationError, setConfirmationError] = useState<string>();
 
+  /** Sem login na pilha (tela aberta por URL), `dismissTo` troca esta tela pelo login. */
   function handleBack() {
     if (step > 1) {
       setStep((currentStep) => currentStep - 1);
       return;
     }
 
-    router.back();
+    router.dismissTo('/login');
   }
 
   function handleEmailChange(value: string) {
@@ -38,13 +46,19 @@ export default function ForgetPasswordScreen() {
   }
 
   function handleCodeChange(value: string) {
-    setCode(value.replace(/[^0-9]/g, '').slice(0, 6));
+    setCode(value.replace(/[^0-9]/g, '').slice(0, CODE_LENGTH));
     setCodeError(undefined);
   }
 
   function handlePasswordChange(value: string) {
     setPassword(value);
     setPasswordError(undefined);
+    setConfirmationError(undefined);
+  }
+
+  function handlePasswordConfirmationChange(value: string) {
+    setPasswordConfirmation(value);
+    setConfirmationError(undefined);
   }
 
   function handleSubmit() {
@@ -61,8 +75,8 @@ export default function ForgetPasswordScreen() {
     }
 
     if (step === 2) {
-      if (code.length !== 6) {
-        setCodeError('Digite o código de 6 dígitos.');
+      if (code.length !== CODE_LENGTH) {
+        setCodeError(`Digite o código de ${CODE_LENGTH} dígitos.`);
         return;
       }
 
@@ -70,50 +84,49 @@ export default function ForgetPasswordScreen() {
       return;
     }
 
-    if (step === 3) {
-      if (!password) {
-        setPasswordError('Digite a nova senha e confirme.');
-        return;
-      }
+    const error = validateNewPassword(password);
 
-      const passwordValidationError = validateNewPassword(password);
-
-      if (passwordValidationError) {
-        setPasswordError(passwordValidationError);
-        return;
-      }
-
-      if (!passwordConfirmation) {
-        setPasswordError('Preencha a confirmação da senha.');
-        return;
-      }
-
-      if (password !== passwordConfirmation) {
-        setPasswordError('As senhas precisam ser iguais.');
-        return;
-      }
-
-      setStep(4);
+    if (error) {
+      setPasswordError(error);
       return;
     }
+
+    if (!passwordConfirmation) {
+      setConfirmationError('Confirme sua nova senha.');
+      return;
+    }
+
+    if (password !== passwordConfirmation) {
+      setConfirmationError('As senhas não coincidem.');
+      return;
+    }
+
+    setStep(4);
   }
 
-  const titles = ['Recupere o acesso à sua conta', 'Verifique seu e-mail', 'Crie uma nova senha'];
-
-  const subtitles = [
-    'Sem problemas. Digite o e-mail da sua conta para recuperar o acesso.',
-    `Digite o código de 6 dígitos enviado para ${email}.`,
-    'Crie uma nova senha para voltar a acessar sua conta.',
+  const headers = [
+    {
+      title: 'Recupere o acesso à sua conta',
+      subtitle: 'Sem problemas. Digite o e-mail da sua conta para recuperar o acesso.',
+    },
+    {
+      title: 'Verifique seu e-mail',
+      subtitle: `Digite o código de ${CODE_LENGTH} dígitos enviado para ${email.trim()}.`,
+    },
+    {
+      title: 'Crie uma nova senha',
+      subtitle: 'Crie uma nova senha para voltar a acessar sua conta.',
+    },
   ];
+  const header = headers[step - 1];
 
   return (
     <ScreenContainer>
       <View style={styles.body}>
-        <AuthHeader
-          onPressBack={handleBack}
-          subtitle={subtitles[step - 1]}
-          title={titles[step - 1]}
-        />
+        {/* A etapa final tem título próprio e não volta para o formulário de senha. */}
+        {header ? (
+          <AuthHeader onPressBack={handleBack} subtitle={header.subtitle} title={header.title} />
+        ) : null}
 
         <View style={styles.form}>
           {step === 1 ? (
@@ -132,20 +145,20 @@ export default function ForgetPasswordScreen() {
             />
           ) : step === 3 ? (
             <NewPasswordForm
-              error={passwordError}
+              confirmationError={confirmationError}
               onChangePassword={handlePasswordChange}
-              onChangePasswordConfirmation={setPasswordConfirmation}
+              onChangePasswordConfirmation={handlePasswordConfirmationChange}
               onSubmit={handleSubmit}
               password={password}
               passwordConfirmation={passwordConfirmation}
+              passwordError={passwordError}
             />
           ) : (
             <ChangedPasswordForm />
           )}
         </View>
-        <View style={{ position: 'absolute', bottom: 20, alignSelf: 'center' }}>
-          <Text style={styles.privacyNote}>Seus dados são privados e ficam com você.</Text>
-        </View>
+
+        <Text style={styles.privacyNote}>Seus dados são privados e ficam com você.</Text>
       </View>
     </ScreenContainer>
   );
@@ -155,22 +168,18 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
     paddingBottom: spacing.xxl,
-    paddingTop: spacing.md,
+    paddingTop: spacing.xl,
   },
-
   form: {
     gap: spacing.xl,
     marginTop: layout.formGap,
   },
-
+  /** `marginTop: 'auto'` leva o aviso ao rodapé sem sobrepor o formulário em telas baixas. */
   privacyNote: {
+    ...typography.footnote,
     color: colors.textMuted,
-    fontFamily: fontFamily.bold,
-    fontSize: fontSize.md,
-    textAlign: 'center',
-  },
-
-  footer: {
+    marginTop: 'auto',
+    paddingTop: spacing.xl,
     textAlign: 'center',
   },
 });

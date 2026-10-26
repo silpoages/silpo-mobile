@@ -122,8 +122,7 @@ export function SignInScreen() {
 
           <AuthFormFooter
             actionLabel="Esqueceu a senha?"
-            onPressAction={() => router.push('/esqueci-senha')}
-            question=""
+            onPressAction={() => router.navigate('/esqueci-senha')}
           />
 
           {errors.form ? (

@@ -16,7 +16,7 @@ export const ONBOARDING_FIRST_STEP_ROUTE: Href = '/onboarding/etapa-1';
 const PUBLIC_ROUTES = ['/apoio', '/respiracao'];
 
 /** Telas de entrada: só fazem sentido para quem ainda não entrou. */
-const GUEST_ONLY_ROUTES = ['/welcome', '/login', '/cadastro', '/confirmar-email'];
+const GUEST_ONLY_ROUTES = ['/welcome', '/login', '/cadastro', '/confirmar-email', '/esqueci-senha'];
 
 type SessionAccess = {
   isAuthenticated: boolean;

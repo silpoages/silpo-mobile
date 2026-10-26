@@ -1,5 +1,5 @@
-import ForgetPasswordScreen from '@/features/auth/ForgetPasswordScreen';
+import { ForgotPasswordScreen } from '@/features/auth/ForgotPasswordScreen';
 
-export default function ForgetPasswordRoute() {
-  return <ForgetPasswordScreen />;
+export default function ForgotPasswordRoute() {
+  return <ForgotPasswordScreen />;
 }

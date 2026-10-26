@@ -1,16 +1,20 @@
-import Button from '@/components/Button';
-import { colors, fontSize, fontFamily } from '@/theme';
-import { spacing } from '@/theme/spacing';
-import { Feather } from '@expo/vector-icons';
+import Feather from '@expo/vector-icons/Feather';
 import { useRouter } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
+
+import Button from '@/components/Button';
+import { colors, fontFamily, fontSize, spacing } from '@/theme';
 
 export default function ChangedPasswordForm() {
   const router = useRouter();
 
   return (
     <View style={styles.body}>
-      <View style={styles.circle}>
+      <View
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+        style={styles.circle}
+      >
         <Feather name="check" size={50} color={colors.surface} />
       </View>
 
@@ -19,7 +23,7 @@ export default function ChangedPasswordForm() {
         Tudo certo! Sua senha foi atualizada. Você já pode entrar de novo com carinho.
       </Text>
 
-      <Button onPress={() => router.push('/login')} size="lg" testID="submit-button">
+      <Button onPress={() => router.dismissTo('/login')} size="lg" testID="submit-button">
         Voltar para o login
       </Button>
     </View>
@@ -42,6 +46,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   title: {
+    color: colors.text,
     fontSize: fontSize.display,
     fontFamily: fontFamily.bold,
     textAlign: 'center',

@@ -38,7 +38,7 @@ export default function EmailForm({ email, error, onChangeEmail, onSubmit }: Ema
       <View style={styles.footer}>
         <AuthFormFooter
           actionLabel="Entrar"
-          onPressAction={() => router.push('/login')}
+          onPressAction={() => router.dismissTo('/login')}
           question="Lembrou a senha?"
         />
       </View>

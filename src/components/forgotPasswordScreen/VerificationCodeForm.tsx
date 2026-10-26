@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import Button from '@/components/Button';
 import { TextField } from '@/components/TextField';
 import { AuthFormFooter } from '@/features/auth/components/AuthFormFooter';
+import { useResendCooldown } from '@/features/emailConfirmationScreen/useResendCooldown';
 import { spacing } from '@/theme';
 
-const CODE_EXPIRATION_SECONDS = 60;
+const RESEND_COOLDOWN_SECONDS = 60;
 
 type VerificationCodeFormProps = {
   code: string;
@@ -21,35 +21,21 @@ export default function VerificationCodeForm({
   onChangeCode,
   onSubmit,
 }: VerificationCodeFormProps) {
-  const [secondsRemaining, setSecondsRemaining] = useState(CODE_EXPIRATION_SECONDS);
-
-  useEffect(() => {
-    let currentSeconds = CODE_EXPIRATION_SECONDS;
-
-    const timer = setInterval(() => {
-      currentSeconds -= 1;
-      setSecondsRemaining(currentSeconds);
-
-      if (currentSeconds === 0) {
-        clearInterval(timer);
-      }
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
+  const { secondsLeft, isCoolingDown, restart } = useResendCooldown(RESEND_COOLDOWN_SECONDS);
 
   function handleResendCode() {
-    // Implementar depois
+    if (isCoolingDown) {
+      return;
+    }
 
-    setSecondsRemaining(CODE_EXPIRATION_SECONDS);
+    // Implementar o reenvio quando o fluxo for integrado ao backend.
+    restart();
   }
-
-  const resendCodeLabel =
-    secondsRemaining > 0 ? `Reenviar código em ${secondsRemaining}s` : 'Enviar código';
 
   return (
     <View style={styles.container}>
       <TextField
+        autoComplete="one-time-code"
         errorMessage={error}
         keyboardType="number-pad"
         label="Código de verificação"
@@ -58,6 +44,7 @@ export default function VerificationCodeForm({
         placeholder="000000"
         returnKeyType="go"
         testID="code-field"
+        textContentType="oneTimeCode"
         value={code}
       />
 
@@ -67,12 +54,8 @@ export default function VerificationCodeForm({
 
       <View style={styles.footer}>
         <AuthFormFooter
-          actionLabel={resendCodeLabel}
-          onPressAction={() => {
-            if (secondsRemaining > 0) return;
-
-            handleResendCode();
-          }}
+          actionLabel={isCoolingDown ? `Reenviar código em ${secondsLeft}s` : 'Reenviar código'}
+          onPressAction={handleResendCode}
           question="Não recebeu?"
         />
       </View>
@@ -86,10 +69,5 @@ const styles = StyleSheet.create({
   },
   footer: {
     alignSelf: 'center',
-    alignItems: 'center',
-    gap: 8,
-  },
-  timer: {
-    color: '#777777',
   },
 });
