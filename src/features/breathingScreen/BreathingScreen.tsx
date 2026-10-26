@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Animated,
   Modal,
   Pressable,
@@ -10,41 +11,113 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSession } from '@/features/auth/session/SessionContext';
 
 import { CloseButton } from '@/components/CloseButton';
 import { BreathBall } from '@/components/breathingScreen/BreathBall';
 import { EndPracticeButton } from '@/components/breathingScreen/EndPracticeButton';
 import { PauseButton } from '@/components/breathingScreen/PauseButton';
 import { PracticeModalButton } from '@/components/breathingScreen/PracticeModalButton';
+import { ApiError } from '@/services/apiClient';
 import { colors, fontFamily, fontSize } from '@/theme';
-
-const PHASES = [
-  { text: 'Inspire...', duration: 4 },
-  { text: 'Segure...', duration: 7 },
-  { text: 'Solte...', duration: 8 },
-];
+import { createActivitySession, getBreathingActivity } from './activityService';
 
 const PHASE_GUIDE = [
-  { title: 'Inspire', description: 'Puxe o ar devagar pelo nariz.', duration: '4 segundos' },
-  { title: 'Segure', description: 'Mantenha o ar com tranquilidade.', duration: '7 segundos' },
-  { title: 'Solte', description: 'Expire lentamente pela boca.', duration: '8 segundos' },
+  { title: 'Inspire', description: 'Puxe o ar devagar pelo nariz.' },
+  { title: 'Segure', description: 'Mantenha o ar com tranquilidade.' },
+  { title: 'Expire', description: 'Expire lentamente pela boca.' },
 ];
 
 const MINIMUM_BALL_SCALE = 0.65;
 
+type BreathingActivity = import('./activityService').BreathingActivity;
+
+type RecordStatus = 'idle' | 'saving' | 'saved' | 'error';
+
+const SESSION_EXPIRED_MESSAGE = 'Sua sessão expirou. Entre novamente para continuar.';
+
 export function BreathingScreen() {
   const router = useRouter();
-  const [timer, setTimer] = useState(0);
-  const [phaseIndex, setPhaseIndex] = useState(0);
+  const session = useSession();
+  const [activity, setActivity] = useState<BreathingActivity | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [authRequired, setAuthRequired] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [paused, setPaused] = useState(true);
-  const [cycles, setCycles] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
+  const [recordStatus, setRecordStatus] = useState<RecordStatus>('idle');
+  // Trava o envio da sessão: fica `true` durante o POST e depois que ele dá certo.
+  const isRecordingRef = useRef(false);
   const ballScale = useRef(new Animated.Value(MINIMUM_BALL_SCALE)).current;
   const modalTranslateY = useRef(new Animated.Value(320)).current;
 
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const ballSize = Math.min(Math.max(width * 0.48, 144), 260, height * 0.32);
+  const phaseDurations = activity
+    ? [activity.inhaleSeconds, activity.holdSeconds, activity.exhaleSeconds]
+    : [];
+  const cycleDuration = phaseDurations.reduce((total, duration) => total + duration, 0);
+  const totalDuration = activity ? cycleDuration * activity.repeatCount : 0;
+  const activeTimeLimit = activity
+    ? Math.min(totalDuration, activity.maxDurationSeconds ?? Number.POSITIVE_INFINITY)
+    : 0;
+  const practiceCompleted = activity !== null && elapsedSeconds >= activeTimeLimit;
+  const cycles = cycleDuration
+    ? Math.min(Math.floor(elapsedSeconds / cycleDuration), activity?.repeatCount ?? 0)
+    : 0;
+  const elapsedInCycle = cycleDuration ? elapsedSeconds % cycleDuration : 0;
+  const inhaleAndHoldDuration = phaseDurations[0] + phaseDurations[1];
+  const phaseIndex =
+    elapsedInCycle < phaseDurations[0] ? 0 : elapsedInCycle < inhaleAndHoldDuration ? 1 : 2;
+  const phaseStart =
+    phaseIndex === 0 ? 0 : phaseIndex === 1 ? phaseDurations[0] : inhaleAndHoldDuration;
+  const timer = elapsedInCycle - phaseStart;
+  const phaseDuration = phaseDurations[phaseIndex] ?? 0;
+
+  useEffect(() => {
+    if (session.isLoading || !session.token) {
+      return;
+    }
+
+    const token = session.token;
+    let cancelled = false;
+
+    getBreathingActivity(token)
+      .then((result) => {
+        if (!cancelled) {
+          setAuthRequired(false);
+          setActivity(result);
+          setElapsedSeconds(0);
+          setPaused(true);
+          setLoadError(null);
+        }
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) {
+          const isUnauthorized = error instanceof ApiError && error.status === 401;
+          setAuthRequired(isUnauthorized);
+          setLoadError(
+            isUnauthorized
+              ? SESSION_EXPIRED_MESSAGE
+              : error instanceof Error
+                ? error.message
+                : 'Não foi possível carregar a atividade.',
+          );
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [retryCount, session.isLoading, session.token]);
 
   function handleClose() {
     if (router.canGoBack()) {
@@ -57,6 +130,50 @@ export function BreathingScreen() {
   function handleEndPractice() {
     ballScale.stopAnimation();
     handleClose();
+  }
+
+  const recordSession = useCallback(async () => {
+    if (isRecordingRef.current || !activity || !session.token) {
+      return;
+    }
+
+    isRecordingRef.current = true;
+    setRecordStatus('saving');
+
+    try {
+      await createActivitySession(session.token, activity.id, activeTimeLimit);
+      setRecordStatus('saved');
+    } catch (error) {
+      isRecordingRef.current = false;
+
+      if (error instanceof ApiError && error.status === 401) {
+        setAuthRequired(true);
+        setLoadError(SESSION_EXPIRED_MESSAGE);
+        void session.logout();
+        return;
+      }
+
+      setRecordStatus('error');
+    }
+  }, [activeTimeLimit, activity, session]);
+
+  // A sessão só é gravada quando o exercício chega ao fim; encerrar antes não registra nada.
+  useEffect(() => {
+    if (practiceCompleted) {
+      void recordSession();
+    }
+  }, [practiceCompleted, recordSession]);
+
+  function handleRetry() {
+    isRecordingRef.current = false;
+    setRecordStatus('idle');
+    setActivity(null);
+    setIsLoading(true);
+    setAuthRequired(false);
+    setLoadError(null);
+    setElapsedSeconds(0);
+    setPaused(true);
+    setRetryCount((count) => count + 1);
   }
 
   function openModal() {
@@ -83,19 +200,19 @@ export function BreathingScreen() {
   }
 
   useEffect(() => {
-    if (paused) {
+    if (paused || !activity || practiceCompleted) {
       return;
     }
 
     const interval = setInterval(() => {
-      setTimer((prevTimer) => prevTimer + 1);
+      setElapsedSeconds((previousSeconds) => Math.min(previousSeconds + 1, activeTimeLimit));
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [paused]);
+  }, [activeTimeLimit, activity, paused, practiceCompleted]);
 
   useEffect(() => {
-    if (paused) {
+    if (paused || !activity || practiceCompleted) {
       return;
     }
 
@@ -109,25 +226,67 @@ export function BreathingScreen() {
 
     const animation = Animated.timing(ballScale, {
       toValue: targetScale,
-      duration: Math.max((PHASES[phaseIndex].duration - timer) * 1000, 1),
+      duration: Math.max((phaseDuration - timer) * 1000, 1),
       useNativeDriver: true,
     });
 
     animation.start();
 
     return () => animation.stop();
-  }, [ballScale, paused, phaseIndex]);
+  }, [activity, ballScale, paused, phaseDuration, phaseIndex, practiceCompleted, timer]);
 
-  useEffect(() => {
-    if (timer >= PHASES[phaseIndex].duration) {
-      if (phaseIndex === PHASES.length - 1) {
-        setCycles((prevCycles) => prevCycles + 1);
-      }
+  const requiresAuthentication = !session.token || authRequired;
 
-      setPhaseIndex((prevIndex) => (prevIndex + 1) % PHASES.length);
-      setTimer(0);
-    }
-  }, [phaseIndex, timer]);
+  if (session.isLoading || (isLoading && !requiresAuthentication)) {
+    return (
+      <View
+        style={[
+          styles.container,
+          styles.stateContainer,
+          { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 },
+        ]}
+      >
+        <CloseButton onPress={handleClose} />
+        <ActivityIndicator color={colors.primary} size="large" />
+        <Text style={styles.stateMessage}>Carregando exercício...</Text>
+      </View>
+    );
+  }
+
+  if (!activity || loadError) {
+    return (
+      <View
+        style={[
+          styles.container,
+          styles.stateContainer,
+          { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 },
+        ]}
+      >
+        <CloseButton onPress={handleClose} />
+        <Text style={styles.stateTitle}>Não foi possível abrir a respiração</Text>
+        <Text style={styles.stateMessage}>
+          {requiresAuthentication
+            ? 'Entre na sua conta para acessar a respiração guiada.'
+            : loadError}
+        </Text>
+        <Pressable
+          style={styles.stateAction}
+          onPress={requiresAuthentication ? () => router.push('/login') : handleRetry}
+        >
+          <Text style={styles.stateActionText}>
+            {requiresAuthentication ? 'Entrar' : 'Tentar novamente'}
+          </Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  const currentPhase = PHASE_GUIDE[phaseIndex];
+  const displayedPhaseDurations = [
+    activity.inhaleSeconds,
+    activity.holdSeconds,
+    activity.exhaleSeconds,
+  ];
 
   return (
     <View
@@ -147,16 +306,39 @@ export function BreathingScreen() {
             <View style={styles.modalButton}>
               <PracticeModalButton onPress={openModal} />
             </View>
-            <Text style={styles.title}>{PHASES[phaseIndex].text}</Text>
+            <Text style={styles.title}>
+              {practiceCompleted ? 'Prática encerrada' : currentPhase.title}
+            </Text>
           </View>
           <Text style={styles.subtitle}>
-            {timer}s · {cycles} ciclos completos
+            {timer}s · {cycles}/{activity.repeatCount} ciclos completos
           </Text>
+          {practiceCompleted && recordStatus === 'saving' ? (
+            <Text style={styles.recordMessage}>Registrando sua prática...</Text>
+          ) : null}
+          {practiceCompleted && recordStatus === 'saved' ? (
+            <Text style={styles.recordMessage}>Prática registrada na sua jornada.</Text>
+          ) : null}
+          {practiceCompleted && recordStatus === 'error' ? (
+            <>
+              <Text style={styles.recordError}>Não foi possível registrar a prática.</Text>
+              <Pressable
+                accessibilityRole="button"
+                hitSlop={8}
+                onPress={() => void recordSession()}
+                style={styles.recordAction}
+              >
+                <Text style={styles.recordActionText}>Tentar registrar de novo</Text>
+              </Pressable>
+            </>
+          ) : null}
         </View>
       </View>
 
       <View style={styles.footer}>
-        <PauseButton paused={paused} onPress={() => setPaused((prevPaused) => !prevPaused)} />
+        {!practiceCompleted ? (
+          <PauseButton paused={paused} onPress={() => setPaused((prevPaused) => !prevPaused)} />
+        ) : null}
         <EndPracticeButton onPress={handleEndPractice} />
       </View>
 
@@ -169,13 +351,15 @@ export function BreathingScreen() {
             <Text style={styles.modalTitle}>Como respirar corretamente</Text>
             <Text style={styles.modalSubtitle}>Acompanhe cada etapa da prática.</Text>
             <View style={styles.guideList}>
-              {PHASE_GUIDE.map((phase) => (
+              {PHASE_GUIDE.map((phase, guideIndex) => (
                 <View key={phase.title} style={styles.guideItem}>
                   <View style={styles.guideText}>
                     <Text style={styles.guideTitle}>{phase.title}</Text>
                     <Text style={styles.guideDescription}>{phase.description}</Text>
                   </View>
-                  <Text style={styles.guideDuration}>{phase.duration}</Text>
+                  <Text style={styles.guideDuration}>
+                    {displayedPhaseDurations[guideIndex]} segundos
+                  </Text>
                 </View>
               ))}
             </View>
@@ -191,6 +375,35 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.surfaceTint,
     paddingHorizontal: 20,
+  },
+  stateContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 18,
+  },
+  stateTitle: {
+    fontFamily: fontFamily.bold,
+    fontSize: fontSize.heading,
+    color: colors.text,
+    textAlign: 'center',
+  },
+  stateMessage: {
+    fontFamily: fontFamily.regular,
+    fontSize: fontSize.body,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+  stateAction: {
+    minHeight: 48,
+    paddingHorizontal: 20,
+    justifyContent: 'center',
+    borderRadius: 12,
+    backgroundColor: colors.primary,
+  },
+  stateActionText: {
+    fontFamily: fontFamily.bold,
+    fontSize: fontSize.body,
+    color: colors.textInverse,
   },
   header: {
     width: '100%',
@@ -230,6 +443,27 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.regular,
     fontSize: fontSize.lg,
     color: colors.textSecondary,
+  },
+  recordMessage: {
+    fontFamily: fontFamily.regular,
+    fontSize: fontSize.body,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+  recordError: {
+    fontFamily: fontFamily.semiBold,
+    fontSize: fontSize.body,
+    color: colors.danger,
+    textAlign: 'center',
+  },
+  recordAction: {
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  recordActionText: {
+    fontFamily: fontFamily.semiBold,
+    fontSize: fontSize.body,
+    color: colors.primary,
   },
   footer: {
     alignItems: 'center',

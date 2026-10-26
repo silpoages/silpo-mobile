@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import SectionButtonProfile from '@/components/profileScreen/SectionButtonProfile';
 import type { ProfileButtonProps } from '@/components/profileScreen/ButtonProfile';
 import DeleteAccountModal from '@/features/profileScreen/DeleteAccountModal';
+import { WELCOME_ROUTE } from '@/features/auth/session/routeAccess';
 import { useSession } from '@/features/auth/session/SessionContext';
 import { listEmergencyContacts } from '@/features/supportScreen/emergencyContactsService';
 import { deleteCurrentUser } from '@/services/user';
@@ -47,7 +48,7 @@ export default function UserProfileScreen() {
 
   async function handleLogoutPress() {
     await session.logout();
-    router.replace('/welcome');
+    router.replace(WELCOME_ROUTE);
   }
 
   function handleDeleteAccountPress() {
@@ -74,7 +75,7 @@ export default function UserProfileScreen() {
       await deleteCurrentUser(session.token, session.user.id);
       await session.logout();
       setIsDeleteModalVisible(false);
-      router.replace('/welcome');
+      router.replace(WELCOME_ROUTE);
     } finally {
       isDeletingAccountRef.current = false;
       setIsDeletingAccount(false);

@@ -1,5 +1,8 @@
+import { Redirect, usePathname } from 'expo-router';
 import { Tabs, type BottomTabBarProps } from 'expo-router/js-tabs';
 import { TabBar, type TabKey } from '@/components/TabBar';
+import { useSession } from '@/features/auth/session/SessionContext';
+import { resolveRedirect } from '@/features/auth/session/routeAccess';
 
 // TabBar (feat/tab-bar) foi escrito para um `activeTab`/`onTabPress` controlados na mão —
 // esse adaptador traduz isso para o `state`/`navigation` que o Expo Router passa pro `tabBar`.
@@ -29,8 +32,22 @@ function renderTabBar({ state, navigation }: BottomTabBarProps) {
 }
 
 export default function TabsLayout() {
+  const pathname = usePathname();
+  const session = useSession();
+  const destination = resolveRedirect(pathname, {
+    isAuthenticated: session.isAuthenticated,
+    onboardingCompleted: session.user?.onboardingCompleted ?? false,
+  });
+
+  if (destination !== null) {
+    return <Redirect href={destination} />;
+  }
+
   return (
-    <Tabs screenOptions={{ headerShown: false }} tabBar={renderTabBar}>
+    <Tabs
+      screenOptions={{ headerShown: false }}
+      tabBar={session.isAuthenticated ? renderTabBar : () => null}
+    >
       <Tabs.Screen name="index" />
       <Tabs.Screen name="diario" />
       <Tabs.Screen name="jornada" />

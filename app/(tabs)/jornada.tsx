@@ -1,10 +1,10 @@
-import { Text, View } from 'react-native';
+import { JourneyScreen } from '@/features/journeyScreen/JourneyScreen';
+import { useJourney } from '@/features/journeyScreen/useJourney';
 
-// Placeholder route — build the screen here.
 export default function JourneyRoute() {
+  const { journey, isLoading, hasError, retry } = useJourney();
+
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Jornada</Text>
-    </View>
+    <JourneyScreen journey={journey} isLoading={isLoading} hasError={hasError} onRetry={retry} />
   );
 }

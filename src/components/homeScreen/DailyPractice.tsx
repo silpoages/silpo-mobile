@@ -1,27 +1,44 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { colors, fontFamily, fontSize } from '@/theme';
+import { CompletedBadge } from '@/components/goodPracticesScreen/CompletedBadge';
 
 export type DailyPracticeProps = {
   title: string;
   description: string;
+  completedToday?: boolean;
   onPressStart?: () => void;
+  onPressSeeOthers?: () => void;
 };
 
-export function DailyPractice({ title, description, onPressStart }: DailyPracticeProps) {
+export function DailyPractice({
+  title,
+  description,
+  completedToday = false,
+  onPressStart,
+  onPressSeeOthers,
+}: DailyPracticeProps) {
   return (
     <View style={styles.card}>
       <Text style={styles.label}>PRÁTICA DO DIA</Text>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.description}>{description}</Text>
+      {completedToday && <CompletedBadge />}
       <View style={styles.actions}>
-        <Pressable
-          onPress={onPressStart}
-          style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}
-        >
-          <Text style={styles.primaryButtonText}>Quero tentar</Text>
-        </Pressable>
+        {onPressStart && (
+          <Pressable
+            onPress={onPressStart}
+            style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}
+          >
+            <Text style={styles.primaryButtonText}>
+              {completedToday ? 'Ver prática' : 'Quero tentar'}
+            </Text>
+          </Pressable>
+        )}
 
-        <Pressable style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}>
+        <Pressable
+          onPress={onPressSeeOthers}
+          style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}
+        >
           <Text style={styles.secondaryButtonText}>Ver outras</Text>
         </Pressable>
       </View>

@@ -9,6 +9,7 @@ export type Credentials = {
 export type SignInResult = {
   token: string;
   user: SessionUser;
+  isEmailConfirmed: boolean;
 };
 
 type LoginResponse = {
@@ -20,6 +21,7 @@ type LoginResponse = {
     full_name: string | null;
     role: string;
     onboarding_completed: boolean;
+    email_confirmed_at?: string | null; // ajustar após existir o endpoint de confirmação de email.
   };
 };
 
@@ -45,6 +47,10 @@ export async function signIn({ email, password }: Credentials): Promise<SignInRe
       role: response.user.role,
       onboardingCompleted: response.user.onboarding_completed,
     },
+    /**
+     * //alterar após existir o endpoint de confirmação de email para `!!response.user.email_confirmed_at` (ou seja, `true` se não for *'null', 'false' caso contrário).
+     */
+    isEmailConfirmed: response.user.email_confirmed_at !== null,
   };
 }
 

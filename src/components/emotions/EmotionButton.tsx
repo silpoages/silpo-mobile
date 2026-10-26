@@ -7,14 +7,19 @@ export interface EmotionButtonProps {
   emoji: ReactNode;
   onPress: () => void;
   isSelected?: boolean;
+  disabled?: boolean;
 }
 
-export function EmotionButton({ label, emoji, onPress, isSelected }: EmotionButtonProps) {
+export function EmotionButton({ label, emoji, onPress, isSelected, disabled }: EmotionButtonProps) {
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ disabled, selected: isSelected }}
+      disabled={disabled}
       style={({ pressed }) => [
         styles.btn,
         isSelected ? styles.selected : undefined,
+        disabled && !isSelected ? styles.disabled : undefined,
         pressed ? styles.pressed : undefined,
       ]}
       onPress={onPress}
@@ -46,6 +51,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceTint,
     borderColor: colors.textSecondary,
     borderWidth: 2,
+  },
+  disabled: {
+    opacity: 0.5,
   },
   label: {
     marginTop: 4,

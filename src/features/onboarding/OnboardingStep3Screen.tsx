@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Platform, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 
@@ -6,6 +6,7 @@ import Button from '@/components/Button';
 import { ScreenContainer } from '@/components/ScreenContainer';
 import { OnboardingHeader } from '@/components/onboarding/OnboardingHeader';
 import { useSession } from '@/features/auth/session/SessionContext';
+import { ONBOARDING_FIRST_STEP_ROUTE } from '@/features/auth/session/routeAccess';
 import { toISODate } from '@/features/onboarding/date';
 import { useOnboarding } from '@/features/onboarding/OnboardingContext';
 import { ApiError } from '@/services/apiClient';
@@ -18,8 +19,14 @@ const GENERIC_ERROR_MESSAGE = 'Não foi possível salvar agora. Tente novamente.
 export function OnboardingStep3Screen() {
   const router = useRouter();
   const session = useSession();
-  const { fullName, birthDate, gender, dailyReminderEnabled, setDailyReminderEnabled } =
-    useOnboarding();
+  const {
+    fullName,
+    birthDate,
+    gender,
+    dailyReminderEnabled,
+    setDailyReminderEnabled,
+    isProfileSaved,
+  } = useOnboarding();
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,10 +61,14 @@ export function OnboardingStep3Screen() {
     }
   }
 
+  if (!isProfileSaved) {
+    return <Redirect href={ONBOARDING_FIRST_STEP_ROUTE} />;
+  }
+
   return (
     <ScreenContainer>
       <View style={styles.body}>
-        <OnboardingHeader onPressBack={() => router.back()} step={3} />
+        <OnboardingHeader onPressBack={() => router.back()} step={4} />
 
         <View style={styles.content}>
           <Text style={styles.title}>Podemos te lembrar com carinho?</Text>
@@ -121,7 +132,7 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
     paddingBottom: spacing.xxl,
-    paddingTop: spacing.md,
+    paddingTop: spacing.xl,
   },
   content: {
     flexGrow: 1,

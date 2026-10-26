@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 import Button from '@/components/Button';
+import { maskPhoneInput, toRawPhone } from '@/features/supportScreen/phone';
 import { validatePhoneNumber } from '@/features/supportScreen/validation';
 import { colors, fontFamily, fontSize, radii, spacing } from '@/theme';
 
@@ -52,7 +53,7 @@ export function AddContactModal({
   }
 
   function handlePhoneChange(value: string) {
-    setPhoneNumber(value);
+    setPhoneNumber(maskPhoneInput(value));
     setPhoneError(null);
   }
 
@@ -64,7 +65,7 @@ export function AddContactModal({
       return;
     }
 
-    onConfirm(fullName.trim(), phoneNumber.trim());
+    onConfirm(fullName.trim(), toRawPhone(phoneNumber));
   }
 
   return (
