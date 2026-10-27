@@ -11,25 +11,31 @@ const RESEND_COOLDOWN_SECONDS = 60;
 type VerificationCodeFormProps = {
   code: string;
   error?: string;
+  isSubmitting?: boolean;
   onChangeCode: (value: string) => void;
+  /** Pede um novo código; a contagem só reinicia se o pedido der certo. */
+  onResendCode: () => Promise<boolean>;
   onSubmit: () => void;
 };
 
 export default function VerificationCodeForm({
   code,
   error,
+  isSubmitting = false,
   onChangeCode,
+  onResendCode,
   onSubmit,
 }: VerificationCodeFormProps) {
   const { secondsLeft, isCoolingDown, restart } = useResendCooldown(RESEND_COOLDOWN_SECONDS);
 
-  function handleResendCode() {
-    if (isCoolingDown) {
+  async function handleResendCode() {
+    if (isCoolingDown || isSubmitting) {
       return;
     }
 
-    // Implementar o reenvio quando o fluxo for integrado ao backend.
-    restart();
+    if (await onResendCode()) {
+      restart();
+    }
   }
 
   return (
@@ -48,7 +54,7 @@ export default function VerificationCodeForm({
         value={code}
       />
 
-      <Button onPress={onSubmit} size="lg" testID="submit-button">
+      <Button loading={isSubmitting} onPress={onSubmit} size="lg" testID="submit-button">
         Verificar código
       </Button>
 

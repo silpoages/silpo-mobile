@@ -8,6 +8,7 @@ type NewPasswordFormProps = {
   passwordConfirmation: string;
   passwordError?: string;
   confirmationError?: string;
+  isSubmitting?: boolean;
   onChangePassword: (value: string) => void;
   onChangePasswordConfirmation: (value: string) => void;
   onSubmit: () => void;
@@ -18,6 +19,7 @@ export default function NewPasswordForm({
   passwordConfirmation,
   passwordError,
   confirmationError,
+  isSubmitting = false,
   onChangePassword,
   onChangePasswordConfirmation,
   onSubmit,
@@ -52,7 +54,7 @@ export default function NewPasswordForm({
         />
       </View>
 
-      <Button onPress={onSubmit} size="lg" testID="submit-button">
+      <Button loading={isSubmitting} onPress={onSubmit} size="lg" testID="submit-button">
         Redefinir senha
       </Button>
     </>

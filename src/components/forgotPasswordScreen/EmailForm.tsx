@@ -8,11 +8,18 @@ import { AuthFormFooter } from '@/features/auth/components/AuthFormFooter';
 type EmailFormProps = {
   email: string;
   error?: string;
+  isSubmitting?: boolean;
   onChangeEmail: (value: string) => void;
   onSubmit: () => void;
 };
 
-export default function EmailForm({ email, error, onChangeEmail, onSubmit }: EmailFormProps) {
+export default function EmailForm({
+  email,
+  error,
+  isSubmitting = false,
+  onChangeEmail,
+  onSubmit,
+}: EmailFormProps) {
   const router = useRouter();
 
   return (
@@ -31,7 +38,7 @@ export default function EmailForm({ email, error, onChangeEmail, onSubmit }: Ema
         value={email}
       />
 
-      <Button onPress={onSubmit} size="lg" testID="submit-button">
+      <Button loading={isSubmitting} onPress={onSubmit} size="lg" testID="submit-button">
         Enviar código
       </Button>
 
