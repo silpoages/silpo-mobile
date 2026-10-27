@@ -120,6 +120,11 @@ export function SignInScreen() {
             value={password}
           />
 
+          <AuthFormFooter
+            actionLabel="Esqueceu a senha?"
+            onPressAction={() => router.navigate('/esqueci-senha')}
+          />
+
           {errors.form ? (
             <Text accessibilityRole="alert" style={styles.formError}>
               {errors.form}

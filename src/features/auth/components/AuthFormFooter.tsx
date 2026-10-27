@@ -3,7 +3,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, spacing, typography } from '@/theme';
 
 type AuthFormFooterProps = {
-  question: string;
+  /** Omitida quando a linha é só o link, como "Esqueceu a senha?". */
+  question?: string;
   actionLabel: string;
   onPressAction: () => void;
 };
@@ -16,7 +17,7 @@ type AuthFormFooterProps = {
 export function AuthFormFooter({ question, actionLabel, onPressAction }: AuthFormFooterProps) {
   return (
     <View style={styles.container}>
-      <Text style={styles.question}>{question}</Text>
+      {question ? <Text style={styles.question}>{question}</Text> : null}
 
       <Pressable accessibilityRole="link" hitSlop={spacing.md} onPress={onPressAction}>
         <Text style={styles.action}>{actionLabel}</Text>
