@@ -1,5 +1,5 @@
 import { apiRequest } from '@/services/apiClient';
-// aguardando a implementação da rota de reenvio de confirmação no backend, por enquanto a função apenas simula o envio do email.
+// Reenvia o link de confirmação. O backend responde igual para qualquer e-mail e ignora pedidos repetidos em menos de 30 s.
 export async function resendConfirmationEmail(email: string): Promise<void> {
   await apiRequest<{ message: string }>('/auth/resend-confirmation', {
     method: 'POST',
