@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "silpo-mobile",
+    "name": "Silpo",
     "slug": "silpo-mobile",
     "scheme": "silpo",
     "version": "1.0.0",
@@ -8,7 +8,12 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ages.Silpo",
+      "buildNumber": "1",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
