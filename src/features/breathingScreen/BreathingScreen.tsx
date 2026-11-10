@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAchievementAlerts } from '@/features/achievements/AchievementAlertContext';
 import { useSession } from '@/features/auth/session/SessionContext';
 
 import { CloseButton } from '@/components/CloseButton';
@@ -39,6 +40,7 @@ const SESSION_EXPIRED_MESSAGE = 'Sua sessão expirou. Entre novamente para conti
 export function BreathingScreen() {
   const router = useRouter();
   const session = useSession();
+  const { checkForNewAchievements } = useAchievementAlerts();
   const [activity, setActivity] = useState<BreathingActivity | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -143,6 +145,7 @@ export function BreathingScreen() {
     try {
       await createActivitySession(session.token, activity.id, activeTimeLimit);
       setRecordStatus('saved');
+      checkForNewAchievements();
     } catch (error) {
       isRecordingRef.current = false;
 
@@ -155,7 +158,7 @@ export function BreathingScreen() {
 
       setRecordStatus('error');
     }
-  }, [activeTimeLimit, activity, session]);
+  }, [activeTimeLimit, activity, session, checkForNewAchievements]);
 
   // A sessão só é gravada quando o exercício chega ao fim; encerrar antes não registra nada.
   useEffect(() => {

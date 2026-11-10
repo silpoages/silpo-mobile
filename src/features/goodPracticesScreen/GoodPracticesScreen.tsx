@@ -7,6 +7,7 @@ import { ScreenContainer } from '@/components/ScreenContainer';
 import { StartedBadge } from '@/components/goodPracticesScreen/StartedBadge';
 import { CompletedBadge } from '@/components/goodPracticesScreen/CompletedBadge';
 import { StepItem } from '@/components/goodPracticesScreen/StepItem';
+import { useAchievementAlerts } from '@/features/achievements/AchievementAlertContext';
 import { useSession } from '@/features/auth/session/SessionContext';
 import {
   completeGoodPractice,
@@ -40,6 +41,7 @@ export function GoodPracticesScreen({
 }: GoodPracticesScreenProps) {
   const router = useRouter();
   const session = useSession();
+  const achievementAlerts = useAchievementAlerts();
   const [isStarted, setIsStarted] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
   const [finishError, setFinishError] = useState<string | null>(null);
@@ -104,6 +106,7 @@ export function GoodPracticesScreen({
 
     try {
       await completeGoodPractice(session.token, id);
+      achievementAlerts.checkForNewAchievements();
       if (dailyStatus === 'available') {
         setIsStarted(false);
         setDailyResult({ key: dailyKey, status: 'completed' });
