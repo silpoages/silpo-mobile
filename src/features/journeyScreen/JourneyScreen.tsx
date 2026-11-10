@@ -103,6 +103,7 @@ export function JourneyScreen({
         <AchievementsSummaryCard
           unlocked={journey.achievements.unlocked}
           total={journey.achievements.total}
+          onPress={() => router.push('/conquistas')}
         />
       </>
     );
