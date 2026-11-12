@@ -22,12 +22,12 @@ import { EmotionButton } from '@/components/emotions/EmotionButton';
 import { EMOTIONS } from '@/components/emotions/emotionConfig';
 import type { MoodId } from '@/components/emotions/moodLogService';
 import { formatDiaryDate } from '@/features/diary/diaryDate';
+import { toISODate } from '@/features/onboarding/date';
 import { colors, fontFamily, fontSize, layout, radii, spacing } from '@/theme';
 
 const OPEN_DURATION_MS = 280;
 const CLOSE_DURATION_MS = 220;
 
-/** Mesma largura máxima das telas (390): em tablet e na web o sheet não estica. */
 const MAX_SHEET_WIDTH = layout.contentMaxWidth + layout.screenPadding * 2;
 
 const EMOTION_ICON_SIZE = 24;
@@ -37,12 +37,10 @@ const SAVE_ERROR_MESSAGE =
   'Não foi possível salvar agora. Seu relato continua aqui, tente de novo.';
 const PHOTO_ERROR_MESSAGE = 'Não foi possível abrir suas fotos. Tente de novo.';
 
-/** O que o sheet entrega para quem vai gravar o relato. */
 export type DiaryEntryDraft = {
-  entryDate: Date;
-  mood: MoodId;
+  entryDate: string;
   note: string;
-  /** Endereço local da foto escolhida na galeria, ou `null` sem foto. */
+  mood: MoodId | null;
   photoUri: string | null;
 };
 
@@ -62,9 +60,7 @@ export function DiaryEntryBottomSheet({
   const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
 
-  // 0 = fechado (fundo transparente, sheet abaixo da tela); 1 = aberto.
   const [progress] = useState(() => new Animated.Value(0));
-  // Mantém o Modal montado enquanto a animação de fechar ainda está rodando.
   const [isMounted, setIsMounted] = useState(visible);
 
   const [selectedMood, setSelectedMood] = useState<MoodId | null>(null);
@@ -88,8 +84,6 @@ export function DiaryEntryBottomSheet({
       useNativeDriver: true,
     }).start(({ finished }) => {
       if (finished && !visible) {
-        // Fechou (por "Agora não", pelo fundo ou depois de salvar): o próximo
-        // relato começa em branco. Por isso cancelar não guarda nada.
         setIsMounted(false);
         setSelectedMood(null);
         setNote('');
@@ -105,10 +99,9 @@ export function DiaryEntryBottomSheet({
   });
 
   const selectedEmotion = EMOTIONS.find((emotion) => emotion.id === selectedMood);
-  const canSave = selectedMood !== null && note.trim().length > 0;
+  const canSave = note.trim().length > 0;
 
   function handleClose() {
-    // Enquanto salva, não deixa fechar: o relato ainda pode falhar e precisa continuar aqui.
     if (isSaving) {
       return;
     }
@@ -126,7 +119,6 @@ export function DiaryEntryBottomSheet({
         quality: 0.8,
       });
 
-      // Se a pessoa fechar a galeria sem escolher, mantém a foto que já estava.
       if (!result.canceled) {
         setPhotoUri(result.assets[0].uri);
       }
@@ -136,7 +128,7 @@ export function DiaryEntryBottomSheet({
   }
 
   async function handleSave() {
-    if (selectedMood === null || !canSave || isSaving) {
+    if (!canSave || isSaving) {
       return;
     }
 
@@ -144,10 +136,14 @@ export function DiaryEntryBottomSheet({
     setErrorMessage(null);
 
     try {
-      await onSave({ entryDate, mood: selectedMood, note: note.trim(), photoUri });
+      await onSave({
+        entryDate: toISODate(entryDate),
+        note: note.trim(),
+        mood: selectedMood,
+        photoUri,
+      });
       onClose();
     } catch {
-      // Não limpa nada: a emoção e o texto continuam no formulário para tentar de novo.
       setErrorMessage(SAVE_ERROR_MESSAGE);
     } finally {
       setIsSaving(false);
@@ -266,9 +262,7 @@ export function DiaryEntryBottomSheet({
 
           <View style={styles.footer}>
             <Button
-              accessibilityHint={
-                canSave ? undefined : 'Escolha uma emoção e escreva o relato para poder salvar'
-              }
+              accessibilityHint={canSave ? undefined : 'Escreva o relato para poder salvar'}
               disabled={!canSave}
               loading={isSaving}
               onPress={handleSave}
