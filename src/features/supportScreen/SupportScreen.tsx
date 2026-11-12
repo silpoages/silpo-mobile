@@ -9,6 +9,7 @@ import { ScreenContainer } from '@/components/ScreenContainer';
 import { ContactCard } from '@/components/supportScreen/ContactCard';
 import { WELCOME_ROUTE } from '@/features/auth/session/routeAccess';
 import { useSession } from '@/features/auth/session/SessionContext';
+import { SUPPORT_ORIGIN } from '@/features/achievements/supportOrigin';
 import { AddContactModal } from '@/features/supportScreen/AddContactModal';
 import {
   createEmergencyContact,
@@ -125,7 +126,13 @@ export function SupportScreen() {
             <Text style={styles.breathingTitle}>Respirar pode ajudar agora</Text>
             <Text style={styles.breathingDescription}>Um exercício guiado de 3 minutos.</Text>
           </View>
-          <Button variant="secondary" size="sm" onPress={() => router.push('/respiracao')}>
+          <Button
+            variant="secondary"
+            size="sm"
+            onPress={() =>
+              router.push({ pathname: '/respiracao', params: { origem: SUPPORT_ORIGIN } })
+            }
+          >
             Começar
           </Button>
         </View>

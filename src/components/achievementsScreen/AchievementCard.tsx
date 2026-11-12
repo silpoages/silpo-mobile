@@ -1,39 +1,42 @@
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
-import type { Achievement } from '@/features/achievementsScreen/achievementsMock';
+import { toAchievementIcon } from '@/components/achievements/achievementIcon';
+import type { Achievement } from '@/features/achievements/achievementsService';
 import { colors, fontFamily, fontSize, spacing } from '@/theme';
 
 type AchievementCardProps = {
   achievement: Achievement;
 };
 
-function formatUnlockedDate(isoDate: string): string {
-  const [year, month, day] = isoDate.split('-');
-  return `${day}/${month}/${year}`;
+/** Data do desbloqueio no fuso do aparelho, como dd/mm/aaaa. */
+function formatUnlockedDate(isoDateTime: string): string {
+  const date = new Date(isoDateTime);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  return `${day}/${month}/${date.getFullYear()}`;
 }
 
 export function AchievementCard({ achievement }: AchievementCardProps) {
-  const { unlockedAt } = achievement;
-  const isUnlocked = unlockedAt !== null;
-  const progress = achievement.progress;
+  const { unlockedAt, progress } = achievement;
+  const isUnlocked = achievement.unlocked;
   const fillPercent =
-    progress && progress.target > 0 ? Math.min(progress.current / progress.target, 1) * 100 : 0;
+    progress.target > 0 ? Math.min(progress.current / progress.target, 1) * 100 : 0;
 
-  const status = unlockedAt
-    ? `Desbloqueada em ${formatUnlockedDate(unlockedAt)}`
-    : progress
-      ? `${progress.current} de ${progress.target}`
-      : 'Ainda por descobrir';
+  const status = isUnlocked
+    ? unlockedAt
+      ? `Desbloqueada em ${formatUnlockedDate(unlockedAt)}`
+      : 'Desbloqueada'
+    : `${progress.current} de ${progress.target}`;
 
   return (
     <View
       accessible
-      accessibilityLabel={`${achievement.title}. ${achievement.description} ${status}.`}
+      accessibilityLabel={`${achievement.name}. ${achievement.description}. ${status}.`}
       style={[styles.card, !isUnlocked && styles.cardLocked]}
     >
       <View style={[styles.iconContainer, !isUnlocked && styles.iconContainerLocked]}>
         <Ionicons
-          name={achievement.iconName}
+          name={toAchievementIcon(achievement.icon)}
           size={22}
           color={isUnlocked ? colors.achievement.icon : colors.textMuted}
         />
@@ -45,10 +48,10 @@ export function AchievementCard({ achievement }: AchievementCardProps) {
       </View>
 
       <View style={styles.content}>
-        <Text style={[styles.title, !isUnlocked && styles.titleLocked]}>{achievement.title}</Text>
+        <Text style={[styles.title, !isUnlocked && styles.titleLocked]}>{achievement.name}</Text>
         <Text style={styles.description}>{achievement.description}</Text>
 
-        {!isUnlocked && progress ? (
+        {!isUnlocked ? (
           <View style={styles.progressRow}>
             <View style={styles.track}>
               <View style={[styles.fill, { width: `${fillPercent}%` }]} />
