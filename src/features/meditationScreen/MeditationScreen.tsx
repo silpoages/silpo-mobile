@@ -18,15 +18,21 @@ type CardProp = {
 
 const MEDITATIONS: CardProp[] = [
   {
-    title: 'Natureza em Você',
-    description: 'Eu sou um cara legal',
+    title: 'Pausa na natureza',
+    description: 'Uma meditação guiada para desacelerar e se reconectar com o presente.',
     time: 10,
   },
   {
-    title: 'Teste Numero 2',
-    description: 'Eu sou um cara legal e nao gosto de ouvir palavras feias ',
+    title: 'Acolha o momento',
+    description: 'Reserve alguns minutos para respirar e observar seus pensamentos com calma.',
     time: 5,
   },
+];
+
+const PREPARATION_STEPS = [
+  'Encontre uma posição confortável, sentado ou deitado.',
+  'Se puder, use fones de ouvido.',
+  'Você pode pausar ou encerrar quando quiser.',
 ];
 
 export function MeditationScreen() {
@@ -48,16 +54,29 @@ export function MeditationScreen() {
 
   return (
     <ScreenContainer background={colors.surfaceTint} contentStyle={styles.screenContent}>
+      <BackButton onPress={handleBack} />
       {selectedMeditation ? (
         <MeditationSelection
           title={selectedMeditation.title}
           description={selectedMeditation.description}
           time={selectedMeditation.time}
-          onPressBack={handleBack}
+          preparationTitle="ANTES DE COMEÇAR"
+          preparationSteps={PREPARATION_STEPS}
+          buttonMain={{
+            text: 'Começar meditação',
+            onPress: () =>
+              router.push({
+                pathname: '/meditation-player',
+                params: {
+                  title: selectedMeditation.title,
+                  max_time_seconds: String(selectedMeditation.time * 60),
+                },
+              }),
+          }}
+          buttonSecondary={{ text: 'Agora não', onPress: handleBack }}
         />
       ) : (
         <>
-          <BackButton onPress={handleBack} />
           <MeditationHeader title="Meditações" subtitle="Áudios guiados para voltar ao presente." />
 
           <View style={styles.cardList}>

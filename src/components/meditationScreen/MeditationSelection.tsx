@@ -1,43 +1,44 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
 
-import { BackButton } from '@/components/BackButton';
 import Button from '@/components/Button';
 import { MeditationHeader } from '@/components/meditationScreen/MeditationHeader';
 import { colors, fontFamily, fontSize, spacing } from '@/theme';
-
-const PREPARATION_STEPS = [
-  'Encontre uma posição confortável, sentado ou deitado.',
-  'Se puder, use fones de ouvido.',
-  'Você pode pausar ou encerrar quando quiser.',
-];
 
 type MeditationSelectionProps = {
   title: string;
   description: string;
   time: number;
-  onPressBack: () => void;
+  preparationTitle: string;
+  preparationSteps: string[];
+  buttonMain: {
+    text: string;
+    onPress: () => void;
+  };
+  buttonSecondary: {
+    text: string;
+    onPress: () => void;
+  };
 };
 
 export function MeditationSelection({
   title,
   description,
   time,
-  onPressBack,
+  preparationTitle,
+  preparationSteps,
+  buttonMain,
+  buttonSecondary,
 }: MeditationSelectionProps) {
-  const router = useRouter();
-
   return (
     <View style={styles.container}>
-      <BackButton onPress={onPressBack} />
       <MeditationHeader
         kicker={`MEDITAÇÃO GUIADA · ${time} MIN`}
         title={title}
         subtitle={description}
       />
       <View style={styles.preparationCard}>
-        <Text style={styles.cardCaption}>ANTES DE COMEÇAR</Text>
-        {PREPARATION_STEPS.map((step, index) => (
+        <Text style={styles.cardCaption}>{preparationTitle}</Text>
+        {preparationSteps.map((step, index) => (
           <View key={step} style={styles.stepRow}>
             <View style={styles.stepNumber}>
               <Text style={styles.stepNumberText}>{index + 1}</Text>
@@ -47,11 +48,11 @@ export function MeditationSelection({
         ))}
       </View>
       <View style={styles.actions}>
-        <Button size="lg" onPress={() => router.push('/meditacao-player')}>
-          Começar meditação
+        <Button size="lg" onPress={buttonMain.onPress}>
+          {buttonMain.text}
         </Button>
-        <Button variant="ghost" onPress={onPressBack}>
-          Agora não
+        <Button variant="ghost" onPress={buttonSecondary.onPress}>
+          {buttonSecondary.text}
         </Button>
       </View>
     </View>

@@ -17,9 +17,9 @@ import {
 import { useJourney } from '@/features/journeyScreen/useJourney';
 
 /** Rotas disponíveis para os exercícios rápidos da tela inicial. */
-const ACTION_ROUTES: Record<string, '/respiracao' | '/meditacoes'> = {
+const ACTION_ROUTES: Record<string, '/respiracao' | '/meditations'> = {
   respire: '/respiracao',
-  medite: '/meditacoes',
+  medite: '/meditations',
 };
 
 export function HomeScreen() {
