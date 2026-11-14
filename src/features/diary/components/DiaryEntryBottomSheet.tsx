@@ -38,7 +38,7 @@ const SAVE_ERROR_MESSAGE =
 const PHOTO_ERROR_MESSAGE = 'Não foi possível abrir suas fotos. Tente de novo.';
 
 export type DiaryEntryDraft = {
-  entryDate: string;
+  entry_date: string;
   note: string;
   mood: MoodId | null;
   photoUri: string | null;
@@ -137,7 +137,7 @@ export function DiaryEntryBottomSheet({
 
     try {
       await onSave({
-        entryDate: toISODate(entryDate),
+        entry_date: toISODate(entryDate),
         note: note.trim(),
         mood: selectedMood,
         photoUri,
