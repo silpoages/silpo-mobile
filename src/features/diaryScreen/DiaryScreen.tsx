@@ -29,6 +29,7 @@ type DiaryScreenProps = {
   onMonthChange?: (month: CalendarMonth) => void;
   onAddEntry?: (date: Date) => void;
   onDeleteEntry?: (entry: DiaryEntry) => void;
+  onSelectDate?: (date: Date) => void;
 };
 
 export function DiaryScreen({
@@ -39,6 +40,7 @@ export function DiaryScreen({
   onMonthChange,
   onAddEntry,
   onDeleteEntry,
+  onSelectDate,
 }: DiaryScreenProps) {
   const router = useRouter();
   const session = useSession();
@@ -58,9 +60,11 @@ export function DiaryScreen({
   function handleChangeMonth(amount: number) {
     const nextMonth = addMonths(visibleMonth, amount);
 
+    const nextDate = getDefaultSelectedDate(nextMonth);
     setVisibleMonth(nextMonth);
-    setSelectedDate(getDefaultSelectedDate(nextMonth));
+    setSelectedDate(nextDate);
     onMonthChange?.(nextMonth);
+    onSelectDate?.(nextDate);
   }
 
   function handleAddEntry() {
@@ -125,7 +129,10 @@ export function DiaryScreen({
           noteDates={noteDates}
           onPreviousMonth={() => handleChangeMonth(-1)}
           onNextMonth={() => handleChangeMonth(1)}
-          onSelectDate={setSelectedDate}
+          onSelectDate={(date) => {
+            setSelectedDate(date);
+            onSelectDate?.(date);
+          }}
         />
 
         {renderEntries()}
