@@ -63,12 +63,13 @@ function buildFileName(userName: string): string {
   return `jornada-${sanitizeForFileName(shortName)}_${date}.pdf`;
 }
 
-/** Mesmo critério do backend (`JourneyService.get_current_month`): sempre o mês corrente. */
+/** Mês corrente em UTC, igual a `JourneyService.get_current_month`. */
 function getCurrentPeriod(): JourneyReportPeriod {
   const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const lastDay = new Date(year, now.getMonth() + 1, 0).getDate();
+  const year = now.getUTCFullYear();
+  const monthIndex = now.getUTCMonth();
+  const month = String(monthIndex + 1).padStart(2, '0');
+  const lastDay = new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
 
   return {
     month: `${year}-${month}`,
