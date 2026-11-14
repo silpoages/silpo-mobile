@@ -9,32 +9,52 @@ export type Meditation = {
   audioUrl: string;
 };
 
-type MeditationResponse = {
+const MEDITATION_TYPE = 'meditation';
+
+type ActivityListItem = {
   id: string;
   name: string;
-  description: string;
-  audio_url: string;
+  type: string;
   max_duration_seconds: number | null;
 };
 
-type MeditationListResponse = {
-  items: MeditationResponse[];
+type ActivityListResponse = {
+  items: ActivityListItem[];
 };
 
-function toMeditation(response: MeditationResponse): Meditation {
+type MeditationDetailResponse = {
+  id: string;
+  name: string;
+  type: string;
+  max_duration_seconds: number | null;
+  audio_url: string;
+  description?: string;
+};
+
+function toMeditation(response: MeditationDetailResponse): Meditation {
   return {
     id: response.id,
     title: response.name,
-    description: response.description,
+    description: response.description?.trim() ?? '',
     durationSeconds: response.max_duration_seconds,
     audioUrl: response.audio_url,
   };
 }
 
+/** Meditações habilitadas. A lista é `GET /activities`; o áudio só vem em `GET /activities/{id}`. */
 export async function listMeditations(token: string): Promise<Meditation[]> {
-  const response = await apiRequest<MeditationListResponse>('/meditations', { token });
+  const list = await apiRequest<ActivityListResponse>('/activities', { token });
+  const meditations = list.items.filter((item) => item.type === MEDITATION_TYPE);
 
-  return response.items.map(toMeditation);
+  const details = await Promise.all(
+    meditations.map((item) =>
+      apiRequest<MeditationDetailResponse>(`/activities/${encodeURIComponent(item.id)}`, {
+        token,
+      }),
+    ),
+  );
+
+  return details.map(toMeditation);
 }
 
 export async function registerMeditationSession(

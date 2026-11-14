@@ -14,7 +14,7 @@ export default function MeditationCard({ title, description, time, onPress }: Ca
     <View style={styles.card}>
       <Text style={styles.kicker}>MEDITAÇÃO GUIADA · {time} MIN</Text>
       <Text style={styles.title}>{title}</Text>
-      <Text style={styles.description}>{description}</Text>
+      {description ? <Text style={styles.description}>{description}</Text> : null}
       <Button onPress={onPress}>Ouvir Meditação</Button>
     </View>
   );
