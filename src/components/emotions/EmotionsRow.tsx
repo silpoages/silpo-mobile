@@ -6,6 +6,7 @@ import { ConfirmMoodModal } from './ConfirmMoodModal';
 import { EMOTIONS } from './emotionConfig';
 import { createMoodLog, getTodayMoodLog, type MoodId } from './moodLogService';
 import { ApiError } from '@/services/apiClient';
+import { useAchievementAlerts } from '@/features/achievements/AchievementAlertContext';
 import { useSession } from '@/features/auth/session/SessionContext';
 import { colors, fontFamily, fontSize } from '@/theme';
 
@@ -21,6 +22,7 @@ type EmotionsRowProps = {
 
 export function EmotionsRow({ onMoodRegistered }: EmotionsRowProps) {
   const session = useSession();
+  const achievementAlerts = useAchievementAlerts();
 
   const [todayMood, setTodayMood] = useState<MoodId | null>(null);
   const [isCheckingToday, setIsCheckingToday] = useState(true);
@@ -82,6 +84,7 @@ export function EmotionsRow({ onMoodRegistered }: EmotionsRowProps) {
       setTodayMood(log.mood);
       setPendingMood(null);
       onMoodRegistered?.();
+      achievementAlerts.checkForNewAchievements();
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {
         await loadTodayMood();

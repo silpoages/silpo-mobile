@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useAppFonts } from '@/hooks/useAppFonts';
+import { AchievementAlertProvider } from '@/features/achievements/AchievementAlertContext';
 import { RouteGuard } from '@/features/auth/session/RouteGuard';
 import { SessionProvider, useSession } from '@/features/auth/session/SessionContext';
 import { colors } from '@/theme';
@@ -33,7 +34,7 @@ function RootNavigator() {
   }
 
   return (
-    <>
+    <AchievementAlertProvider>
       <Stack
         screenOptions={{
           headerShown: false,
@@ -41,7 +42,7 @@ function RootNavigator() {
         }}
       />
       <RouteGuard />
-    </>
+    </AchievementAlertProvider>
   );
 }
 
