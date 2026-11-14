@@ -20,9 +20,15 @@ import { MeditationSelection } from '@/components/meditationScreen/MeditationSel
 import { ScreenContainer } from '@/components/ScreenContainer';
 import { PlaybackErrorCard } from '@/components/meditationScreen/PlaybackErrorCard';
 import { PlayerButton } from '@/components/meditationScreen/PlayerButton';
+import { useAchievementAlerts } from '@/features/achievements/AchievementAlertContext';
+import { useSession } from '@/features/auth/session/SessionContext';
+import { ApiError } from '@/services/apiClient';
 import { colors, fontFamily, fontSize } from '@/theme';
+import { registerMeditationSession } from './meditationService';
 
 const DEFAULT_MAX_TIME_SECONDS = 10 * 60;
+
+type RecordStatus = 'idle' | 'saving' | 'saved' | 'error';
 
 function getSingleParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
@@ -36,12 +42,16 @@ function formatTime(seconds: number) {
 
 export function MeditationPlayerScreen() {
   const router = useRouter();
+  const session = useSession();
+  const { checkForNewAchievements } = useAchievementAlerts();
   const params = useLocalSearchParams<{
+    meditation_id?: string;
     title?: string;
     max_time_seconds?: string;
     audio_url?: string;
   }>();
   const { width, height } = useWindowDimensions();
+  const meditationId = getSingleParam(params.meditation_id);
   const title = getSingleParam(params.title) || 'Meditação guiada';
   const audioUrl = getSingleParam(params.audio_url);
   const configuredMaxTime = Number(getSingleParam(params.max_time_seconds));
@@ -53,6 +63,9 @@ export function MeditationPlayerScreen() {
   const pendingResumeSecondsRef = useRef<number | null>(null);
   const [endSheetVisible, setEndSheetVisible] = useState(false);
   const [finished, setFinished] = useState(false);
+  const [recordStatus, setRecordStatus] = useState<RecordStatus>('idle');
+  const isRecordingRef = useRef(false);
+  const completedSecondsRef = useRef<number | null>(null);
   const endSheetTranslateY = useRef(new Animated.Value(360)).current;
   const ballSize = Math.min(Math.max(width * 0.48, 144), 250, height * 0.32);
   const maxTimeSeconds =
@@ -81,13 +94,41 @@ export function MeditationPlayerScreen() {
     }
   }
 
-  useEventListener(player, 'playbackStatusUpdate', (status) => {
-    if (status.didJustFinish) {
-      setFinished(true);
+  async function recordSession() {
+    const timeSpentSeconds = completedSecondsRef.current;
+    if (isRecordingRef.current || !meditationId || !session.token || timeSpentSeconds === null) {
       return;
     }
 
-    // Depois de "Tentar novamente", espera o áudio recarregar para voltar ao ponto onde parou.
+    isRecordingRef.current = true;
+    setRecordStatus('saving');
+
+    try {
+      await registerMeditationSession(session.token, meditationId, timeSpentSeconds);
+      setRecordStatus('saved');
+      checkForNewAchievements();
+    } catch (error) {
+      isRecordingRef.current = false;
+
+      if (error instanceof ApiError && error.status === 401) {
+        setRecordStatus('idle');
+        void session.logout();
+        return;
+      }
+
+      setRecordStatus('error');
+    }
+  }
+
+  useEventListener(player, 'playbackStatusUpdate', (status) => {
+    if (status.didJustFinish) {
+      const listenedSeconds = Math.round(status.duration || status.currentTime);
+      completedSecondsRef.current = Math.max(1, Math.min(listenedSeconds, maxTimeSeconds));
+      setFinished(true);
+      void recordSession();
+      return;
+    }
+
     const resumeAt = pendingResumeSecondsRef.current;
     if (resumeAt !== null && status.isLoaded) {
       pendingResumeSecondsRef.current = null;
@@ -217,6 +258,27 @@ export function MeditationPlayerScreen() {
       <View style={styles.header}>
         <BackButton onPress={handleClose} />
       </View>
+
+      {finished && (recordStatus === 'saving' || recordStatus === 'error') ? (
+        <View style={styles.recordFeedback}>
+          {recordStatus === 'saving' ? (
+            <Text style={styles.recordMessage}>Registrando sua meditação...</Text>
+          ) : null}
+          {recordStatus === 'error' ? (
+            <>
+              <Text style={styles.recordError}>Não foi possível registrar a meditação.</Text>
+              <Pressable
+                accessibilityRole="button"
+                hitSlop={8}
+                onPress={() => void recordSession()}
+                style={styles.recordAction}
+              >
+                <Text style={styles.recordActionText}>Tentar registrar de novo</Text>
+              </Pressable>
+            </>
+          ) : null}
+        </View>
+      ) : null}
 
       {finished ? (
         <MeditationSelection
@@ -444,6 +506,32 @@ const styles = StyleSheet.create({
   errorCard: {
     width: '100%',
     marginTop: 14,
+  },
+  recordFeedback: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  recordMessage: {
+    fontFamily: fontFamily.regular,
+    fontSize: fontSize.body,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+  recordError: {
+    fontFamily: fontFamily.semiBold,
+    fontSize: fontSize.body,
+    color: colors.danger,
+    textAlign: 'center',
+  },
+  recordAction: {
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  recordActionText: {
+    fontFamily: fontFamily.semiBold,
+    fontSize: fontSize.body,
+    color: colors.primary,
   },
   footer: {
     width: '100%',
