@@ -3,6 +3,7 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 import { EMOTIONS } from '@/components/emotions/emotionConfig';
+import { useSession } from '@/features/auth/session/SessionContext';
 import type { DiaryEntry } from '@/features/diaryScreen/diaryTypes';
 import { colors, fontFamily, fontSize, spacing } from '@/theme';
 
@@ -12,7 +13,17 @@ type DiaryEntryCardProps = {
 };
 
 export function DiaryEntryCard({ entry, onDelete }: DiaryEntryCardProps) {
+  const session = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const photoSource =
+    entry.photoUri === null
+      ? null
+      : entry.photoUri.startsWith('http')
+        ? {
+            uri: entry.photoUri,
+            headers: session.token ? { Authorization: `Bearer ${session.token}` } : undefined,
+          }
+        : { uri: entry.photoUri };
 
   const emotion = EMOTIONS.find((item) => item.id === entry.mood);
 
@@ -73,12 +84,8 @@ export function DiaryEntryCard({ entry, onDelete }: DiaryEntryCardProps) {
         </View>
       ) : null}
 
-      {entry.photoUri !== null ? (
-        <Image
-          accessibilityLabel="Foto do registro"
-          source={{ uri: entry.photoUri }}
-          style={styles.photo}
-        />
+      {photoSource !== null ? (
+        <Image accessibilityLabel="Foto do registro" source={photoSource} style={styles.photo} />
       ) : null}
     </View>
   );
