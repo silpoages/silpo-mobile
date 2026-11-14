@@ -16,9 +16,10 @@ import {
 } from '@/features/goodPracticesScreen/goodPracticesService';
 import { useJourney } from '@/features/journeyScreen/useJourney';
 
-/** Quick actions com uma tela própria já implementada — as demais ainda não têm destino. */
-const ACTION_ROUTES: Record<string, '/respiracao'> = {
+/** Rotas disponíveis para os exercícios rápidos da tela inicial. */
+const ACTION_ROUTES: Record<string, '/respiracao' | '/meditations'> = {
   respire: '/respiracao',
+  medite: '/meditations',
 };
 
 export function HomeScreen() {

@@ -1,10 +1,5 @@
-import { Text, View } from 'react-native';
+import { DiaryScreen } from '@/features/diaryScreen/DiaryScreen';
 
-// Placeholder route — build the screen here.
 export default function DiaryRoute() {
-  return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Diário</Text>
-    </View>
-  );
+  return <DiaryScreen entries={[]} />;
 }

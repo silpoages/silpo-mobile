@@ -35,7 +35,9 @@
           "cameraPermission": false,
           "microphonePermission": false
         }
-      ]
+      ],
+      "expo-sharing",
+      "expo-audio"
     ],
     "experiments": {
       "typedRoutes": true

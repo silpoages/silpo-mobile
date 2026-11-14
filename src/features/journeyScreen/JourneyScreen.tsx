@@ -7,6 +7,7 @@ import { JourneySummaryCard } from '@/components/journeyScreen/JourneySummaryCar
 import { JourneyMetricCard } from '@/components/journeyScreen/JourneyMetricCard';
 import { MoodDistributionCard } from '@/components/journeyScreen/MoodDistributionCard';
 import { AchievementsSummaryCard } from '@/components/journeyScreen/AchievementsSummaryCard';
+import { ExportJourneyButton } from '@/components/journeyScreen/ExportJourneyButton';
 import { useSession } from '@/features/auth/session/SessionContext';
 import type { JourneyData } from './journeyService';
 import { pluralize } from './pluralize';
@@ -103,6 +104,7 @@ export function JourneyScreen({
         <AchievementsSummaryCard
           unlocked={journey.achievements.unlocked}
           total={journey.achievements.total}
+          onPress={() => router.push('/conquistas')}
         />
       </>
     );
@@ -113,6 +115,9 @@ export function JourneyScreen({
       <StatusBar style="dark" />
       <JourneyHeader userName={userName} onPressAvatar={() => router.push('/perfil')} />
       {renderContent()}
+      {!isLoading && !hasError && journey ? (
+        <ExportJourneyButton journey={journey} userName={userName} />
+      ) : null}
     </ScreenContainer>
   );
 }
