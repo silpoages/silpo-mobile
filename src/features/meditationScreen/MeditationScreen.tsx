@@ -1,33 +1,16 @@
-import { StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { BackButton } from '@/components/BackButton';
 import { ScreenContainer } from '@/components/ScreenContainer';
 import MeditationCard from '@/components/meditationScreen/MeditationCard';
 import { MeditationHeader } from '@/components/meditationScreen/MeditationHeader';
-import { colors } from '@/theme';
+import { colors, fontFamily, fontSize, spacing } from '@/theme';
 import { AuthFormFooter } from '../auth/components';
 import NoMeditationCard from '@/components/meditationScreen/NoMeditationCard';
 import { useState } from 'react';
 import { MeditationSelection } from '@/components/meditationScreen/MeditationSelection';
-
-type CardProp = {
-  title: string;
-  description: string;
-  time: number;
-};
-
-const MEDITATIONS: CardProp[] = [
-  {
-    title: 'Pausa na natureza',
-    description: 'Uma meditação guiada para desacelerar e se reconectar com o presente.',
-    time: 10,
-  },
-  {
-    title: 'Acolha o momento',
-    description: 'Reserve alguns minutos para respirar e observar seus pensamentos com calma.',
-    time: 5,
-  },
-];
+import type { Meditation } from './meditationService';
+import { useMeditations } from './useMeditations';
 
 const PREPARATION_STEPS = [
   'Encontre uma posição confortável, sentado ou deitado.',
@@ -35,9 +18,14 @@ const PREPARATION_STEPS = [
   'Você pode pausar ou encerrar quando quiser.',
 ];
 
+function toMinutes(durationSeconds: number | null) {
+  return Math.ceil((durationSeconds ?? 0) / 60);
+}
+
 export function MeditationScreen() {
   const router = useRouter();
-  const [selectedMeditation, setSelectedMeditation] = useState<CardProp | null>(null);
+  const { meditations, isLoading, hasError, retry } = useMeditations();
+  const [selectedMeditation, setSelectedMeditation] = useState<Meditation | null>(null);
 
   function handleBack() {
     if (selectedMeditation) {
@@ -52,6 +40,20 @@ export function MeditationScreen() {
     }
   }
 
+  function handleStart(meditation: Meditation) {
+    router.push({
+      pathname: '/meditation-player',
+      params: {
+        meditation_id: meditation.id,
+        title: meditation.title,
+        audio_url: meditation.audioUrl,
+        ...(meditation.durationSeconds
+          ? { max_time_seconds: String(meditation.durationSeconds) }
+          : {}),
+      },
+    });
+  }
+
   return (
     <ScreenContainer background={colors.surfaceTint} contentStyle={styles.screenContent}>
       <BackButton onPress={handleBack} />
@@ -59,19 +61,12 @@ export function MeditationScreen() {
         <MeditationSelection
           title={selectedMeditation.title}
           description={selectedMeditation.description}
-          time={selectedMeditation.time}
+          time={toMinutes(selectedMeditation.durationSeconds)}
           preparationTitle="ANTES DE COMEÇAR"
           preparationSteps={PREPARATION_STEPS}
           buttonMain={{
             text: 'Começar meditação',
-            onPress: () =>
-              router.push({
-                pathname: '/meditation-player',
-                params: {
-                  title: selectedMeditation.title,
-                  max_time_seconds: String(selectedMeditation.time * 60),
-                },
-              }),
+            onPress: () => handleStart(selectedMeditation),
           }}
           buttonSecondary={{ text: 'Agora não', onPress: handleBack }}
         />
@@ -79,27 +74,47 @@ export function MeditationScreen() {
         <>
           <MeditationHeader title="Meditações" subtitle="Áudios guiados para voltar ao presente." />
 
-          <View style={styles.cardList}>
-            {MEDITATIONS.length > 0 ? (
-              MEDITATIONS.map((card) => (
-                <MeditationCard
-                  key={card.title}
-                  title={card.title}
-                  description={card.description}
-                  time={card.time}
-                  onPress={() => setSelectedMeditation(card)}
-                />
-              ))
-            ) : (
-              <View style={{ alignItems: 'center', gap: 16 }}>
-                <NoMeditationCard />
-                <AuthFormFooter
-                  actionLabel="Voltar para o início"
-                  onPressAction={() => router.navigate('/')}
-                />
-              </View>
-            )}
-          </View>
+          {isLoading ? (
+            <View style={styles.centerFeedback}>
+              <ActivityIndicator color={colors.primary} size="large" />
+              <Text style={styles.feedbackSubtitle}>Carregando meditações...</Text>
+            </View>
+          ) : hasError || meditations === null ? (
+            <View style={styles.centerFeedback}>
+              <Text style={styles.feedbackTitle}>Não foi possível carregar as meditações</Text>
+              <Text style={styles.feedbackSubtitle}>Verifique sua conexão e tente de novo.</Text>
+              <Pressable
+                onPress={retry}
+                hitSlop={8}
+                accessibilityRole="button"
+                style={styles.retryButton}
+              >
+                <Text style={styles.retryText}>Tentar de novo</Text>
+              </Pressable>
+            </View>
+          ) : (
+            <View style={styles.cardList}>
+              {meditations.length > 0 ? (
+                meditations.map((meditation) => (
+                  <MeditationCard
+                    key={meditation.id}
+                    title={meditation.title}
+                    description={meditation.description}
+                    time={toMinutes(meditation.durationSeconds)}
+                    onPress={() => setSelectedMeditation(meditation)}
+                  />
+                ))
+              ) : (
+                <View style={{ alignItems: 'center', gap: 16 }}>
+                  <NoMeditationCard />
+                  <AuthFormFooter
+                    actionLabel="Voltar para o início"
+                    onPressAction={() => router.navigate('/')}
+                  />
+                </View>
+              )}
+            </View>
+          )}
         </>
       )}
     </ScreenContainer>
@@ -111,5 +126,35 @@ const styles = StyleSheet.create({
   cardList: {
     gap: 16,
     padding: 16,
+  },
+  centerFeedback: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.md,
+    paddingBottom: 48,
+    gap: spacing.md,
+  },
+  feedbackTitle: {
+    fontFamily: fontFamily.semiBold,
+    fontSize: fontSize.md,
+    color: colors.text,
+    textAlign: 'center',
+  },
+  feedbackSubtitle: {
+    fontFamily: fontFamily.regular,
+    fontSize: fontSize.body,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+  retryButton: {
+    minHeight: 44,
+    justifyContent: 'center',
+    marginTop: spacing.md,
+  },
+  retryText: {
+    fontFamily: fontFamily.semiBold,
+    fontSize: fontSize.body,
+    color: colors.primary,
   },
 });

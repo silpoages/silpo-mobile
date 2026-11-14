@@ -16,7 +16,7 @@ export function MeditationHeader({ title, subtitle, kicker }: MeditationHeaderPr
         <Text accessibilityRole="header" style={styles.title}>
           {title}
         </Text>
-        <Text style={styles.subtitle}>{subtitle}</Text>
+        {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
       </View>
     </View>
   );
