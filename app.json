@@ -28,6 +28,14 @@
       "expo-font",
       "expo-router",
       "@react-native-community/datetimepicker",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Permita o acesso às suas fotos para adicionar uma imagem ao seu diário.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ],
       "expo-sharing",
       "expo-audio"
     ],
