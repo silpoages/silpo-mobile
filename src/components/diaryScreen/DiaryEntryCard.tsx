@@ -15,10 +15,11 @@ type DiaryEntryCardProps = {
 // No web, o <img> não envia o header Authorization (o react-native-web ignora
 // `source.headers`), então a foto é baixada com o token e exibida via blob: URL.
 function useWebAuthorizedImageUri(uri: string | null, token: string | null): string | null {
-  const [blobUri, setBlobUri] = useState<string | null>(null);
+  // Guarda de qual uri/token o blob veio, para não exibir uma foto antiga ao trocar de entrada.
+  const [loaded, setLoaded] = useState<{ key: string; blobUri: string } | null>(null);
+  const key = `${uri}|${token}`;
 
   useEffect(() => {
-    setBlobUri(null);
     if (Platform.OS !== 'web' || uri === null || !uri.startsWith('http') || !token) return;
 
     let objectUrl: string | null = null;
@@ -28,7 +29,7 @@ function useWebAuthorizedImageUri(uri: string | null, token: string | null): str
       .then((blob) => {
         if (cancelled || blob === null) return;
         objectUrl = URL.createObjectURL(blob);
-        setBlobUri(objectUrl);
+        setLoaded({ key: `${uri}|${token}`, blobUri: objectUrl });
       })
       .catch(() => {});
 
@@ -38,7 +39,7 @@ function useWebAuthorizedImageUri(uri: string | null, token: string | null): str
     };
   }, [uri, token]);
 
-  return blobUri;
+  return loaded?.key === key ? loaded.blobUri : null;
 }
 
 export function DiaryEntryCard({ entry, onDelete }: DiaryEntryCardProps) {

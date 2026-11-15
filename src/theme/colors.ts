@@ -17,6 +17,8 @@ export const colors = {
 
   border: '#D2EBD5',
   borderSubtle: '#EAF6EC',
+  /** Cinza claro neutro, para marcações discretas (ex.: o dia de hoje no calendário do diário). */
+  neutralSubtle: '#E9ECEA',
 
   support: {
     primary: '#6631DB',
