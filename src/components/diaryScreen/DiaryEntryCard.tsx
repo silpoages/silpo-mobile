@@ -71,14 +71,14 @@ export function DiaryEntryCard({ entry, onDelete }: DiaryEntryCardProps) {
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <View style={styles.emotionIcon}>
-          {emotion ? (
+        {emotion ? (
+          <View style={styles.emotionIcon}>
             <MaterialCommunityIcons name={emotion.iconName} size={26} color={colors.primary} />
-          ) : null}
-        </View>
+          </View>
+        ) : null}
 
         <View style={styles.headerText}>
-          <Text style={styles.emotionLabel}>{emotion?.label}</Text>
+          {emotion ? <Text style={styles.emotionLabel}>{emotion.label}</Text> : null}
           <Text style={styles.subtitle}>Obrigado por registrar como você está se sentindo.</Text>
         </View>
 
