@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import type { MoodId } from '@/components/emotions/moodLogService';
 import { API_BASE_URL, apiRequest } from '@/services/apiClient';
 import type { DiaryEntry } from './diaryTypes';
@@ -103,11 +104,18 @@ export async function listMoodLogs(token: string, date: string) {
 
 export async function uploadDiaryImage(token: string, photoUri: string): Promise<string> {
   const body = new FormData();
-  body.append('file', {
-    uri: photoUri,
-    name: 'diario.jpg',
-    type: 'image/jpeg',
-  } as unknown as Blob);
+  if (Platform.OS === 'web') {
+    // No web, o FormData não entende o objeto { uri, name, type } do React Native
+    // (vira a string "[object Object]"); é preciso enviar um Blob de verdade.
+    const blob = await (await fetch(photoUri)).blob();
+    body.append('file', blob, 'diario.jpg');
+  } else {
+    body.append('file', {
+      uri: photoUri,
+      name: 'diario.jpg',
+      type: 'image/jpeg',
+    } as unknown as Blob);
+  }
 
   const response = await fetch(`${API_BASE_URL}/diary-entries/images`, {
     method: 'POST',
@@ -138,6 +146,63 @@ export async function createDiaryEntry(
     },
   });
   return toEntry(response);
+}
+
+type DeletedDiaryEntryResponse = DiaryEntryResponse & { deleted_at: string };
+
+type DeletedDiaryListResponse = {
+  items: DeletedDiaryEntryResponse[];
+  total: number;
+};
+
+export type DeletedDiaryEntry = {
+  id: string;
+  date: string;
+  mood: MoodId | null;
+  note: string;
+  /** A foto é removida ao apagar; o registro volta sem ela. */
+  hadPhoto: boolean;
+  practiceTitle: string | null;
+  deletedAt: string;
+};
+
+/** Registros do diário apagados pelo usuário, do mais recente ao mais antigo. */
+export async function listDeletedDiaryEntries(token: string): Promise<DeletedDiaryEntry[]> {
+  const pageSize = 100;
+  const entries: DeletedDiaryEntry[] = [];
+  let page = 1;
+  let total = 0;
+
+  do {
+    const response = await apiRequest<DeletedDiaryListResponse>(
+      `/diary-entries/deleted?page=${page}&page_size=${pageSize}`,
+      { token },
+    );
+    total = response.total;
+    entries.push(
+      ...response.items.map((item) => ({
+        id: item.id,
+        date: item.entry_date,
+        mood: item.mood,
+        note: item.note,
+        hadPhoto: item.image_url !== null,
+        practiceTitle: item.practice?.title ?? null,
+        deletedAt: item.deleted_at,
+      })),
+    );
+    if (response.items.length === 0) break;
+    page += 1;
+  } while (entries.length < total);
+
+  return entries;
+}
+
+/** Devolve o registro ao diário. */
+export async function restoreDiaryEntry(token: string, entryId: string): Promise<void> {
+  await apiRequest<DiaryEntryResponse>(`/diary-entries/${encodeURIComponent(entryId)}/restore`, {
+    method: 'POST',
+    token,
+  });
 }
 
 export function deleteDiaryEntry(token: string, entryId: string) {

@@ -41,7 +41,14 @@ export function CalendarDay({
       style={styles.cell}
     >
       {({ pressed }) => (
-        <View style={[styles.day, isSelected && styles.daySelected, pressed && styles.dayPressed]}>
+        <View
+          style={[
+            styles.day,
+            isToday && !isSelected && styles.dayToday,
+            isSelected && styles.daySelected,
+            pressed && styles.dayPressed,
+          ]}
+        >
           <Text
             style={[
               styles.dayNumber,
@@ -70,6 +77,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 3,
+  },
+  dayToday: {
+    backgroundColor: colors.neutralSubtle,
   },
   daySelected: {
     backgroundColor: colors.primary,

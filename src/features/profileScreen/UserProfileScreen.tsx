@@ -33,17 +33,16 @@ export default function UserProfileScreen() {
       .catch(() => {});
   }, [session.token]);
 
-  function handlePersonalDataPress() {}
-  function handlePrivacyPress() {}
-  function handleAccessibilityPress() {}
-  function handleNotificationsPress() {}
-  function handleAppearancePress() {}
-  function handleDeletedMessagesPress() {}
-  function handlePremiumPress() {}
-  function handlePaymentsPress() {}
-
   function handleComfortPersonPress() {
     router.push('/apoio');
+  }
+
+  function handleNotificationsPress() {
+    router.push('/notificacoes');
+  }
+
+  function handleDeletedMessagesPress() {
+    router.push('/mensagens-apagadas');
   }
 
   async function handleLogoutPress() {
@@ -90,20 +89,10 @@ export default function UserProfileScreen() {
       title: 'CONTA',
       items: [
         {
-          title: 'Dados pessoais',
-          icon: 'user',
-          onPress: handlePersonalDataPress,
-        },
-        {
           title: 'Pessoa de conforto',
           icon: 'heart',
           info: comfortPersonName ?? undefined,
           onPress: handleComfortPersonPress,
-        },
-        {
-          title: 'Privacidade',
-          icon: 'lock',
-          onPress: handlePrivacyPress,
         },
       ],
     },
@@ -111,41 +100,14 @@ export default function UserProfileScreen() {
       title: 'EXPERIÊNCIA',
       items: [
         {
-          title: 'Acessibilidade',
-          icon: 'circle',
-          onPress: handleAccessibilityPress,
-        },
-        {
           title: 'Notificações',
           icon: 'bell',
           onPress: handleNotificationsPress,
         },
         {
-          title: 'Aparência',
-          icon: 'moon',
-          onPress: handleAppearancePress,
-        },
-        {
-          title: 'Mensagens Apagadas',
-          icon: 'moon',
+          title: 'Mensagens apagadas',
+          icon: 'trash-2',
           onPress: handleDeletedMessagesPress,
-        },
-      ],
-    },
-    {
-      title: 'ASSINATURA',
-      items: [
-        {
-          title: 'Silpo Premium',
-          icon: 'star',
-          iconColor: '#8A6423',
-          info: 'Conhecer',
-          onPress: handlePremiumPress,
-        },
-        {
-          title: 'Pagamentos',
-          icon: 'credit-card',
-          onPress: handlePaymentsPress,
         },
       ],
     },

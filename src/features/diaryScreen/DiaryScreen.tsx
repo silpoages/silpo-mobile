@@ -8,7 +8,8 @@ import { useRouter } from 'expo-router';
 import Button from '@/components/Button';
 import { DiaryEmptyState } from '@/components/diaryScreen/DiaryEmptyState';
 import { DiaryEntryCard } from '@/components/diaryScreen/DiaryEntryCard';
-import { DiaryHeader } from '@/components/diaryScreen/DiaryHeader';
+import { ProfileAvatar } from '@/components/ProfileAvatar';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { MonthlyCalendar } from '@/components/diaryScreen/MonthlyCalendar';
 import { useSession } from '@/features/auth/session/SessionContext';
 import {
@@ -19,7 +20,7 @@ import {
   type CalendarMonth,
 } from './calendar';
 import type { DiaryEntry } from './diaryTypes';
-import { colors, fontFamily, fontSize, spacing } from '@/theme';
+import { colors, fontFamily, fontSize, layout, spacing } from '@/theme';
 
 type DiaryScreenProps = {
   entries: DiaryEntry[];
@@ -120,7 +121,10 @@ export function DiaryScreen({
         showsVerticalScrollIndicator={false}
         style={styles.scroll}
       >
-        <DiaryHeader onPressAvatar={() => router.push('/perfil')} userName={userName} />
+        <ScreenHeader
+          title="Diário"
+          right={<ProfileAvatar userName={userName} onPress={() => router.push('/perfil')} />}
+        />
 
         <MonthlyCalendar
           month={visibleMonth}
@@ -162,8 +166,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 22,
+    paddingHorizontal: layout.tabScreenPaddingHorizontal,
+    paddingTop: layout.tabScreenPaddingTop,
     paddingBottom: spacing.xl,
     gap: spacing.xl,
   },

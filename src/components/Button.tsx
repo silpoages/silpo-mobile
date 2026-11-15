@@ -34,7 +34,7 @@ const variantStyles = {
   },
   secondary: {
     backgroundColor: colors.surface,
-    borderColor: colors.border,
+    borderColor: colors.primary,
     color: colors.primary,
   },
   support: {

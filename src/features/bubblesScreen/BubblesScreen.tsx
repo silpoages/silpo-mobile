@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors, fontFamily, fontSize, spacing } from '@/theme';
+import { useBubblePopSound } from './useBubblePopSound';
 
 type BubbleMode = 'free' | 'rhythm';
 
@@ -45,6 +46,7 @@ export function BubblesScreen() {
   const nextId = useRef(1);
   const [mode, setMode] = useState<BubbleMode>('free');
   const [bubbles, setBubbles] = useState<Bubble[]>([]);
+  const playPopSound = useBubblePopSound();
 
   useEffect(() => {
     nextId.current = 1;
@@ -71,6 +73,7 @@ export function BubblesScreen() {
     const bubble = bubbles.find((item) => item.id === id);
     if (!bubble) return;
 
+    playPopSound();
     Animated.timing(bubble.scale, {
       toValue: 0,
       duration: 180,

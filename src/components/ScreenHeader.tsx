@@ -1,5 +1,5 @@
+import type { ReactNode } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
-import { ProfileAvatar } from '@/components/ProfileAvatar';
 import { colors, fontFamily, fontSize } from '@/theme';
 
 /**
@@ -7,14 +7,19 @@ import { colors, fontFamily, fontSize } from '@/theme';
  * porque ele tem uma margem negativa fixa (`-32`) calibrada só pro tamanho
  * grande da `WelcomeScreen`, que não faz sentido aqui.
  */
-const logoSource = require('../../../assets/brand/silpo-logo.png');
+const logoSource = require('../../assets/brand/silpo-logo.png');
 
-type JourneyHeaderProps = {
-  userName: string;
-  onPressAvatar: () => void;
+/** Altura da linha do cabeçalho: a do `ProfileAvatar`, para o título não mudar de lugar sem ele. */
+const HEADER_HEIGHT = 52;
+
+type ScreenHeaderProps = {
+  title: string;
+  /** Ação à direita do título — em geral o `ProfileAvatar`. */
+  right?: ReactNode;
 };
 
-export function JourneyHeader({ userName, onPressAvatar }: JourneyHeaderProps) {
+/** Cabeçalho das abas (Diário, Minha jornada, Apoio): logo, título e ação, sempre na mesma posição. */
+export function ScreenHeader({ title, right }: ScreenHeaderProps) {
   return (
     <View style={styles.container}>
       <Image
@@ -25,18 +30,18 @@ export function JourneyHeader({ userName, onPressAvatar }: JourneyHeaderProps) {
         style={styles.logo}
       />
       <Text accessibilityRole="header" style={styles.title}>
-        Minha jornada
+        {title}
       </Text>
-      <ProfileAvatar userName={userName} onPress={onPressAvatar} />
+      {right}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    minHeight: HEADER_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     gap: 12,
   },
   logo: {

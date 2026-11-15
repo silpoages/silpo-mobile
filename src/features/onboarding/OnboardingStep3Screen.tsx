@@ -9,6 +9,8 @@ import { useSession } from '@/features/auth/session/SessionContext';
 import { ONBOARDING_FIRST_STEP_ROUTE } from '@/features/auth/session/routeAccess';
 import { toISODate } from '@/features/onboarding/date';
 import { useOnboarding } from '@/features/onboarding/OnboardingContext';
+import { scheduleDailyReminder } from '@/features/notifications/dailyReminder';
+import { getReminderTime } from '@/features/notifications/reminderSettings';
 import { ApiError } from '@/services/apiClient';
 import { updateCurrentUser } from '@/services/user';
 import { colors, fontFamily, fontSize, radii, spacing, typography } from '@/theme';
@@ -52,6 +54,13 @@ export function OnboardingStep3Screen() {
         fullName: updated.fullName,
         onboardingCompleted: updated.onboardingCompleted,
       });
+
+      if (updated.dailyReminderEnabled) {
+        // Pede a permissão logo após a pessoa ativar o lembrete; recusar não trava o cadastro.
+        await scheduleDailyReminder(await getReminderTime(), { askPermission: true }).catch(
+          () => undefined,
+        );
+      }
 
       router.replace('/');
     } catch (error) {

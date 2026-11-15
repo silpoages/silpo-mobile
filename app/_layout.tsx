@@ -6,6 +6,7 @@ import { useAppFonts } from '@/hooks/useAppFonts';
 import { AchievementAlertProvider } from '@/features/achievements/AchievementAlertContext';
 import { RouteGuard } from '@/features/auth/session/RouteGuard';
 import { SessionProvider, useSession } from '@/features/auth/session/SessionContext';
+import { useDailyReminderSync } from '@/features/notifications/useDailyReminderSync';
 import { colors } from '@/theme';
 
 export default function RootLayout() {
@@ -28,6 +29,7 @@ export default function RootLayout() {
 /** Espera a sessão persistida carregar, senão a Home aparece antes do guard. */
 function RootNavigator() {
   const session = useSession();
+  useDailyReminderSync();
 
   if (session.isLoading) {
     return null;

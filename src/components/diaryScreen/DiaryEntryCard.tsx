@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Image, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 import { EMOTIONS } from '@/components/emotions/emotionConfig';
@@ -12,18 +12,53 @@ type DiaryEntryCardProps = {
   onDelete?: (entry: DiaryEntry) => void;
 };
 
+// No web, o <img> não envia o header Authorization (o react-native-web ignora
+// `source.headers`), então a foto é baixada com o token e exibida via blob: URL.
+function useWebAuthorizedImageUri(uri: string | null, token: string | null): string | null {
+  // Guarda de qual uri/token o blob veio, para não exibir uma foto antiga ao trocar de entrada.
+  const [loaded, setLoaded] = useState<{ key: string; blobUri: string } | null>(null);
+  const key = `${uri}|${token}`;
+
+  useEffect(() => {
+    if (Platform.OS !== 'web' || uri === null || !uri.startsWith('http') || !token) return;
+
+    let objectUrl: string | null = null;
+    let cancelled = false;
+    fetch(uri, { headers: { Authorization: `Bearer ${token}` } })
+      .then((response) => (response.ok ? response.blob() : null))
+      .then((blob) => {
+        if (cancelled || blob === null) return;
+        objectUrl = URL.createObjectURL(blob);
+        setLoaded({ key: `${uri}|${token}`, blobUri: objectUrl });
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+      if (objectUrl !== null) URL.revokeObjectURL(objectUrl);
+    };
+  }, [uri, token]);
+
+  return loaded?.key === key ? loaded.blobUri : null;
+}
+
 export function DiaryEntryCard({ entry, onDelete }: DiaryEntryCardProps) {
   const session = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const webPhotoUri = useWebAuthorizedImageUri(entry.photoUri, session.token);
   const photoSource =
     entry.photoUri === null
       ? null
-      : entry.photoUri.startsWith('http')
-        ? {
-            uri: entry.photoUri,
-            headers: session.token ? { Authorization: `Bearer ${session.token}` } : undefined,
-          }
-        : { uri: entry.photoUri };
+      : !entry.photoUri.startsWith('http')
+        ? { uri: entry.photoUri }
+        : Platform.OS === 'web'
+          ? webPhotoUri === null
+            ? null
+            : { uri: webPhotoUri }
+          : {
+              uri: entry.photoUri,
+              headers: session.token ? { Authorization: `Bearer ${session.token}` } : undefined,
+            };
 
   const emotion = EMOTIONS.find((item) => item.id === entry.mood);
 
@@ -37,14 +72,14 @@ export function DiaryEntryCard({ entry, onDelete }: DiaryEntryCardProps) {
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <View style={styles.emotionIcon}>
-          {emotion ? (
+        {emotion ? (
+          <View style={styles.emotionIcon}>
             <MaterialCommunityIcons name={emotion.iconName} size={26} color={colors.primary} />
-          ) : null}
-        </View>
+          </View>
+        ) : null}
 
         <View style={styles.headerText}>
-          <Text style={styles.emotionLabel}>{emotion?.label}</Text>
+          {emotion ? <Text style={styles.emotionLabel}>{emotion.label}</Text> : null}
           <Text style={styles.subtitle}>Obrigado por registrar como você está se sentindo.</Text>
         </View>
 

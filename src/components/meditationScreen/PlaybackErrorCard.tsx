@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.regular,
     fontSize: fontSize.body,
     lineHeight: 20,
-    color: colors.support.primary,
+    color: colors.support.muted,
   },
   actions: {
     flexDirection: 'row',

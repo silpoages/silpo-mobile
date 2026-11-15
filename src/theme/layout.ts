@@ -24,4 +24,7 @@ export const layout = {
   formGap: 28,
   /** Distância entre a marca e a frase, na tela de boas-vindas. */
   heroGap: 18,
+  /** Margens das abas (Início, Diário, Minha jornada, Apoio): cabeçalho e avatar no mesmo lugar. */
+  tabScreenPaddingHorizontal: 20,
+  tabScreenPaddingTop: 22,
 } as const;
