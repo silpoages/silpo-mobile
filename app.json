@@ -11,6 +11,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "br.com.silpo.app",
       "adaptiveIcon": {
         "backgroundColor": "#F6F8F3",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -37,7 +38,8 @@
         }
       ],
       "expo-sharing",
-      "expo-audio"
+      "expo-audio",
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true
