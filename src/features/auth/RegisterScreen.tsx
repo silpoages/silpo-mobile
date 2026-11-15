@@ -5,7 +5,7 @@ import Button from '@/components/Button';
 import { ScreenContainer } from '@/components/ScreenContainer';
 import { TextField } from '@/components/TextField';
 import { colors, layout, spacing, typography } from '@/theme';
-import { AuthDivider, AuthFormFooter, AuthHeader, GoogleButton } from '@/features/auth/components';
+import { AuthFormFooter, AuthHeader } from '@/features/auth/components';
 import { useAuthForm } from '@/features/auth/hooks/useAuthForm';
 import { useSession } from '@/features/auth/session/SessionContext';
 import type { Credentials } from '@/features/auth/services/authService';
@@ -15,8 +15,6 @@ import {
   isEmailNotConfirmedError,
   setPendingConfirmation,
 } from '@/features/emailConfirmationScreen/pendingConfirmation';
-
-function handleGooglePress() {}
 
 /** Cadastro ("Vamos começar juntos", nó 4236:951) — registro não devolve token, então logamos em seguida. */
 export function RegisterScreen() {
@@ -115,12 +113,6 @@ export function RegisterScreen() {
           />
         </View>
 
-        <View style={styles.divider}>
-          <AuthDivider />
-        </View>
-
-        <GoogleButton disabled={isSubmitting} onPress={handleGooglePress} />
-
         <Text style={styles.privacyNote}>
           Seus registros de emoção são privados e ficam com você.
         </Text>
@@ -143,13 +135,10 @@ const styles = StyleSheet.create({
     ...typography.footnote,
     color: colors.danger,
   },
-  divider: {
-    marginVertical: spacing.xxl,
-  },
   privacyNote: {
     ...typography.footnote,
     color: colors.textMuted,
-    marginTop: spacing.xl,
+    marginTop: spacing.xxl,
     textAlign: 'center',
   },
 });
