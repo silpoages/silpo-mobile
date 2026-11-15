@@ -70,3 +70,30 @@ export async function updateCurrentUser(
     onboardingCompleted: response.onboarding_completed,
   };
 }
+
+export type UserPreferences = {
+  dailyReminderEnabled: boolean;
+};
+
+type UserPreferencesResponse = {
+  daily_reminder_enabled: boolean;
+};
+
+/** `GET /users/me/preferences` — hoje só o lembrete diário. */
+export async function getUserPreferences(token: string): Promise<UserPreferences> {
+  const response = await apiRequest<UserPreferencesResponse>('/users/me/preferences', { token });
+  return { dailyReminderEnabled: response.daily_reminder_enabled };
+}
+
+/** `PATCH /users/me/preferences` — muda só as preferências, sem reenviar o cadastro inteiro. */
+export async function updateUserPreferences(
+  token: string,
+  input: UserPreferences,
+): Promise<UserPreferences> {
+  const response = await apiRequest<UserPreferencesResponse>('/users/me/preferences', {
+    method: 'PATCH',
+    token,
+    body: { daily_reminder_enabled: input.dailyReminderEnabled },
+  });
+  return { dailyReminderEnabled: response.daily_reminder_enabled };
+}
