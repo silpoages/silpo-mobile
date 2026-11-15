@@ -41,6 +41,6 @@ const styles = StyleSheet.create({
   },
   label: {
     ...typography.pill,
-    color: colors.support.dark,
+    color: colors.support.primary,
   },
 });

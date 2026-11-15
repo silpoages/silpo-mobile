@@ -1,37 +1,38 @@
+/** Paleta semântica baseada na página 'Jade Horizon - Mobile' do Figma. */
 export const colors = {
-  background: '#F6F8F3',
+  background: '#F3FAF4',
   surface: '#FFFFFF',
-  surfaceMuted: '#EFF4EE',
-  surfaceTint: '#E3F0E7',
+  surfaceMuted: '#EAF6EC',
+  surfaceTint: '#DDF2E0',
   /** Tom mais fechado do `surfaceTint`, usado no círculo interno da tela de boas-vindas. */
-  surfaceTintStrong: '#CDEBD3',
+  surfaceTintStrong: '#B7E5BA',
 
-  text: '#1F3329',
-  textSecondary: '#55685D',
-  textMuted: '#9AAAA0',
+  text: '#123A2E',
+  textSecondary: '#46695B',
+  textMuted: '#93ACA1',
   textInverse: '#FFFFFF',
 
-  primary: '#3F6B57',
-  primaryDark: '#2F5544',
+  primary: '#288760',
+  primaryDark: '#1A5140',
 
-  border: '#DEE8DF',
-  borderSubtle: '#EAF1EA',
+  border: '#D2EBD5',
+  borderSubtle: '#EAF6EC',
 
   support: {
-    primary: '#6C5F94',
-    dark: '#4F4478',
-    muted: '#5D5482',
-    text: '#332B4D',
-    surface: '#EEEBF5',
-    border: '#DDD6EC',
+    primary: '#6631DB',
+    dark: '#3A1A85',
+    muted: '#7B45F0',
+    text: '#3A1A85',
+    surface: '#F3EEFF',
+    border: '#D0BCFC',
   },
 
   /** Preenchimento das barras de distribuição de emoções, na Jornada. */
-  chartFill: '#9CC9A9',
+  chartFill: '#5CA87C',
 
   achievement: {
     surface: '#F6EEDD',
-    icon: '#8A6A3B',
+    icon: '#8A6423',
   },
 
   danger: '#9E4A41',
