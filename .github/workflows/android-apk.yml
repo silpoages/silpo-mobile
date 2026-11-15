@@ -1,0 +1,114 @@
+name: Android APK
+
+# Gera o APK de produção. Roda a cada push na main ou manualmente (Actions → Android APK → Run workflow).
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+concurrency:
+  group: android-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    name: Build APK (produção)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    # Variáveis e secrets vêm do environment "production" (Settings → Environments).
+    environment: production
+    env:
+      # Embutida no JS do APK durante o build (o app lê process.env.EXPO_PUBLIC_API_URL).
+      EXPO_PUBLIC_API_URL: ${{ vars.EXPO_PUBLIC_API_URL }}
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Conferir URL da API
+        run: |
+          if [ -z "$EXPO_PUBLIC_API_URL" ]; then
+            echo "::error::Defina a variável EXPO_PUBLIC_API_URL no environment 'production'."
+            exit 1
+          fi
+          case "$EXPO_PUBLIC_API_URL" in
+            https://*) ;;
+            *)
+              echo "::error::EXPO_PUBLIC_API_URL precisa usar https:// (o Android bloqueia http em release)."
+              exit 1
+              ;;
+          esac
+          echo "API do APK: $EXPO_PUBLIC_API_URL"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - run: npm ci
+
+      # versionCode precisa crescer a cada APK para o Android aceitar instalar por cima do anterior.
+      - name: Definir versionCode
+        run: |
+          node -e "
+            const fs = require('fs');
+            const config = JSON.parse(fs.readFileSync('app.json', 'utf8'));
+            config.expo.android.versionCode = Number(process.env.GITHUB_RUN_NUMBER);
+            fs.writeFileSync('app.json', JSON.stringify(config, null, 2) + '\n');
+          "
+          echo "versionCode: $GITHUB_RUN_NUMBER"
+
+      - name: Gerar projeto Android
+        run: npx expo prebuild --platform android --no-install
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # Só arquiteturas de celular (sem x86 de emulador): APK menor e build mais rápido.
+      - name: Compilar APK de release
+        working-directory: android
+        run: ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a,armeabi-v7a
+
+      # O Gradle assina o release com a chave de debug; aqui o APK é reassinado com a chave do app.
+      - name: Assinar APK
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p "require('./app.json').expo.version")
+          APK_NAME="silpo-${VERSION}-${GITHUB_RUN_NUMBER}"
+          BUILT_APK=android/app/build/outputs/apk/release/app-release.apk
+
+          if [ -z "${ANDROID_KEYSTORE_BASE64:-}" ]; then
+            echo "::warning::Sem os secrets de assinatura: o APK sai com a chave de debug e não instala por cima de versões anteriores."
+            cp "$BUILT_APK" "$APK_NAME.apk"
+          else
+            KEYSTORE="$RUNNER_TEMP/release.jks"
+            echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$KEYSTORE"
+            # Keystore PKCS12 (padrão do keytool) usa a mesma senha para a chave.
+            export KEY_PASSWORD="${ANDROID_KEY_PASSWORD:-$ANDROID_KEYSTORE_PASSWORD}"
+            BUILD_TOOLS="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+            "$BUILD_TOOLS/apksigner" sign \
+              --ks "$KEYSTORE" \
+              --ks-key-alias "$ANDROID_KEY_ALIAS" \
+              --ks-pass env:ANDROID_KEYSTORE_PASSWORD \
+              --key-pass env:KEY_PASSWORD \
+              --out "$APK_NAME.apk" \
+              "$BUILT_APK"
+            rm -f "$KEYSTORE"
+            "$BUILD_TOOLS/apksigner" verify --print-certs "$APK_NAME.apk"
+          fi
+
+          echo "APK_NAME=$APK_NAME" >> "$GITHUB_ENV"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.APK_NAME }}
+          path: ${{ env.APK_NAME }}.apk
+          retention-days: 30
