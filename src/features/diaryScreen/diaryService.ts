@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import type { MoodId } from '@/components/emotions/moodLogService';
 import { API_BASE_URL, apiRequest } from '@/services/apiClient';
 import type { DiaryEntry } from './diaryTypes';
@@ -103,11 +104,18 @@ export async function listMoodLogs(token: string, date: string) {
 
 export async function uploadDiaryImage(token: string, photoUri: string): Promise<string> {
   const body = new FormData();
-  body.append('file', {
-    uri: photoUri,
-    name: 'diario.jpg',
-    type: 'image/jpeg',
-  } as unknown as Blob);
+  if (Platform.OS === 'web') {
+    // No web, o FormData não entende o objeto { uri, name, type } do React Native
+    // (vira a string "[object Object]"); é preciso enviar um Blob de verdade.
+    const blob = await (await fetch(photoUri)).blob();
+    body.append('file', blob, 'diario.jpg');
+  } else {
+    body.append('file', {
+      uri: photoUri,
+      name: 'diario.jpg',
+      type: 'image/jpeg',
+    } as unknown as Blob);
+  }
 
   const response = await fetch(`${API_BASE_URL}/diary-entries/images`, {
     method: 'POST',
