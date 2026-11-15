@@ -1,16 +1,12 @@
 import { Asset } from 'expo-asset';
 import * as FileSystem from 'expo-file-system/legacy';
-import * as Print from 'expo-print';
-import * as Sharing from 'expo-sharing';
 import { Platform } from 'react-native';
-import { buildJourneyReportHtml, type JourneyReportPeriod } from './journeyReportTemplate';
+import type { Achievement } from '@/features/achievements/achievementsService';
+import { downloadJourneyReport } from './journeyReportDownload';
+import type { JourneyReportPeriod } from './journeyReportTemplate';
 import type { JourneyData } from './journeyService';
 
 const logoModule = require('../../../assets/brand/silpo-logo.png');
-
-/** Tamanho de página A4 em pontos (72 dpi), igual ao `@page` do template. */
-const A4_WIDTH_PT = 595;
-const A4_HEIGHT_PT = 842;
 
 let cachedLogoDataUri: string | null = null;
 
@@ -79,46 +75,25 @@ function getCurrentPeriod(): JourneyReportPeriod {
 }
 
 /**
- * Gera o PDF da Minha Jornada a partir do resumo já carregado (sem nova
- * chamada à API) e abre o compartilhamento nativo pra salvar/enviar.
+ * Gera o PDF da Minha Jornada a partir do resumo já carregado e da lista de
+ * conquistas, e entrega o arquivo: download direto na web, folha de
+ * compartilhar (salvar/enviar) no celular.
  */
-export async function exportJourneyReport(journey: JourneyData, userName: string): Promise<void> {
+export async function exportJourneyReport(
+  journey: JourneyData,
+  achievementList: Achievement[],
+  userName: string,
+): Promise<void> {
   const logoDataUri = await getLogoDataUri();
 
-  const html = buildJourneyReportHtml({
-    ...journey,
-    userName,
-    period: getCurrentPeriod(),
-    logoDataUri,
-  });
-
-  // Na web, `printToFileAsync` não devolve arquivo (só abre `window.print()`),
-  // e não existe compartilhamento nativo — o próprio diálogo de impressão já
-  // deixa salvar como PDF.
-  if (Platform.OS === 'web') {
-    await Print.printAsync({ html });
-    return;
-  }
-
-  const { uri } = await Print.printToFileAsync({
-    html,
-    width: A4_WIDTH_PT,
-    height: A4_HEIGHT_PT,
-  });
-
-  // `printToFileAsync` nomeia o arquivo com um UUID interno; renomeia pra
-  // algo que a pessoa reconheça na folha de compartilhar.
-  const renamedUri = `${FileSystem.cacheDirectory}${buildFileName(userName)}`;
-  await FileSystem.copyAsync({ from: uri, to: renamedUri });
-
-  if (await Sharing.isAvailableAsync()) {
-    await Sharing.shareAsync(renamedUri, {
-      mimeType: 'application/pdf',
-      dialogTitle: 'Minha Jornada',
-      UTI: 'com.adobe.pdf',
-    });
-    return;
-  }
-
-  await Print.printAsync({ html });
+  await downloadJourneyReport(
+    {
+      ...journey,
+      userName,
+      period: getCurrentPeriod(),
+      logoDataUri,
+      achievementList,
+    },
+    buildFileName(userName),
+  );
 }

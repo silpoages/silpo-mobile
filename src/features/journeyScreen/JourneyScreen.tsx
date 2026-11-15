@@ -2,7 +2,8 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { ScreenContainer } from '@/components/ScreenContainer';
-import { JourneyHeader } from '@/components/journeyScreen/JourneyHeader';
+import { ProfileAvatar } from '@/components/ProfileAvatar';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { JourneySummaryCard } from '@/components/journeyScreen/JourneySummaryCard';
 import { JourneyMetricCard } from '@/components/journeyScreen/JourneyMetricCard';
 import { MoodDistributionCard } from '@/components/journeyScreen/MoodDistributionCard';
@@ -11,7 +12,7 @@ import { ExportJourneyButton } from '@/components/journeyScreen/ExportJourneyBut
 import { useSession } from '@/features/auth/session/SessionContext';
 import type { JourneyData } from './journeyService';
 import { pluralize } from './pluralize';
-import { colors, fontFamily, fontSize, spacing } from '@/theme';
+import { colors, fontFamily, fontSize, layout, spacing } from '@/theme';
 
 type JourneyScreenProps = {
   /** Resumo do mês. Sem dados (ou tudo zerado), a tela mostra o estado vazio. */
@@ -113,7 +114,10 @@ export function JourneyScreen({
   return (
     <ScreenContainer contentStyle={styles.content}>
       <StatusBar style="dark" />
-      <JourneyHeader userName={userName} onPressAvatar={() => router.push('/perfil')} />
+      <ScreenHeader
+        title="Minha jornada"
+        right={<ProfileAvatar userName={userName} onPress={() => router.push('/perfil')} />}
+      />
       {renderContent()}
       {!isLoading && !hasError && journey ? (
         <ExportJourneyButton journey={journey} userName={userName} />
@@ -126,9 +130,9 @@ const styles = StyleSheet.create({
   /** Mesma largura e margem lateral da Home, para o avatar não mudar de lugar entre as abas. */
   content: {
     maxWidth: '100%',
-    paddingHorizontal: 20,
+    paddingHorizontal: layout.tabScreenPaddingHorizontal,
     gap: spacing.xl,
-    paddingTop: 22,
+    paddingTop: layout.tabScreenPaddingTop,
     paddingBottom: spacing.xl,
   },
   metricsRow: {

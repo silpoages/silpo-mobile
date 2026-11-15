@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { colors } from '@/theme/colors';
+import { layout } from '@/theme/layout';
 import { Header } from '@/components/homeScreen/Header';
 import { EmotionsRow } from '@/components/emotions/EmotionsRow';
 import { DailyPractice } from '@/components/homeScreen/DailyPractice';
@@ -162,9 +163,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   scrollContent: {
-    paddingTop: 22,
+    paddingTop: layout.tabScreenPaddingTop,
     gap: 16,
-    paddingHorizontal: 20,
+    paddingHorizontal: layout.tabScreenPaddingHorizontal,
     paddingBottom: 16,
   },
 });

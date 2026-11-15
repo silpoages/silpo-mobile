@@ -1,5 +1,7 @@
 import { EMOTIONS } from '@/components/emotions/emotionConfig';
 import type { MoodId } from '@/components/emotions/moodLogService';
+import type { Achievement } from '@/features/achievements/achievementsService';
+import { formatUnlockedDate } from '@/features/achievements/formatUnlockedDate';
 import { colors, fontSize, radii, spacing } from '@/theme';
 import type { JourneyData } from './journeyService';
 import { pluralize } from './pluralize';
@@ -23,7 +25,16 @@ export type JourneyReportData = JourneyData & {
    * PDF — este template só monta HTML a partir dos dados recebidos.
    */
   logoDataUri: string;
+  /** Lista completa de conquistas (`GET /achievements`), exibida abaixo do resumo. */
+  achievementList: Achievement[];
 };
+
+/** Fonte do relatório; quem renderiza o HTML (WebView do expo-print ou navegador) baixa daqui. */
+export const REPORT_FONTS_URL =
+  'https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap';
+
+/** Classe raiz do relatório: todo o CSS fica restrito a ela, para poder ser injetado na página web. */
+export const REPORT_ROOT_CLASS = 'journey-report';
 
 const MONTH_LABELS = [
   'janeiro',
@@ -136,16 +147,61 @@ function buildMoodSection(moodCounts: Partial<Record<MoodId, number>>): string {
     </div>`;
 }
 
+/** Mesmos textos de `AchievementCard`: data do desbloqueio ou progresso atual/meta. */
+function buildAchievementItem(achievement: Achievement): string {
+  const { unlocked, unlockedAt, progress } = achievement;
+  const name = escapeHtml(achievement.name);
+  const description = escapeHtml(achievement.description);
+
+  if (unlocked) {
+    const status = unlockedAt
+      ? `Desbloqueada em ${formatUnlockedDate(unlockedAt)}`
+      : 'Desbloqueada';
+    return `
+      <div class="achievement-item">
+        <span class="achievement-icon">★</span>
+        <div class="achievement-text">
+          <p class="achievement-name">${name}</p>
+          <p class="achievement-description">${description}</p>
+          <p class="achievement-status">${escapeHtml(status)}</p>
+        </div>
+      </div>`;
+  }
+
+  const fillPercent =
+    progress.target > 0 ? Math.round(Math.min(progress.current / progress.target, 1) * 100) : 0;
+  return `
+      <div class="achievement-item achievement-item-locked">
+        <span class="achievement-icon">☆</span>
+        <div class="achievement-text">
+          <p class="achievement-name">${name}</p>
+          <p class="achievement-description">${description}</p>
+          <div class="achievement-progress">
+            <span class="achievement-track"><span class="achievement-fill" style="width:${fillPercent}%"></span></span>
+            <span class="achievement-progress-label">${progress.current} de ${progress.target}</span>
+          </div>
+        </div>
+      </div>`;
+}
+
 function buildAchievementsSection(data: JourneyReportData): string {
   const progress = `${data.achievements.unlocked} de ${data.achievements.total} ${pluralize(data.achievements.total, 'descoberta', 'descobertas')}`;
+  // Mesma ordem da tela de conquistas: desbloqueadas primeiro, depois as bloqueadas.
+  const items = [
+    ...data.achievementList.filter((achievement) => achievement.unlocked),
+    ...data.achievementList.filter((achievement) => !achievement.unlocked),
+  ];
 
   return `
     <div class="card achievements-card">
-      <span class="achievements-badge">★</span>
-      <div>
-        <h2 class="section-title">Minhas conquistas</h2>
-        <p class="achievements-progress">${escapeHtml(progress)}</p>
+      <div class="achievements-header">
+        <span class="achievements-badge">★</span>
+        <div>
+          <h2 class="section-title">Minhas conquistas</h2>
+          <p class="achievements-progress">${escapeHtml(progress)}</p>
+        </div>
       </div>
+      ${items.length > 0 ? `<div class="achievement-list">${items.map(buildAchievementItem).join('')}</div>` : ''}
     </div>`;
 }
 
@@ -160,18 +216,28 @@ function buildEmptyState(periodLabel: string): string {
     </div>`;
 }
 
-const REPORT_CSS = `
+/** Só para o documento completo (PDF nativo): tamanho de página e fundo da folha. */
+const PRINT_DOCUMENT_CSS = `
   @page {
     size: A4;
     margin: 16mm;
   }
 
-  * {
+  html,
+  body {
+    margin: 0;
+    background: ${colors.background};
+  }
+`;
+
+/** Tudo restrito a `.journey-report`, para não vazar estilo quando injetado na página web. */
+const REPORT_CSS = `
+  .journey-report,
+  .journey-report * {
     box-sizing: border-box;
   }
 
-  body {
-    margin: 0;
+  .journey-report {
     background: ${colors.background};
     color: ${colors.text};
     font-family: 'Nunito', -apple-system, sans-serif;
@@ -179,19 +245,15 @@ const REPORT_CSS = `
     print-color-adjust: exact;
   }
 
-  .page {
-    padding-bottom: 20mm;
-  }
-
-  .header {
+  .journey-report .header {
     display: flex;
     align-items: center;
     gap: ${spacing.lg}px;
-    margin-bottom: ${spacing.xxl}px;
+    margin-bottom: ${spacing.lg}px;
     break-after: avoid;
   }
 
-  .logo {
+  .journey-report .logo {
     width: 56px;
     height: 56px;
     object-fit: contain;
@@ -199,20 +261,20 @@ const REPORT_CSS = `
     margin-bottom: -8px;
   }
 
-  .header-text {
+  .journey-report .header-text {
     display: flex;
     flex-direction: column;
     gap: 2px;
     min-width: 0;
   }
 
-  .title {
+  .journey-report .title {
     margin: 0;
     font-weight: 800;
     font-size: ${fontSize.display}px;
   }
 
-  .subtitle {
+  .journey-report .subtitle {
     margin: 0;
     font-weight: 700;
     font-size: ${fontSize.lg}px;
@@ -220,78 +282,78 @@ const REPORT_CSS = `
     overflow-wrap: anywhere;
   }
 
-  .period {
+  .journey-report .period {
     margin: 0;
     font-weight: 400;
     font-size: ${fontSize.body}px;
     color: ${colors.textSecondary};
   }
 
-  .content {
+  .journey-report .content {
     display: flex;
     flex-direction: column;
-    gap: ${spacing.xl}px;
+    gap: 10px;
   }
 
-  .card {
+  .journey-report .card {
     background: ${colors.surface};
     border: 1px solid ${colors.border};
     border-radius: 16px;
-    padding: 18px;
+    padding: 14px;
     break-inside: avoid;
   }
 
-  .metrics-row {
+  .journey-report .metrics-row {
     display: flex;
     gap: ${spacing.lg}px;
     break-inside: avoid;
   }
 
-  .metric-card {
+  .journey-report .metric-card {
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: ${spacing.xs}px;
   }
 
-  .metric-value {
+  .journey-report .metric-value {
     font-weight: 800;
     font-size: ${fontSize.display}px;
     color: ${colors.primary};
   }
 
-  .metric-label {
+  .journey-report .metric-label {
     font-weight: 400;
     font-size: ${fontSize.md}px;
     color: ${colors.textSecondary};
     line-height: 18px;
   }
 
-  .section-title {
-    margin: 0 0 ${spacing.lg}px;
+  .journey-report .section-title {
+    margin: 0 0 ${spacing.md}px;
     font-weight: 700;
     font-size: ${fontSize.lg}px;
   }
 
-  .mood-rows {
+  .journey-report .mood-rows {
     display: flex;
     flex-direction: column;
-    gap: ${spacing.lg}px;
+    gap: 7px;
   }
 
-  .mood-row {
+  .journey-report .mood-row {
     display: flex;
     align-items: center;
     gap: 10px;
   }
 
-  .mood-label {
+  .journey-report .mood-label {
     width: 76px;
     flex-shrink: 0;
     font-size: ${fontSize.md}px;
   }
 
-  .mood-track {
+  .journey-report .mood-track {
     flex: 1;
     display: block;
     height: 8px;
@@ -300,14 +362,14 @@ const REPORT_CSS = `
     overflow: hidden;
   }
 
-  .mood-fill {
+  .journey-report .mood-fill {
     display: block;
     height: 100%;
     border-radius: ${radii.pill}px;
     background: ${colors.chartFill};
   }
 
-  .mood-count {
+  .journey-report .mood-count {
     min-width: 16px;
     text-align: right;
     font-weight: 600;
@@ -316,19 +378,29 @@ const REPORT_CSS = `
     font-variant-numeric: tabular-nums;
   }
 
-  .footnote {
+  .journey-report .footnote {
     margin: 0;
     font-size: ${fontSize.sm}px;
     color: ${colors.textSecondary};
   }
 
-  .achievements-card {
+  .journey-report .achievements-card {
+    /* A lista pode passar de uma página; cada item é que não quebra no meio. */
+    break-inside: auto;
+  }
+
+  .journey-report .achievements-header {
     display: flex;
     align-items: center;
     gap: ${spacing.lg}px;
+    break-inside: avoid;
   }
 
-  .achievements-badge {
+  .journey-report .achievements-header .section-title {
+    margin: 0;
+  }
+
+  .journey-report .achievements-badge {
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -341,24 +413,124 @@ const REPORT_CSS = `
     font-size: 18px;
   }
 
-  .achievements-progress {
+  .journey-report .achievements-progress {
     margin: 4px 0 0;
     font-size: ${fontSize.md}px;
     color: ${colors.textSecondary};
   }
 
-  .empty-card {
+  .journey-report .achievement-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: ${spacing.sm}px;
+    margin-top: 10px;
+  }
+
+  .journey-report .achievement-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    width: calc(50% - 3px);
+    padding: 8px 10px;
+    border: 1px solid ${colors.borderSubtle};
+    border-radius: 12px;
+    break-inside: avoid;
+  }
+
+  .journey-report .achievement-item-locked {
+    background: ${colors.background};
+  }
+
+  .journey-report .achievement-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    background: ${colors.achievement.surface};
+    color: ${colors.achievement.icon};
+    font-size: 15px;
+  }
+
+  .journey-report .achievement-item-locked .achievement-icon {
+    background: ${colors.surfaceMuted};
+    color: ${colors.textMuted};
+  }
+
+  .journey-report .achievement-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .journey-report .achievement-name {
+    margin: 0;
+    font-weight: 700;
+    font-size: ${fontSize.md}px;
+  }
+
+  .journey-report .achievement-item-locked .achievement-name {
+    color: ${colors.textSecondary};
+  }
+
+  .journey-report .achievement-description {
+    margin: 2px 0 0;
+    font-size: ${fontSize.sm}px;
+    line-height: 16px;
+    color: ${colors.textSecondary};
+  }
+
+  .journey-report .achievement-status {
+    margin: 3px 0 0;
+    font-weight: 600;
+    font-size: ${fontSize.sm}px;
+    color: ${colors.achievement.icon};
+  }
+
+  .journey-report .achievement-progress {
+    display: flex;
+    align-items: center;
+    gap: ${spacing.sm}px;
+    margin-top: 4px;
+  }
+
+  .journey-report .achievement-track {
+    flex: 1;
+    display: block;
+    height: 6px;
+    border-radius: ${radii.pill}px;
+    background: ${colors.surfaceMuted};
+    overflow: hidden;
+  }
+
+  .journey-report .achievement-fill {
+    display: block;
+    height: 100%;
+    border-radius: ${radii.pill}px;
+    background: ${colors.chartFill};
+  }
+
+  .journey-report .achievement-progress-label {
+    flex-shrink: 0;
+    font-weight: 600;
+    font-size: ${fontSize.sm}px;
+    color: ${colors.textSecondary};
+    font-variant-numeric: tabular-nums;
+  }
+
+  .journey-report .empty-card {
     text-align: center;
     padding: 32px 18px;
   }
 
-  .empty-title {
+  .journey-report .empty-title {
     margin: 0 0 ${spacing.md}px;
     font-weight: 600;
     font-size: ${fontSize.md}px;
   }
 
-  .empty-subtitle {
+  .journey-report .empty-subtitle {
     margin: 0;
     font-weight: 400;
     font-size: ${fontSize.body}px;
@@ -366,40 +538,43 @@ const REPORT_CSS = `
     line-height: 20px;
   }
 
-  .footer {
-    position: fixed;
-    bottom: 8mm;
-    left: 0;
-    right: 0;
+  .journey-report .footer {
+    margin-top: 10px;
     text-align: center;
     font-size: ${fontSize.xs}px;
     color: ${colors.textMuted};
   }
+
+  /* Na impressão nativa o rodapé se repete em toda página; no PDF gerado na web fica ao final. */
+  @media print {
+    .journey-report .page {
+      padding-bottom: 20mm;
+    }
+
+    .journey-report .footer {
+      position: fixed;
+      bottom: 8mm;
+      left: 0;
+      right: 0;
+      margin-top: 0;
+    }
+  }
 `;
 
 /**
- * Monta o HTML+CSS do relatório "Minha Jornada" em A4, para a task de geração
- * de PDF passar adiante a `expo-print` (ou equivalente). Não gera o PDF nem
- * acessa rede/sistema de arquivos — todo dado dinâmico entra via `data`.
+ * Conteúdo do relatório dentro de `.journey-report`, com o próprio `<style>`. Serve para
+ * injetar na página web (geração do PDF no navegador) sem depender de `<head>`/`<body>`.
  */
-export function buildJourneyReportHtml(data: JourneyReportData): string {
+export function buildJourneyReportFragment(data: JourneyReportData): string {
   const periodLabel = formatPeriodLabel(data.period);
   const userName = escapeHtml(data.userName.trim());
 
   const bodyContent = isJourneyReportEmpty(data)
-    ? buildEmptyState(periodLabel)
+    ? `${buildEmptyState(periodLabel)}${buildAchievementsSection(data)}`
     : `${buildMetricsSection(data)}${buildMoodSection(data.moodCounts)}${buildAchievementsSection(data)}`;
 
-  return `<!doctype html>
-<html lang="pt-BR">
-<head>
-<meta charset="utf-8" />
-<title>Minha Jornada - ${escapeHtml(periodLabel)}</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<style>${REPORT_CSS}</style>
-</head>
-<body>
+  return `<div class="${REPORT_ROOT_CLASS}">
+  <style>${REPORT_CSS}</style>
   <main class="page">
     <header class="header">
       <img class="logo" src="${data.logoDataUri}" alt="Silpo" />
@@ -414,6 +589,28 @@ export function buildJourneyReportHtml(data: JourneyReportData): string {
     </section>
     <footer class="footer">Silpo • Minha Jornada • ${escapeHtml(periodLabel)}</footer>
   </main>
+</div>`;
+}
+
+/**
+ * Documento HTML completo do relatório "Minha Jornada" em A4, para o `expo-print`
+ * gerar o PDF no celular. Não gera o PDF nem acessa rede/sistema de arquivos — todo
+ * dado dinâmico entra via `data`.
+ */
+export function buildJourneyReportHtml(data: JourneyReportData): string {
+  const periodLabel = formatPeriodLabel(data.period);
+
+  return `<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<title>Minha Jornada - ${escapeHtml(periodLabel)}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="${REPORT_FONTS_URL}" rel="stylesheet" />
+<style>${PRINT_DOCUMENT_CSS}</style>
+</head>
+<body>
+${buildJourneyReportFragment(data)}
 </body>
 </html>`;
 }

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Button from '@/components/Button';
+import { getAchievements } from '@/features/achievements/achievementsService';
+import { useSession } from '@/features/auth/session/SessionContext';
 import { exportJourneyReport } from '@/features/journeyScreen/journeyReportExport';
 import type { JourneyData } from '@/features/journeyScreen/journeyService';
 import { colors, fontFamily, fontSize, spacing } from '@/theme';
@@ -13,6 +15,7 @@ type ExportJourneyButtonProps = {
 const EXPORT_ERROR_MESSAGE = 'Não foi possível gerar o PDF. Tente de novo.';
 
 export function ExportJourneyButton({ journey, userName }: ExportJourneyButtonProps) {
+  const session = useSession();
   const [isExporting, setIsExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
 
@@ -25,7 +28,12 @@ export function ExportJourneyButton({ journey, userName }: ExportJourneyButtonPr
     setIsExporting(true);
 
     try {
-      await exportJourneyReport(journey, userName);
+      if (!session.token) {
+        throw new Error('Sessão expirada.');
+      }
+      // Busca na hora para o PDF sair com o progresso atual das conquistas.
+      const achievementList = await getAchievements(session.token);
+      await exportJourneyReport(journey, achievementList, userName);
     } catch {
       setExportError(EXPORT_ERROR_MESSAGE);
     } finally {
