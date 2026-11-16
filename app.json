@@ -10,10 +10,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.ages.Silpo",
-      "buildNumber": "1",
+      "buildNumber": "2",
       "config": {
         "usesNonExemptEncryption": false
-      }
+      },
+      "appleTeamId": "982JJP92PQ"
     },
     "android": {
       "package": "br.com.silpo.app",
