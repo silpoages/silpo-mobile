@@ -102,6 +102,20 @@ export async function listMoodLogs(token: string, date: string) {
   return response.items;
 }
 
+/** Falha no envio da foto, com uma mensagem que pode ir direto para a tela. */
+export class DiaryPhotoUploadError extends Error {
+  constructor(readonly status: number) {
+    super(
+      status === 413
+        ? 'A foto é grande demais. Escolha outra foto.'
+        : status === 415
+          ? 'Esse formato de foto não é aceito. Use JPG ou PNG.'
+          : 'Não foi possível enviar a foto.',
+    );
+    this.name = 'DiaryPhotoUploadError';
+  }
+}
+
 export async function uploadDiaryImage(token: string, photoUri: string): Promise<string> {
   const body = new FormData();
   if (Platform.OS === 'web') {
@@ -124,7 +138,7 @@ export async function uploadDiaryImage(token: string, photoUri: string): Promise
   });
 
   if (!response.ok) {
-    throw new Error('Não foi possível enviar a foto.');
+    throw new DiaryPhotoUploadError(response.status);
   }
 
   const payload = (await response.json()) as { image_url: string };
