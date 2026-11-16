@@ -7,22 +7,17 @@ export interface ActionButtonProps {
   icon: ReactNode;
   time: string;
   onPress: () => void;
-  isSelected?: boolean;
 }
 
-export function ActionButton({ label, icon, time, onPress, isSelected }: ActionButtonProps) {
+export function ActionButton({ label, icon, time, onPress }: ActionButtonProps) {
   return (
     <Pressable
-      style={({ pressed }) => [
-        styles.btn,
-        isSelected ? styles.selected : undefined,
-        pressed ? styles.pressed : undefined,
-      ]}
+      style={({ pressed }) => [styles.btn, pressed ? styles.pressed : undefined]}
       onPress={onPress}
     >
       <View style={styles.iconWrap}>{icon}</View>
-      <Text style={[styles.label, isSelected ? styles.selectedLabel : undefined]}>{label}</Text>
-      <Text style={[styles.time, isSelected ? styles.selectedLabel : undefined]}>{time}</Text>
+      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.time}>{time}</Text>
     </Pressable>
   );
 }
@@ -52,10 +47,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceMuted,
     transform: [{ scale: 0.96 }],
   },
-  selected: {
-    borderColor: colors.textSecondary,
-    borderWidth: 2,
-  },
   label: {
     fontFamily: fontFamily.bold,
     fontSize: fontSize.body,
@@ -65,9 +56,5 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.regular,
     fontSize: fontSize.sm,
     color: colors.textSecondary,
-  },
-  selectedLabel: {
-    color: colors.textSecondary,
-    fontFamily: fontFamily.bold,
   },
 });
