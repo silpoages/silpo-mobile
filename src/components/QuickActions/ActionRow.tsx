@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
@@ -23,16 +22,6 @@ interface ActionRowProps {
 }
 
 export function ActionRow({ onSelectAction }: ActionRowProps) {
-  const [selected, setSelected] = useState<string | null>(null);
-
-  const handlePress = (actionId: string) => {
-    const next = selected === actionId ? null : actionId;
-    setSelected(next);
-    if (onSelectAction && next) {
-      onSelectAction(next);
-    }
-  };
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>EXERCÍCIOS RÁPIDOS</Text>
@@ -43,8 +32,7 @@ export function ActionRow({ onSelectAction }: ActionRowProps) {
             icon={item.icon}
             label={item.label}
             time={item.time}
-            isSelected={selected === item.id}
-            onPress={() => handlePress(item.id)}
+            onPress={() => onSelectAction?.(item.id)}
           />
         ))}
       </View>
