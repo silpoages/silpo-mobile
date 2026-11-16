@@ -12,26 +12,54 @@ type DiaryEntryCardProps = {
   onDelete?: (entry: DiaryEntry) => void;
 };
 
-// No web, o <img> não envia o header Authorization (o react-native-web ignora
-// `source.headers`), então a foto é baixada com o token e exibida via blob: URL.
-function useWebAuthorizedImageUri(uri: string | null, token: string | null): string | null {
-  // Guarda de qual uri/token o blob veio, para não exibir uma foto antiga ao trocar de entrada.
-  const [loaded, setLoaded] = useState<{ key: string; blobUri: string } | null>(null);
+// Monta a data: URI em pedaços: `String.fromCharCode(...bytes)` de uma vez estoura a pilha
+// em fotos maiores.
+function toDataUri(buffer: ArrayBuffer, contentType: string): string {
+  const bytes = new Uint8Array(buffer);
+  const chunkSize = 0x8000;
+  let binary = '';
+  for (let start = 0; start < bytes.length; start += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(start, start + chunkSize));
+  }
+  return `data:${contentType};base64,${btoa(binary)}`;
+}
+
+// A rota da foto exige o token, mas o <Image> não o envia: no web o react-native-web ignora
+// `source.headers`, e no Android (RN 0.86) a requisição chega à API sem o Authorization (401).
+// Então a foto é baixada com fetch, que envia o token e segue o redirect da API para a URL
+// assinada do S3, e exibida via blob: URL (web) ou data: URI (Android/iOS).
+function useAuthorizedImageUri(uri: string | null, token: string | null): string | null {
+  // Guarda de qual uri/token a imagem veio, para não exibir uma foto antiga ao trocar de entrada.
+  const [loaded, setLoaded] = useState<{ key: string; imageUri: string } | null>(null);
   const key = `${uri}|${token}`;
 
   useEffect(() => {
-    if (Platform.OS !== 'web' || uri === null || !uri.startsWith('http') || !token) return;
+    if (uri === null || !uri.startsWith('http') || !token) return;
 
     let objectUrl: string | null = null;
     let cancelled = false;
-    fetch(uri, { headers: { Authorization: `Bearer ${token}` } })
-      .then((response) => (response.ok ? response.blob() : null))
-      .then((blob) => {
-        if (cancelled || blob === null) return;
+
+    async function load(imageUri: string, authToken: string) {
+      const response = await fetch(imageUri, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      if (!response.ok || cancelled) return;
+
+      if (Platform.OS === 'web') {
+        const blob = await response.blob();
+        if (cancelled) return;
         objectUrl = URL.createObjectURL(blob);
-        setLoaded({ key: `${uri}|${token}`, blobUri: objectUrl });
-      })
-      .catch(() => {});
+        setLoaded({ key: `${imageUri}|${authToken}`, imageUri: objectUrl });
+        return;
+      }
+
+      const contentType = response.headers.get('content-type') ?? 'image/jpeg';
+      const buffer = await response.arrayBuffer();
+      if (cancelled) return;
+      setLoaded({ key: `${imageUri}|${authToken}`, imageUri: toDataUri(buffer, contentType) });
+    }
+
+    load(uri, token).catch(() => {});
 
     return () => {
       cancelled = true;
@@ -39,26 +67,21 @@ function useWebAuthorizedImageUri(uri: string | null, token: string | null): str
     };
   }, [uri, token]);
 
-  return loaded?.key === key ? loaded.blobUri : null;
+  return loaded?.key === key ? loaded.imageUri : null;
 }
 
 export function DiaryEntryCard({ entry, onDelete }: DiaryEntryCardProps) {
   const session = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const webPhotoUri = useWebAuthorizedImageUri(entry.photoUri, session.token);
+  const authorizedPhotoUri = useAuthorizedImageUri(entry.photoUri, session.token);
   const photoSource =
     entry.photoUri === null
       ? null
       : !entry.photoUri.startsWith('http')
         ? { uri: entry.photoUri }
-        : Platform.OS === 'web'
-          ? webPhotoUri === null
-            ? null
-            : { uri: webPhotoUri }
-          : {
-              uri: entry.photoUri,
-              headers: session.token ? { Authorization: `Bearer ${session.token}` } : undefined,
-            };
+        : authorizedPhotoUri === null
+          ? null
+          : { uri: authorizedPhotoUri };
 
   const emotion = EMOTIONS.find((item) => item.id === entry.mood);
 
