@@ -5,6 +5,8 @@ import { Linking, StyleSheet, Text, View } from 'react-native';
 import Button from '@/components/Button';
 import { CloseButton } from '@/components/CloseButton';
 import { HeartIcon } from '@/components/icons';
+import { ProfileAvatar } from '@/components/ProfileAvatar';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { ScreenContainer } from '@/components/ScreenContainer';
 import { ContactCard } from '@/components/supportScreen/ContactCard';
 import { WELCOME_ROUTE } from '@/features/auth/session/routeAccess';
@@ -23,6 +25,7 @@ const CVV_PHONE_NUMBER = '188';
 export function SupportScreen() {
   const router = useRouter();
   const session = useSession();
+  const userName = session.user?.fullName?.trim() || session.user?.email || '';
 
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
   const [isLoadingContacts, setIsLoadingContacts] = useState(false);
@@ -88,10 +91,16 @@ export function SupportScreen() {
 
   return (
     <ScreenContainer contentStyle={styles.content}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Apoio</Text>
-        {session.isAuthenticated ? null : <CloseButton onPress={handleClose} />}
-      </View>
+      <ScreenHeader
+        title="Apoio"
+        right={
+          session.isAuthenticated ? (
+            <ProfileAvatar userName={userName} onPress={() => router.push('/perfil')} />
+          ) : (
+            <CloseButton onPress={handleClose} />
+          )
+        }
+      />
 
       <View style={styles.intro}>
         <View style={styles.introIcon}>
@@ -160,20 +169,12 @@ export function SupportScreen() {
 }
 
 const styles = StyleSheet.create({
+  /** Mesma largura e margens das outras abas, para o cabeçalho não mudar de lugar. */
   content: {
+    maxWidth: '100%',
     gap: spacing.lg,
-    paddingTop: spacing.md,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    minHeight: layout.backButtonSize,
-  },
-  headerTitle: {
-    fontFamily: fontFamily.extraBold,
-    fontSize: fontSize.display,
-    color: colors.text,
+    paddingHorizontal: layout.tabScreenPaddingHorizontal,
+    paddingTop: layout.tabScreenPaddingTop,
   },
   intro: {
     alignItems: 'center',

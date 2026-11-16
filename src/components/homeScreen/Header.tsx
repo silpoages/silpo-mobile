@@ -38,7 +38,9 @@ const styles = StyleSheet.create({
     width: '100%',
     minHeight: 55,
     flexDirection: 'row',
-    alignItems: 'center',
+    // Avatar no topo (não centralizado na saudação, que pode quebrar em várias linhas),
+    // na mesma altura das outras abas.
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
   },
   textContainer: {

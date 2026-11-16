@@ -1,9 +1,10 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { colors } from '@/theme/colors';
+import { layout } from '@/theme/layout';
 import { Header } from '@/components/homeScreen/Header';
 import { EmotionsRow } from '@/components/emotions/EmotionsRow';
 import { DailyPractice } from '@/components/homeScreen/DailyPractice';
@@ -15,17 +16,31 @@ import {
   type DailyGoodPractice,
 } from '@/features/goodPracticesScreen/goodPracticesService';
 import { useJourney } from '@/features/journeyScreen/useJourney';
+import { getTodayDailyMessage } from '@/features/homeScreen/dailyMessageService';
 
-/** Quick actions com uma tela própria já implementada — as demais ainda não têm destino. */
-const ACTION_ROUTES: Record<string, '/respiracao'> = {
+const FALLBACK_SUBTITLE = 'Seus sentimentos importam';
+
+/** Rotas disponíveis para os exercícios rápidos da tela inicial. */
+const ACTION_ROUTES: Record<string, '/respiracao' | '/meditations' | '/bolinhas'> = {
   respire: '/respiracao',
+  medite: '/meditations',
+  momento: '/bolinhas',
 };
+
+function todayKey() {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${now.getFullYear()}-${month}-${day}`;
+}
 
 export function HomeScreen() {
   const router = useRouter();
   const session = useSession();
   const { journey, refresh: refreshJourney } = useJourney();
   const [dailyPractice, setDailyPractice] = useState<DailyGoodPractice | null>(null);
+  const [subtitle, setSubtitle] = useState(FALLBACK_SUBTITLE);
+  const dailyMessageCache = useRef<{ day: string; message: string } | null>(null);
   const [practiceState, setPracticeState] = useState<'loading' | 'error' | 'empty' | 'success'>(
     'loading',
   );
@@ -37,7 +52,24 @@ export function HomeScreen() {
       if (!session.token) {
         setDailyPractice(null);
         setPracticeState('empty');
+        setSubtitle(FALLBACK_SUBTITLE);
         return;
+      }
+
+      const day = todayKey();
+      if (dailyMessageCache.current?.day === day) {
+        setSubtitle(dailyMessageCache.current.message);
+      } else {
+        getTodayDailyMessage(session.token)
+          .then((message) => {
+            if (!active || !message) return;
+            dailyMessageCache.current = { day, message };
+            setSubtitle(message);
+          })
+          .catch(() => {
+            if (!active) return;
+            setSubtitle(FALLBACK_SUBTITLE);
+          });
       }
 
       setDailyPractice(null);
@@ -90,7 +122,7 @@ export function HomeScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Header
           onPressAvatar={() => router.push('/perfil')}
-          subtitle="Seus sentimentos importam"
+          subtitle={subtitle}
           userName={userName}
         />
         <EmotionsRow onMoodRegistered={refreshJourney} />
@@ -131,9 +163,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   scrollContent: {
-    paddingTop: 22,
+    paddingTop: layout.tabScreenPaddingTop,
     gap: 16,
-    paddingHorizontal: 20,
+    paddingHorizontal: layout.tabScreenPaddingHorizontal,
     paddingBottom: 16,
   },
 });

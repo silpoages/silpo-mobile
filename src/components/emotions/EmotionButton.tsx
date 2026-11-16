@@ -25,7 +25,9 @@ export function EmotionButton({ label, emoji, onPress, isSelected, disabled }: E
       onPress={onPress}
     >
       {emoji}
-      <Text style={[styles.label, isSelected ? styles.selectedLabel : undefined]}>{label}</Text>
+      <Text numberOfLines={1} style={[styles.label, isSelected ? styles.selectedLabel : undefined]}>
+        {label}
+      </Text>
     </Pressable>
   );
 }
@@ -35,13 +37,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
     backgroundColor: colors.surface,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: colors.border,
-    minWidth: 80,
-    maxWidth: 80,
+    // Largura mínima igual para os curtos ("Bem", "Feliz"); os longos crescem com o texto
+    // (e com a fonte do sistema) em vez de quebrar no meio da palavra. A linha rola na horizontal.
+    minWidth: 84,
   },
   pressed: {
     backgroundColor: colors.surfaceMuted,

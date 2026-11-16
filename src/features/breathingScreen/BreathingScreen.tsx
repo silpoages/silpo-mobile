@@ -21,7 +21,11 @@ import { PauseButton } from '@/components/breathingScreen/PauseButton';
 import { PracticeModalButton } from '@/components/breathingScreen/PracticeModalButton';
 import { ApiError } from '@/services/apiClient';
 import { colors, fontFamily, fontSize } from '@/theme';
-import { createActivitySession, getBreathingActivity } from './activityService';
+import {
+  createActivitySession,
+  DEFAULT_BREATHING_ACTIVITY,
+  getBreathingActivity,
+} from './activityService';
 
 const PHASE_GUIDE = [
   { title: 'Inspire', description: 'Puxe o ar devagar pelo nariz.' },
@@ -41,7 +45,7 @@ export function BreathingScreen() {
   const router = useRouter();
   const session = useSession();
   const { checkForNewAchievements } = useAchievementAlerts();
-  const [activity, setActivity] = useState<BreathingActivity | null>(null);
+  const [loadedActivity, setActivity] = useState<BreathingActivity | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [authRequired, setAuthRequired] = useState(false);
@@ -54,6 +58,10 @@ export function BreathingScreen() {
   const isRecordingRef = useRef(false);
   const ballScale = useRef(new Animated.Value(MINIMUM_BALL_SCALE)).current;
   const modalTranslateY = useRef(new Animated.Value(320)).current;
+
+  // Sem login a API de atividades não responde: a prática usa a configuração padrão local.
+  const isGuest = !session.isLoading && !session.token;
+  const activity = isGuest ? DEFAULT_BREATHING_ACTIVITY : loadedActivity;
 
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -135,15 +143,16 @@ export function BreathingScreen() {
   }
 
   const recordSession = useCallback(async () => {
-    if (isRecordingRef.current || !activity || !session.token) {
+    if (isRecordingRef.current || !activity || activity.id === null || !session.token) {
       return;
     }
+    const activityId = activity.id;
 
     isRecordingRef.current = true;
     setRecordStatus('saving');
 
     try {
-      await createActivitySession(session.token, activity.id, activeTimeLimit);
+      await createActivitySession(session.token, activityId, activeTimeLimit);
       setRecordStatus('saved');
       checkForNewAchievements();
     } catch (error) {
@@ -268,9 +277,7 @@ export function BreathingScreen() {
         <CloseButton onPress={handleClose} />
         <Text style={styles.stateTitle}>Não foi possível abrir a respiração</Text>
         <Text style={styles.stateMessage}>
-          {requiresAuthentication
-            ? 'Entre na sua conta para acessar a respiração guiada.'
-            : loadError}
+          {requiresAuthentication ? SESSION_EXPIRED_MESSAGE : loadError}
         </Text>
         <Pressable
           style={styles.stateAction}
@@ -316,6 +323,11 @@ export function BreathingScreen() {
           <Text style={styles.subtitle}>
             {timer}s · {cycles}/{activity.repeatCount} ciclos completos
           </Text>
+          {practiceCompleted && isGuest ? (
+            <Text style={styles.recordMessage}>
+              Entre na sua conta para guardar suas práticas na jornada.
+            </Text>
+          ) : null}
           {practiceCompleted && recordStatus === 'saving' ? (
             <Text style={styles.recordMessage}>Registrando sua prática...</Text>
           ) : null}

@@ -40,8 +40,7 @@ export function EmotionsRow({ onMoodRegistered }: EmotionsRowProps) {
       const log = await getTodayMoodLog(session.token);
       setTodayMood(log?.mood ?? null);
     } catch {
-      // Falha na checagem inicial não deve travar a UI — o back segue sendo a
-      // fonte da verdade e rejeita um segundo registro no mesmo dia (409).
+      // Falha na consulta não trava a linha: o usuário ainda pode registrar.
     } finally {
       setIsCheckingToday(false);
     }
@@ -51,10 +50,10 @@ export function EmotionsRow({ onMoodRegistered }: EmotionsRowProps) {
     loadTodayMood();
   }, [loadTodayMood]);
 
-  const isLocked = todayMood !== null || isCheckingToday;
+  const isBusy = isCheckingToday || isSubmitting;
 
   function handlePress(emotionId: MoodId) {
-    if (isLocked) {
+    if (isBusy) {
       return;
     }
 
@@ -88,10 +87,8 @@ export function EmotionsRow({ onMoodRegistered }: EmotionsRowProps) {
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {
         await loadTodayMood();
-        setPendingMood(null);
-      } else {
-        setErrorMessage(GENERIC_ERROR_MESSAGE);
       }
+      setErrorMessage(GENERIC_ERROR_MESSAGE);
     } finally {
       setIsSubmitting(false);
     }
@@ -116,7 +113,7 @@ export function EmotionsRow({ onMoodRegistered }: EmotionsRowProps) {
             }
             label={item.label}
             isSelected={todayMood === item.id}
-            disabled={isLocked}
+            disabled={isBusy}
             onPress={() => handlePress(item.id)}
           />
         ))}

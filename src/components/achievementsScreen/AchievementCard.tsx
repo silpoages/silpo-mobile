@@ -2,19 +2,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 import { toAchievementIcon } from '@/components/achievements/achievementIcon';
 import type { Achievement } from '@/features/achievements/achievementsService';
+import { formatUnlockedDate } from '@/features/achievements/formatUnlockedDate';
 import { colors, fontFamily, fontSize, spacing } from '@/theme';
 
 type AchievementCardProps = {
   achievement: Achievement;
 };
-
-/** Data do desbloqueio no fuso do aparelho, como dd/mm/aaaa. */
-function formatUnlockedDate(isoDateTime: string): string {
-  const date = new Date(isoDateTime);
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  return `${day}/${month}/${date.getFullYear()}`;
-}
 
 export function AchievementCard({ achievement }: AchievementCardProps) {
   const { unlockedAt, progress } = achievement;

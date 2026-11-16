@@ -1,7 +1,8 @@
 import { apiRequest } from '@/services/apiClient';
 
 export type BreathingActivity = {
-  id: string;
+  /** `null` na configuração padrão local, que não existe na API e por isso não é registrada. */
+  id: string | null;
   name: string;
   type: 'breathing';
   maxDurationSeconds: number | null;
@@ -20,6 +21,21 @@ type BreathingActivityResponse = {
   hold_seconds: number;
   exhale_seconds: number;
   repeat_count: number | null;
+};
+
+/**
+ * Respiração 4-7-8 com os mesmos parâmetros do seed do backend. Usada por quem abre a
+ * respiração sem login (a partir do Apoio), já que `GET /activities` exige autenticação.
+ */
+export const DEFAULT_BREATHING_ACTIVITY: BreathingActivity = {
+  id: null,
+  name: 'Respiração 4-7-8',
+  type: 'breathing',
+  maxDurationSeconds: 120,
+  inhaleSeconds: 4,
+  holdSeconds: 7,
+  exhaleSeconds: 8,
+  repeatCount: 4,
 };
 
 const INVALID_RESPONSE_MESSAGE = 'A API retornou parâmetros de respiração inválidos.';

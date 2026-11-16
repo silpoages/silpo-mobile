@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { cancelDailyReminder } from '@/features/notifications/dailyReminder';
 import {
   createContext,
   useCallback,
@@ -71,6 +72,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     await Promise.all([
       AsyncStorage.removeItem(TOKEN_STORAGE_KEY),
       AsyncStorage.removeItem(USER_STORAGE_KEY),
+      // Sem sessão, ninguém deve receber o lembrete da conta que saiu.
+      cancelDailyReminder(),
     ]);
     setToken(null);
     setUser(null);
