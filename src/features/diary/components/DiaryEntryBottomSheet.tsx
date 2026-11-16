@@ -22,6 +22,8 @@ import { EmotionButton } from '@/components/emotions/EmotionButton';
 import { EMOTIONS } from '@/components/emotions/emotionConfig';
 import type { MoodId } from '@/components/emotions/moodLogService';
 import { formatDiaryDate } from '@/features/diary/diaryDate';
+import { prepareDiaryPhoto } from '@/features/diary/prepareDiaryPhoto';
+import { DiaryPhotoUploadError } from '@/features/diaryScreen/diaryService';
 import { toISODate } from '@/features/onboarding/date';
 import { colors, fontFamily, fontSize, layout, radii, spacing } from '@/theme';
 
@@ -120,7 +122,7 @@ export function DiaryEntryBottomSheet({
       });
 
       if (!result.canceled) {
-        setPhotoUri(result.assets[0].uri);
+        setPhotoUri(await prepareDiaryPhoto(result.assets[0]));
       }
     } catch {
       setErrorMessage(PHOTO_ERROR_MESSAGE);
@@ -143,8 +145,13 @@ export function DiaryEntryBottomSheet({
         photoUri,
       });
       onClose();
-    } catch {
-      setErrorMessage(SAVE_ERROR_MESSAGE);
+    } catch (error) {
+      setErrorMessage(
+        // Foto grande demais ou formato não aceito: trocar de foto resolve, então vale dizer.
+        error instanceof DiaryPhotoUploadError && (error.status === 413 || error.status === 415)
+          ? `${error.message} Seu relato continua aqui.`
+          : SAVE_ERROR_MESSAGE,
+      );
     } finally {
       setIsSaving(false);
     }

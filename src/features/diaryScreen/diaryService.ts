@@ -1,3 +1,4 @@
+import { File } from 'expo-file-system';
 import { Platform } from 'react-native';
 import type { MoodId } from '@/components/emotions/moodLogService';
 import { API_BASE_URL, apiRequest } from '@/services/apiClient';
@@ -102,19 +103,32 @@ export async function listMoodLogs(token: string, date: string) {
   return response.items;
 }
 
+/** Falha no envio da foto, com uma mensagem que pode ir direto para a tela. */
+export class DiaryPhotoUploadError extends Error {
+  constructor(readonly status: number) {
+    super(
+      status === 413
+        ? 'A foto é grande demais. Escolha outra foto.'
+        : status === 415
+          ? 'Esse formato de foto não é aceito. Use JPG ou PNG.'
+          : 'Não foi possível enviar a foto.',
+    );
+    this.name = 'DiaryPhotoUploadError';
+  }
+}
+
 export async function uploadDiaryImage(token: string, photoUri: string): Promise<string> {
+  // O objeto { uri, name, type } do React Native não serve em nenhuma plataforma: no web o
+  // FormData o transforma na string "[object Object]", e no Android/iOS o fetch global do
+  // Expo 57 é o `expo/fetch`, que também não o entende. O backend recebe texto em vez de
+  // arquivo e responde 422.
   const body = new FormData();
   if (Platform.OS === 'web') {
-    // No web, o FormData não entende o objeto { uri, name, type } do React Native
-    // (vira a string "[object Object]"); é preciso enviar um Blob de verdade.
     const blob = await (await fetch(photoUri)).blob();
     body.append('file', blob, 'diario.jpg');
   } else {
-    body.append('file', {
-      uri: photoUri,
-      name: 'diario.jpg',
-      type: 'image/jpeg',
-    } as unknown as Blob);
+    // `File` do expo-file-system é o formato de arquivo que o `expo/fetch` sabe enviar.
+    body.append('file', new File(photoUri));
   }
 
   const response = await fetch(`${API_BASE_URL}/diary-entries/images`, {
@@ -124,7 +138,7 @@ export async function uploadDiaryImage(token: string, photoUri: string): Promise
   });
 
   if (!response.ok) {
-    throw new Error('Não foi possível enviar a foto.');
+    throw new DiaryPhotoUploadError(response.status);
   }
 
   const payload = (await response.json()) as { image_url: string };
