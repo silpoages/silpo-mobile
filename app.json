@@ -14,7 +14,8 @@
       "config": {
         "usesNonExemptEncryption": false
       },
-      "appleTeamId": "982JJP92PQ"
+      "appleTeamId": "982JJP92PQ",
+      "icon": "./assets/silpo.icon"
     },
     "android": {
       "package": "br.com.silpo.app",
