@@ -14,7 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAchievementAlerts } from '@/features/achievements/AchievementAlertContext';
 import { useSession } from '@/features/auth/session/SessionContext';
 
-import { CloseButton } from '@/components/CloseButton';
+import { BackButton } from '@/components/BackButton';
 import { BreathBall } from '@/components/breathingScreen/BreathBall';
 import { EndPracticeButton } from '@/components/breathingScreen/EndPracticeButton';
 import { PauseButton } from '@/components/breathingScreen/PauseButton';
@@ -258,7 +258,7 @@ export function BreathingScreen() {
           { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 },
         ]}
       >
-        <CloseButton onPress={handleClose} />
+        <BackButton onPress={handleClose} />
         <ActivityIndicator color={colors.primary} size="large" />
         <Text style={styles.stateMessage}>Carregando exercício...</Text>
       </View>
@@ -274,7 +274,7 @@ export function BreathingScreen() {
           { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 },
         ]}
       >
-        <CloseButton onPress={handleClose} />
+        <BackButton onPress={handleClose} />
         <Text style={styles.stateTitle}>Não foi possível abrir a respiração</Text>
         <Text style={styles.stateMessage}>
           {requiresAuthentication ? SESSION_EXPIRED_MESSAGE : loadError}
@@ -303,7 +303,7 @@ export function BreathingScreen() {
       style={[styles.container, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 }]}
     >
       <View style={styles.header}>
-        <CloseButton onPress={handleClose} />
+        <BackButton onPress={handleClose} />
       </View>
 
       <View style={styles.content}>
