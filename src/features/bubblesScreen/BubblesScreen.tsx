@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BackButton } from '@/components/BackButton';
 
 import { colors, fontFamily, fontSize, spacing } from '@/theme';
 import { useBubblePopSound } from './useBubblePopSound';
@@ -89,12 +90,18 @@ export function BubblesScreen() {
     });
   }
 
+  function handleBack() {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.navigate('/');
+    }
+  }
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       <View style={styles.header}>
-        <Pressable accessibilityRole="button" onPress={() => router.back()} hitSlop={spacing.md}>
-          <Text style={styles.exit}>Sair</Text>
-        </Pressable>
+        <BackButton onPress={handleBack} />
         <Text style={styles.title}>Estoure as bolinhas</Text>
       </View>
 
@@ -165,11 +172,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.lg,
     paddingVertical: spacing.lg,
-  },
-  exit: {
-    fontFamily: fontFamily.semiBold,
-    fontSize: fontSize.body,
-    color: colors.primary,
   },
   title: {
     flex: 1,
