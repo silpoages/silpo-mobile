@@ -42,15 +42,17 @@ Escaneie o QR code com o Expo Go (Android) ou câmera (iOS).
 
 ## Scripts disponíveis
 
-| Comando                | O que faz                                    |
-| ---------------------- | -------------------------------------------- |
-| `npm run dev`          | sobe o servidor de desenvolvimento (Expo)    |
-| `npm run android`      | abre no emulador/dispositivo Android         |
-| `npm run ios`          | abre no simulador iOS (requer macOS)         |
-| `npm run web`          | abre versão web (dev)                        |
-| `npm run lint`         | roda o linter (oxlint)                       |
-| `npm run format`       | formata todo o código com Prettier           |
-| `npm run format:check` | só verifica formatação, sem alterar arquivos |
+| Comando                 | O que faz                                                        |
+| ----------------------- | ---------------------------------------------------------------- |
+| `npm run dev`           | sobe o servidor de desenvolvimento (Expo)                        |
+| `npm run android`       | abre no emulador/dispositivo Android                             |
+| `npm run ios`           | abre no simulador iOS (requer macOS)                             |
+| `npm run web`           | abre versão web (dev)                                            |
+| `npm run lint`          | roda o linter (oxlint)                                           |
+| `npm run format`        | formata todo o código com Prettier                               |
+| `npm run format:check`  | só verifica formatação, sem alterar arquivos                     |
+| `npm test`              | roda os testes (Jest + Testing Library)                          |
+| `npm run test:coverage` | roda os testes com relatório de cobertura (mínimo 90% de linhas) |
 
 ## Estrutura
 
@@ -108,6 +110,18 @@ export default function DiaryRoute() {
 
 Isso mantém `app/` só com roteamento e `src/features/`
 com a tela em si — testável e reutilizável sem depender do router.
+
+## Testes
+
+Os testes usam [Jest](https://jestjs.io/) com o preset `jest-expo` e
+[React Native Testing Library](https://callstack.github.io/react-native-testing-library/).
+
+- Cada teste fica ao lado do arquivo testado, com sufixo `.test.ts` / `.test.tsx`.
+- `test/setup.tsx` registra os mocks globais (`expo-router`, AsyncStorage, safe-area, gesture-handler).
+- `test/mocks/expoRouter.tsx` expõe `mockRouter`, `setMockPathname` e `setMockSearchParams` para
+  conferir navegação (`import { mockRouter } from '@test/mocks/expoRouter'`).
+- Na RNTL 14, `render`, `fireEvent` e `act` são assíncronos: sempre use `await`.
+- Arquivos `.web.ts(x)` não são resolvidos automaticamente (o preset roda como iOS); importe-os pelo caminho explícito.
 
 ## Fluxo de branches
 
